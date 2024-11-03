@@ -43,11 +43,9 @@ async def get_yandex_link(callback_query: CallbackQuery):
 async def validate_link(message: Message):
     """Проверка ссылки на валидность и возврат готовой ссылки."""
     
-    link = message.text  # Получаем текст сообщения
-    print(f"Первоначальная ссылка: {link}")
+    user_link = message.text
     
-    valid_link = process_url(link)  # Обработка ссылки
-    print(f"Готовая ссылка: {valid_link}")
+    valid_link = process_url(user_link)  # Обработка ссылки
     
     await message.answer("Ваша ссылка готова.\nНачинаю анализ отзывов за весь период.")
     
@@ -55,7 +53,7 @@ async def validate_link(message: Message):
     
     await message.answer("Анализирую.")
     
-    total_count = ya_prim_coll(url=valid_link)
+    total_count = ya_prim_coll(org_url=user_link, reviews_url=valid_link)
     
     await message.answer("Анализ завершён.\n"
                          f"Проанализировано отзывов: {total_count}. Подготавливаю файл к отправке.")

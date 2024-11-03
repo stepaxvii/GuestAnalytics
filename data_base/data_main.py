@@ -30,6 +30,7 @@ class Company(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(255), nullable=False)
     country = Column(String(255), nullable=True)
+    manager_name = Column(String(255), nullable=False)
     manager_contact = Column(Integer, nullable=True)
     email = Column(String(255), nullable=False)
 

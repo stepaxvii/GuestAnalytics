@@ -11,7 +11,8 @@ from os import getenv
 from dotenv import load_dotenv
 import locale
 
-from utils.urls import process_url, formatted_date
+from utils.urls import process_url
+from utils.date import formatted_date
 
 locale.setlocale(locale.LC_TIME, 'Russian_Russia.1251')
 load_dotenv()
@@ -20,7 +21,7 @@ DRIVER_PATH = getenv('DRIVER_PATH', default='')
 validated_url = 'https://yandex.ru/maps/org/sorrento/134452148915/reviews/'
 
 
-def ya_prim_coll(url):
+def ya_prim_coll(org_url, reviews_url):
     options = FirefoxOptions()
     options.add_argument('--headless')
     service = Service(DRIVER_PATH)
@@ -32,7 +33,22 @@ def ya_prim_coll(url):
     print(actual_date)
 
     # Переходим на страницу с отзывами и ждём полной загрузки
-    driver.get(url)
+    driver.get(org_url)
+    sleep(5)
+
+    # Получаем название организации
+    org_name_element = driver.find_element(By.CSS_SELECTOR, 'h1.orgpage-header-view__header')
+    org_name = org_name_element.text.strip()
+    
+    # Получаем полный адрес
+    address_element = driver.find_element(By.CLASS_NAME, 'orgpage-header-view__address')
+    full_address = address_element.text.strip()
+
+    print(f"Название организации: {org_name}")
+    print(f"Полный адрес: {full_address}")
+
+    # Переходим на страницу с отзывами и ждём полной загрузки
+    driver.get(reviews_url)
     sleep(5)
 
 
