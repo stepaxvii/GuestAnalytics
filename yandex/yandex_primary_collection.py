@@ -39,7 +39,7 @@ def ya_prim_coll(org_url, reviews_url):
     # Получаем название организации
     org_name_element = driver.find_element(By.CSS_SELECTOR, 'h1.orgpage-header-view__header')
     org_name = org_name_element.text.strip()
-    
+
     # Получаем полный адрес
     address_element = driver.find_element(By.CLASS_NAME, 'orgpage-header-view__address')
     full_address = address_element.text.strip()
@@ -51,9 +51,8 @@ def ya_prim_coll(org_url, reviews_url):
     driver.get(reviews_url)
     sleep(5)
 
-
     total_count_element = WebDriverWait(driver, 5).until(
-    EC.visibility_of_element_located((By.CLASS_NAME, 'card-section-header__title'))
+        EC.visibility_of_element_located((By.CLASS_NAME, 'card-section-header__title'))
     )
     total_count_text = total_count_element.text
     total_count = int(total_count_text.split()[0])
@@ -94,7 +93,7 @@ def ya_prim_coll(org_url, reviews_url):
                 # Прокрутка страницы вниз для получения следующего отзыва (35000 пикселей)
                 actions.scroll_by_amount(0, 2000).perform()
                 sleep(0.5)
-                
+
         # Сортировка отзывов по дате в порядке убывания
         sorted_reviews = sorted(unique_reviews, key=lambda x: datetime.strptime(x[0], '%Y-%m-%d'), reverse=True)
 

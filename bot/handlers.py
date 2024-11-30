@@ -1,7 +1,7 @@
 import asyncio
 from aiogram import Router
 from aiogram.filters import CommandStart
-from aiogram.fsm.context import FSMContext
+#from aiogram.fsm.context import FSMContext
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -9,16 +9,17 @@ from aiogram.types import (
     FSInputFile,
     Message
 )
-from bot.bot_main import LinkFMS
+#from bot.bot_main import LinkFMS
 from utils.urls import process_url
 from yandex.yandex_primary_collection import ya_prim_coll
 
 router = Router()
 
+
 @router.message(CommandStart())
 async def command_start_handler(message: Message):
     """Обработчик стартовой команды и выбор действий."""
-    
+
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(
