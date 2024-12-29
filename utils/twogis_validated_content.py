@@ -60,8 +60,13 @@ def twogis_valid_content(url):
     finally:
         driver.quit()
 
-    return (review_block, author_class,
-            review_text_class, rating_class, date_class)
+    return (
+        review_block,
+        author_class,
+        review_text_class,
+        rating_class,
+        date_class
+    )
 
 
 # print(twogis_valid_content(validated_url))

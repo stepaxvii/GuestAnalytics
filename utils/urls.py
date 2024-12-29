@@ -16,3 +16,25 @@ def process_url(original_url):
         return original_url + "reviews"
 
     return None
+
+
+def process_url_yandex(original_url):
+    """Функция форматирования валидного адреса для Яндекса."""
+
+    question_mark_index = original_url.find('?')
+
+    if question_mark_index != -1:
+        return original_url[:question_mark_index] + 'reviews'
+
+    return original_url + 'reviews'
+
+
+def process_url_twogis(original_url):
+    """Функция форматирования валидного адреса для 2ГИС."""
+
+    question_mark_index = original_url.find("?")
+
+    if question_mark_index != -1:
+        return original_url[:question_mark_index] + "/tab/reviews"
+
+    return original_url + "/tab/reviews"

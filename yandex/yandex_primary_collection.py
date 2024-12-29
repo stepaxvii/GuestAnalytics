@@ -51,7 +51,7 @@ def ya_prim_coll(org_url, reviews_url):
 
     total_count_element = WebDriverWait(driver, 5).until(
         EC.visibility_of_element_located(
-            By.CLASS_NAME, 'card-section-header__title'
+            (By.CLASS_NAME, 'card-section-header__title')
         )
     )
     total_count_text = total_count_element.text

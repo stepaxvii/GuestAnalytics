@@ -26,7 +26,7 @@ validated_url = 'https://2gis.ru/sochi/firm/70000001067211531/tab/reviews'
 
 def twogis_prim_coll(url):
     options = FirefoxOptions()
-    #options.add_argument('--headless')
+    options.add_argument('--headless')
     service = Service(DRIVER_PATH)
     driver = Firefox(service=service, options=options)
     actions = ActionChains(driver)
