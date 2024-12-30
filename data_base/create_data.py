@@ -1,5 +1,6 @@
 from data_base.data_main import session, Restaurant, YandexReview
 from datetime import datetime
+from sqlalchemy.exc import IntegrityError
 
 
 def create_restaurant(data):
@@ -8,13 +9,17 @@ def create_restaurant(data):
     # Извлекаем данные из собранной о ресторане информации
     title, yandex_link, address = data
 
-    restaurant = Restaurant(
-        title=title,
-        yandex_link=yandex_link,
-        address=address
-    )
-    session.add(restaurant)
-    session.commit()
+    try:
+        restaurant = Restaurant(
+            title=title,
+            yandex_link=yandex_link,
+            address=address
+        )
+        session.add(restaurant)
+        session.commit()
+    except IntegrityError as e:
+        session.rollback()
+        print(f'Ошибка уникальности: {e}')
     session.close()
 
 

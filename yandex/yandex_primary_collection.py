@@ -46,7 +46,9 @@ def ya_prim_coll(original_url):
 
     # Получаем название организации с обработкой ошибок
     try:
-        org_name_element = driver.find_element(By.CSS_SELECTOR, 'h1.orgpage-header-view__header')
+        org_name_element = driver.find_element(
+            By.CSS_SELECTOR, 'h1.orgpage-header-view__header'
+        )
         org_name = org_name_element.text.strip()
     except NoSuchElementException:
         org_name = None
@@ -54,7 +56,9 @@ def ya_prim_coll(original_url):
 
     # Получаем полный адрес с обработкой ошибок
     try:
-        address_element = driver.find_element(By.CLASS_NAME, 'orgpage-header-view__address')
+        address_element = driver.find_element(
+            By.CLASS_NAME, 'orgpage-header-view__address'
+        )
         full_address = address_element.text.strip()
     except NoSuchElementException:
         full_address = None
@@ -89,10 +93,9 @@ def ya_prim_coll(original_url):
     # Создаём текстовый документ для хранения и отправки отзывов юзеру
     doc_reviews = f"Отзывы {org_name}.txt"
     with open(doc_reviews, "w", encoding='utf-8') as file:
-        unsuccessful_attempts = 0
         unique_reviews = set()
 
-        while unsuccessful_attempts < 3 and len(unique_reviews) < total_count:
+        while len(unique_reviews) < total_count:
             # Получаем все отзывы на странице после прокрутки
             reviews = driver.find_elements(
                 By.CLASS_NAME, 'business-review-view'
@@ -148,7 +151,8 @@ def ya_prim_coll(original_url):
         )
 
         # Определяем id ресторана для связи с отзывами
-        restaurant_id = read_restaurant_data(org_url=org_url)[0]
+        restaurant_data = read_restaurant_data(org_url=org_url)
+        restaurant_id = restaurant_data['id']
 
         # Запись уникальных отзывов в файл после завершения сбора данных
         for review in sorted_reviews:

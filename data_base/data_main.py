@@ -43,8 +43,8 @@ class Restaurant(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=True)
     title = Column(String(255), nullable=False)
-    yandex_link = Column(String(255), nullable=False)
-    twogis_link = Column(String(255), nullable=True)
+    yandex_link = Column(String(255), nullable=False, unique=True)
+    twogis_link = Column(String(255), nullable=True, unique=True)
     address = Column(Text, nullable=False)
     subs = Column(Boolean, nullable=True)  # Времено пусто
     manager_name = Column(String(255), nullable=True)  # Времено пусто
