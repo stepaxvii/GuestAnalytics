@@ -25,7 +25,7 @@ session = Session()
 class Company(Base):
     """Модель компании."""
 
-    __talename__ = "companies"
+    __tablename__ = "companies"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(255), nullable=False)
@@ -43,12 +43,13 @@ class Restaurant(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=True)
     title = Column(String(255), nullable=False)
-    rest_link = Column(String(255), nullable=False)
+    yandex_link = Column(String(255), nullable=False)
+    twogis_link = Column(String(255), nullable=True)
     address = Column(Text, nullable=False)
-    subs = Column(Boolean, nullable=False)
-    manager_name = Column(String(255), nullable=False)
-    manager_contact = Column(Integer, nullable=True)
-    email = Column(String(255), nullable=False)
+    subs = Column(Boolean, nullable=True)  # Времено пусто
+    manager_name = Column(String(255), nullable=True)  # Времено пусто
+    manager_contact = Column(Integer, nullable=True)  # Времено пусто
+    email = Column(String(255), nullable=True)  # Времено пусто
 
     company = relationship("Company", back_populates="restaurants")
 
@@ -59,14 +60,18 @@ class YandexReview(Base):
     __tablename__ = "yandex_reviews"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    restaurant_id = Column(Integer, ForeignKey("restaurants.id"), nullable=False)
+    restaurant_id = Column(
+        Integer,
+        ForeignKey("restaurants.id"),
+        nullable=False
+    )
     created_at = Column(Date, nullable=False)
     author = Column(String(255), nullable=False)
     rating = Column(SmallInteger, nullable=False)
     content = Column(Text, nullable=False)
     semantic = Column(String(255), nullable=True)
 
-    restarant = relationship("Restaurant", back_populates="yandex_reviews")
+    restaurant = relationship("Restaurant", back_populates="yandex_reviews")
 
 
 class TwogisReview(Base):
@@ -75,14 +80,18 @@ class TwogisReview(Base):
     __tablename__ = "twogis_reviews"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    restaurant_id = Column(Integer, ForeignKey("restaurants.id"), nullable=False)
+    restaurant_id = Column(
+        Integer,
+        ForeignKey("restaurants.id"),
+        nullable=False
+    )
     created_at = Column(Date, nullable=False)
     author = Column(String(255), nullable=False)
     rating = Column(SmallInteger, nullable=False)
     content = Column(Text, nullable=False)
     semantic = Column(String(255), nullable=True)
 
-    restarant = relationship("Restaurant", back_populates="twogis_reviews")
+    restaurant = relationship("Restaurant", back_populates="twogis_reviews")
 
 
 # Обратные связи моделей.

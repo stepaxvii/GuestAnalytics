@@ -10,7 +10,6 @@ from aiogram.types import (
     Message
 )
 
-from utils.urls import process_url
 from yandex.yandex_primary_collection import ya_prim_coll
 
 router = Router()
@@ -37,20 +36,18 @@ async def command_start_handler(message: Message):
 async def get_yandex_link(callback_query: CallbackQuery):
     """Обрабатываем ссылку на Яндекс."""
     await callback_query.message.answer(
-        text='Отправь ссылку с Яндекс.Карт.\n'
+        text='Отправь ссылку на заведение с Яндекс.Карт.\n'
              'Формата "https://yandex.ru/maps/org..."'
     )
 
 
 @router.message(
-        lambda message: message.text.startswith('https://yandex.ru/maps/org/')
+        lambda message: message.text.startswith('https://yandex.ru/maps/')
 )
 async def validate_link(message: Message):
     """Проверка ссылки на валидность и возврат готовой ссылки."""
 
     user_link = message.text
-
-    valid_link = process_url(user_link)  # Обработка ссылки
 
     await message.answer(
         "Ваша ссылка готова.\nНачинаю анализ отзывов за весь период."
@@ -60,7 +57,7 @@ async def validate_link(message: Message):
 
     await message.answer("Анализирую.")
 
-    total_count = ya_prim_coll(org_url=user_link, reviews_url=valid_link)
+    total_count, doc_name = ya_prim_coll(original_url=user_link)
 
     await message.answer(
         "Анализ завершён.\n"
@@ -68,7 +65,7 @@ async def validate_link(message: Message):
         "Подготавливаю файл к отправке."
     )
 
-    file_path = 'D:/review_pars/ya_docs.txt'
+    file_path = f'D:/review_pars/{doc_name}'
 
     try:
         file = FSInputFile(file_path)
