@@ -2,6 +2,8 @@ from data_base.data_main import session, Restaurant, YandexReview
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 
+from constants import DATE_FORMAT
+
 
 def create_restaurant(data):
     """Создание ресторана."""
@@ -28,7 +30,7 @@ def create_review(data):
 
     # Извлекаем данные из уникального отзыва и приводим в необходимый формат
     restaurant_id, created_at_str, author, rating_str, content = data
-    created_at = datetime.strptime(created_at_str, '%Y-%m-%d').date()
+    created_at = datetime.strptime(created_at_str, DATE_FORMAT).date()
     rating = int(rating_str.split('.')[0])
 
     review = YandexReview(

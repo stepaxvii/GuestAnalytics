@@ -1,16 +1,17 @@
 import asyncio
 
-from aiogram import Router
+from aiogram import Bot, Router
 from aiogram.filters import CommandStart
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     CallbackQuery,
-    FSInputFile,
     Message
 )
 
+from constants import TG_CHANAL
 from yandex.yandex_primary_collection import ya_prim_coll
+from yandex.yandex_check_new_reviews import matching_reviews
 
 router = Router()
 
@@ -23,6 +24,9 @@ async def command_start_handler(message: Message):
         inline_keyboard=[
             [InlineKeyboardButton(
                 text='Яндекс', callback_data='yandex_link'
+            )],
+            [InlineKeyboardButton(
+                text='проверить новые отзывы', callback_data='check_new'
             )]
         ]
     )
@@ -39,6 +43,40 @@ async def get_yandex_link(callback_query: CallbackQuery):
         text='Отправьте ссылку на заведение с Яндекс.Карт.\n'
              'Формат: "https://yandex.ru/maps/org..."'
     )
+
+
+@router.callback_query(lambda c: c.data == 'check_new')
+async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
+    """Обрабатываем запрос проверки новых отзывов"""
+    await callback_query.message.answer(
+        text='Проверяю наличие новых отзывов для ресторана Lali'
+    )
+    await asyncio.sleep(1)
+
+    # Получаем новые отзывы
+    new_reviews = matching_reviews(
+        'https://yandex.ru/maps/org/lali/107765078887/'
+    )
+
+    # Проверяем, есть ли новые отзывы
+    if new_reviews:
+        for review in new_reviews:
+            # Форматируем сообщение для отправки
+            message = (
+                f"Новый отзыв для ресторана Lali:\n"
+                f"Дата: {review[0]}\n"
+                f"Автор: {review[1]}\n"
+                f"Рейтинг: {review[2]}\n"
+                f"Текст: {review[3]}\n"
+            )
+            # Отправляем сообщение в канал
+            await bot.send_message(TG_CHANAL, message)
+
+        await callback_query.message.answer(
+            "Новые отзывы успешно отправлены в канал!"
+        )
+    else:
+        await callback_query.message.answer("Новых отзывов нет.")
 
 
 @router.message(
@@ -59,7 +97,7 @@ async def validate_link(message: Message):
     await message.answer('Скоро вернусь)')
 
     # Вызываем функцию анализа отзывов
-    total_count, doc_name = ya_prim_coll(original_url=user_link)
+    total_count = ya_prim_coll(original_url=user_link)
 
     if not total_count:
         # Если функция вернула False, оповещаем пользователя
@@ -87,18 +125,4 @@ async def validate_link(message: Message):
     await message.answer(
         'Анализ завершён.\n'
         f'Проанализировано отзывов: {total_count}. '
-        'Подготавливаю файл к отправке.'
     )
-
-    file_path = f'D:/review_pars/{doc_name}'
-
-    try:
-        file = FSInputFile(file_path)
-        await message.answer_document(
-            document=file,
-            caption='Вот ваш файл с отзывами.'
-        )
-        print('Файл успешно отправлен.')
-    except Exception as e:
-        print(f'Ошибка при отправке файла: {e}')
-        await message.answer('Произошла ошибка при отправке файла.')

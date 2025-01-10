@@ -12,24 +12,34 @@ from selenium.common.exceptions import NoSuchElementException
 
 from data_base.create_data import create_restaurant, create_review
 from data_base.read_data import read_restaurant_data
+from constants import (
+    ORG_NAME_BLOCK,
+    ORG_ADDRESS_BLOCK,
+    AUTHOR_ELEMENT,
+    DATE_ELEMENT,
+    DATE_FORMAT,
+    COUNT_REVIEWS_BLOCK,
+    CARD_REVIEWS_BLOCK,
+    RATING_ELEMENT,
+    TEXT_ELEMENT
+)
 from utils.urls import process_url_yandex
 
 load_dotenv()
 
 DRIVER_PATH = getenv('DRIVER_PATH', default='')
-validated_url = 'https://yandex.ru/maps/org/sorrento/134452148915/reviews/'
 
 
 def ya_prim_coll(original_url):
+    """
+    Функция для первичного сбора отзывов ресторана
+    и заполнения БД данными о ресторане и отзывами.
+    """
     options = FirefoxOptions()
     options.add_argument('--headless')
     service = Service(DRIVER_PATH)
     driver = Firefox(service=service, options=options)
     actions = ActionChains(driver)
-
-    # Определяем текущую дату
-    actual_date = datetime.now().strftime("%Y-%m-%d")
-    print(actual_date)
 
     # Переходим на url юзера
     driver.get(original_url)
@@ -46,9 +56,7 @@ def ya_prim_coll(original_url):
 
     # Получаем название организации с обработкой ошибок
     try:
-        org_name_element = driver.find_element(
-            By.CSS_SELECTOR, 'h1.orgpage-header-view__header'
-        )
+        org_name_element = driver.find_element(By.CSS_SELECTOR, ORG_NAME_BLOCK)
         org_name = org_name_element.text.strip()
     except NoSuchElementException:
         org_name = None
@@ -56,9 +64,7 @@ def ya_prim_coll(original_url):
 
     # Получаем полный адрес с обработкой ошибок
     try:
-        address_element = driver.find_element(
-            By.CLASS_NAME, 'orgpage-header-view__address'
-        )
+        address_element = driver.find_element(By.CLASS_NAME, ORG_ADDRESS_BLOCK)
         full_address = address_element.text.strip()
     except NoSuchElementException:
         full_address = None
@@ -81,9 +87,7 @@ def ya_prim_coll(original_url):
 
     # Вычисляем общее количество отзывов
     total_count_element = WebDriverWait(driver, 5).until(
-        EC.visibility_of_element_located(
-            (By.CLASS_NAME, 'card-section-header__title')
-        )
+        EC.visibility_of_element_located((By.CLASS_NAME, COUNT_REVIEWS_BLOCK))
     )
     total_count_text = total_count_element.text
     total_count = int(total_count_text.split()[0])
@@ -91,63 +95,53 @@ def ya_prim_coll(original_url):
     sleep(2)
 
     # Создаём текстовый документ для хранения и отправки отзывов юзеру
-    doc_reviews = f"Отзывы {org_name}.txt"
-    with open(doc_reviews, "w", encoding='utf-8') as file:
-        unique_reviews = set()
+    unique_reviews = set()
 
-        while len(unique_reviews) < total_count:
-            # Получаем все отзывы на странице после прокрутки
-            reviews = driver.find_elements(
-                By.CLASS_NAME, 'business-review-view'
-            )
+    while len(unique_reviews) < total_count:
+        # Получаем все отзывы на странице
+        reviews = driver.find_elements(By.CLASS_NAME, CARD_REVIEWS_BLOCK)
 
-            # Сохраняем текущие отзывы из зоны видимости
-            for review in reviews:
+        # Сохраняем текущие отзывы из зоны видимости
+        for review in reviews:
+            try:
+                date_str = review.find_element(
+                    By.CSS_SELECTOR, DATE_ELEMENT
+                ).get_attribute('content')
+                review_date = datetime.strptime(
+                    date_str, "%Y-%m-%dT%H:%M:%S.%fZ"
+                ).strftime("%Y-%m-%d")
+                author_name = review.find_element(
+                    By.CSS_SELECTOR,
+                    AUTHOR_ELEMENT
+                ).text
                 try:
-                    date_str = review.find_element(
-                        By.CSS_SELECTOR, 'meta[itemprop="datePublished"]'
+                    # Попытка найти значение рейтинга
+                    rating_value = WebDriverWait(review, 10).until(
+                        EC.presence_of_element_located(
+                            (By.CSS_SELECTOR, RATING_ELEMENT)
+                        )
                     ).get_attribute('content')
-                    review_date = datetime.strptime(
-                        date_str, "%Y-%m-%dT%H:%M:%S.%fZ"
-                    ).strftime("%Y-%m-%d")
-                    author_name = review.find_element(
-                        By.CSS_SELECTOR,
-                        'div.business-review-view__author-name '
-                        'span[itemprop="name"]'
-                    ).text
-                    try:
-                        # Попытка найти значение рейтинга
-                        rating_value = WebDriverWait(review, 10).until(
-                            EC.presence_of_element_located(
-                                (By.CSS_SELECTOR,
-                                    'span[itemprop="reviewRating"] '
-                                    'meta[itemprop="ratingValue"]')
-                            )
-                        ).get_attribute('content')
-                    except Exception as e:
-                        print(f"Ошибка при получении значения рейтинга: {e}")
-                    text = review.find_element(
-                        By.CLASS_NAME, 'business-review-view__body-text'
-                    ).text
-                    # Сохранение отзыва в множество для уникальности
-                    review_entry = (
-                        review_date, author_name, rating_value, text)
-                    unique_reviews.add(review_entry)
-                    print(f'Уникальных отзывов: {len(unique_reviews)}')
-
                 except Exception as e:
-                    print(f"Ошибка при получении информации об отзыве: {e}")
+                    print(f"Ошибка при получении значения рейтинга: {e}")
+                text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
+                # Сохранение отзыва в множество для уникальности
+                review_entry = (
+                    review_date, author_name, rating_value, text)
+                unique_reviews.add(review_entry)
+                print(f'Уникальных отзывов: {len(unique_reviews)}')
 
-            for i in range(0, 30):
-                # Прокрутка страницы вниз для получения следующего отзыва
-                actions.scroll_by_amount(0, 2000).perform()
-                sleep(0.5)
+            except Exception as e:
+                print(f"Ошибка при получении информации об отзыве: {e}")
+
+        for i in range(0, 30):
+            # Прокрутка страницы вниз для получения следующего отзыва
+            actions.scroll_by_amount(0, 2000).perform()
+            sleep(0.5)
 
         # Сортировка отзывов по дате в порядке убывания
         sorted_reviews = sorted(
             unique_reviews,
-            key=lambda x: datetime.strptime(x[0], '%Y-%m-%d'),
-            reverse=True
+            key=lambda x: datetime.strptime(x[0], DATE_FORMAT)
         )
 
         # Определяем id ресторана для связи с отзывами
@@ -155,16 +149,14 @@ def ya_prim_coll(original_url):
         restaurant_id = restaurant_data['id']
 
         # Запись уникальных отзывов в файл после завершения сбора данных
-        for review in sorted_reviews:
-            file.write(f"{review}\n")
-
-            # Запись отзыва в базу данных
-            review_date, author_name, rating_value, text = review
-            review_data = (
-                restaurant_id, review_date, author_name, rating_value, text
-            )
-            create_review(review_data)
+    for review in sorted_reviews:
+        # Запись отзыва в базу данных
+        review_date, author_name, rating_value, text = review
+        review_data = (
+            restaurant_id, review_date, author_name, rating_value, text
+        )
+        create_review(review_data)
 
     # Закрываем браузер
     driver.quit()
-    return total_count, doc_reviews
+    return total_count

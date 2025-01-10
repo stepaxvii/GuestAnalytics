@@ -49,6 +49,7 @@ class Restaurant(Base):
     subs = Column(Boolean, nullable=True)  # Времено пусто
     manager_name = Column(String(255), nullable=True)  # Времено пусто
     manager_contact = Column(Integer, nullable=True)  # Времено пусто
+    tg_chanal = Column(String(255), nullable=True)  # Времено пусто
     email = Column(String(255), nullable=True)  # Времено пусто
 
     company = relationship("Company", back_populates="restaurants")
@@ -70,7 +71,6 @@ class YandexReview(Base):
     rating = Column(SmallInteger, nullable=False)
     content = Column(Text, nullable=False)
     semantic = Column(String(255), nullable=True)
-
     restaurant = relationship("Restaurant", back_populates="yandex_reviews")
 
 

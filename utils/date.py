@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from constants import DATE_FORMAT
+
 
 def formatted_date(date_str):
     month_mapping = {
@@ -22,6 +24,6 @@ def formatted_date(date_str):
             date_str = date_str.replace(month_name, month_number)
 
     review_date = datetime.strptime(date_str, '%d %m %Y')
-    formatted_review_date = review_date.strftime('%Y-%m-%d')
+    formatted_review_date = review_date.strftime(DATE_FORMAT)
 
     return formatted_review_date
