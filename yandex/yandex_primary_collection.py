@@ -109,7 +109,7 @@ def ya_prim_coll(original_url):
                 ).get_attribute('content')
                 review_date = datetime.strptime(
                     date_str, "%Y-%m-%dT%H:%M:%S.%fZ"
-                ).strftime("%Y-%m-%d")
+                ).strftime(DATE_FORMAT)
                 author_name = review.find_element(
                     By.CSS_SELECTOR,
                     AUTHOR_ELEMENT
@@ -138,7 +138,7 @@ def ya_prim_coll(original_url):
             actions.scroll_by_amount(0, 2000).perform()
             sleep(0.5)
 
-        # Сортировка отзывов по дате в порядке убывания
+        # Сортировка отзывов по датe
         sorted_reviews = sorted(
             unique_reviews,
             key=lambda x: datetime.strptime(x[0], DATE_FORMAT)

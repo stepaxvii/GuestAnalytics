@@ -11,6 +11,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
+from constants import MAX_LENGTH_STR
+
 
 # Настраиваем базу данных
 DATA_URL = "sqlite:///guestanal.db"
@@ -28,11 +30,11 @@ class Company(Base):
     __tablename__ = "companies"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String(255), nullable=False)
-    country = Column(String(255), nullable=True)
-    manager_name = Column(String(255), nullable=False)
+    title = Column(String(MAX_LENGTH_STR), nullable=False)
+    country = Column(String(MAX_LENGTH_STR), nullable=True)
+    manager_name = Column(String(MAX_LENGTH_STR), nullable=False)
     manager_contact = Column(Integer, nullable=True)
-    email = Column(String(255), nullable=False)
+    email = Column(String(MAX_LENGTH_STR), nullable=False)
 
 
 class Restaurant(Base):
@@ -42,15 +44,15 @@ class Restaurant(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=True)
-    title = Column(String(255), nullable=False)
-    yandex_link = Column(String(255), nullable=False, unique=True)
-    twogis_link = Column(String(255), nullable=True, unique=True)
+    title = Column(String(MAX_LENGTH_STR), nullable=False)
+    yandex_link = Column(String(MAX_LENGTH_STR), nullable=False, unique=True)
+    twogis_link = Column(String(MAX_LENGTH_STR), nullable=True, unique=True)
     address = Column(Text, nullable=False)
     subs = Column(Boolean, nullable=True)  # Времено пусто
-    manager_name = Column(String(255), nullable=True)  # Времено пусто
+    manager_name = Column(String(MAX_LENGTH_STR), nullable=True)  # Времено пусто
     manager_contact = Column(Integer, nullable=True)  # Времено пусто
-    tg_chanal = Column(String(255), nullable=True)  # Времено пусто
-    email = Column(String(255), nullable=True)  # Времено пусто
+    tg_channal = Column(String(MAX_LENGTH_STR), nullable=True)  # Времено пусто
+    email = Column(String(MAX_LENGTH_STR), nullable=True)  # Времено пусто
 
     company = relationship("Company", back_populates="restaurants")
 
@@ -67,10 +69,10 @@ class YandexReview(Base):
         nullable=False
     )
     created_at = Column(Date, nullable=False)
-    author = Column(String(255), nullable=False)
+    author = Column(String(MAX_LENGTH_STR), nullable=False)
     rating = Column(SmallInteger, nullable=False)
     content = Column(Text, nullable=False)
-    semantic = Column(String(255), nullable=True)
+    semantic = Column(String(MAX_LENGTH_STR), nullable=True)
     restaurant = relationship("Restaurant", back_populates="yandex_reviews")
 
 
@@ -86,15 +88,15 @@ class TwogisReview(Base):
         nullable=False
     )
     created_at = Column(Date, nullable=False)
-    author = Column(String(255), nullable=False)
+    author = Column(String(MAX_LENGTH_STR), nullable=False)
     rating = Column(SmallInteger, nullable=False)
     content = Column(Text, nullable=False)
-    semantic = Column(String(255), nullable=True)
+    semantic = Column(String(MAX_LENGTH_STR), nullable=True)
 
     restaurant = relationship("Restaurant", back_populates="twogis_reviews")
 
 
-# Обратные связи моделей.
+# Обратные связи моделей
 Company.restaurants = relationship(
     "Restaurant", order_by=Restaurant.id, back_populates="company")
 Restaurant.yandex_reviews = relationship(

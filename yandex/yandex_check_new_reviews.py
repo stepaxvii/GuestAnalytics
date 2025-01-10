@@ -8,6 +8,7 @@ from time import sleep
 from os import getenv
 from dotenv import load_dotenv
 
+from data_base.create_data import create_review
 from data_base.read_data import read_restaurant_data, read_rest_ya_reviews
 from constants import (
     NEW_REVIEWS_SORTED,
@@ -71,7 +72,7 @@ def ya_check_reviews(org_url):
             ).get_attribute('content')
             review_date = datetime.strptime(
                 date_str, "%Y-%m-%dT%H:%M:%S.%fZ"
-            ).strftime("%Y-%m-%d")
+            ).strftime(DATE_FORMAT)
             author_name = review.find_element(
                 By.CSS_SELECTOR, AUTHOR_ELEMENT
             ).text
@@ -130,7 +131,6 @@ def matching_reviews(org_url):
     # Создаём множество для новых уникальных отзывов
     new_reviews_to_save = set()
 
-    print("\nНовые отзывы:")
     # Выводим новые отзывы и проверяем, есть ли они среди старых
     for review in new_review_data:
         review_tuple = (
@@ -142,18 +142,24 @@ def matching_reviews(org_url):
         if review_tuple not in old_reviews_set:
             new_reviews_to_save.add(review_tuple)
 
+    # Сортировка отзывов по датe
+        sorted_new_reviews = sorted(
+            new_reviews_to_save,
+            key=lambda x: datetime.strptime(x[0], DATE_FORMAT)
+        )
+
     # Если есть новые отзывы, можно их сохранить
-    if new_reviews_to_save:
-        print(f"\nНайдено {len(new_reviews_to_save)} "
-              "новых отзывов для сохранения.")
+    if sorted_new_reviews:
         # Вызываем функцию для сохранения новых отзывов
-        for review in new_reviews_to_save:
-            # Здесь можно вызвать функцию для сохранения отзыва в БД
-            print(f"Отзыв сохранен: {review}")
+        for review in sorted_new_reviews:
+            # Запись отзыва в базу данных
+            review_date, author_name, rating_value, text = review
+            review_data = (
+                restaurant_id, review_date, author_name, rating_value, text
+            )
+            create_review(review_data)
+
     else:
         print("Новых отзывов нет.")
 
-    return new_reviews_to_save
-
-
-# matching_reviews('https://yandex.ru/maps/org/lali/107765078887/')
+    return sorted_new_reviews

@@ -1,5 +1,6 @@
-TG_CHANAL = -1002046637366
+TG_CHANNAL = -1002046637366
 DATE_FORMAT = '%Y-%m-%d'
+MAX_LENGTH_STR = 255
 
 ORG_NAME_BLOCK = 'h1.orgpage-header-view__header'
 ORG_ADDRESS_BLOCK = 'orgpage-header-view__address'

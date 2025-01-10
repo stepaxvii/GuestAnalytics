@@ -9,7 +9,8 @@ from aiogram.types import (
     Message
 )
 
-from constants import TG_CHANAL
+from constants import TG_CHANNAL
+from utils.message_text import get_star_rating
 from yandex.yandex_primary_collection import ya_prim_coll
 from yandex.yandex_check_new_reviews import matching_reviews
 
@@ -63,14 +64,14 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
         for review in new_reviews:
             # Форматируем сообщение для отправки
             message = (
-                f"Новый отзыв для ресторана Lali:\n"
-                f"Дата: {review[0]}\n"
+                f"{get_star_rating(review[2])}\n"
+                f"Яндекс, {review[0]}\n\n"
+                f"{review[3]}\n"
                 f"Автор: {review[1]}\n"
-                f"Рейтинг: {review[2]}\n"
-                f"Текст: {review[3]}\n"
             )
+
             # Отправляем сообщение в канал
-            await bot.send_message(TG_CHANAL, message)
+            await bot.send_message(TG_CHANNAL, message)
 
         await callback_query.message.answer(
             "Новые отзывы успешно отправлены в канал!"
