@@ -11,8 +11,9 @@ from yandex.yandex_check_new_reviews import matching_reviews
 # Функция для проверки новых отзывов
 async def check_new_reviews_periodically(bot: Bot):
     while True:
-        # Пауза между проверками (0.5 часа)
-        await asyncio.sleep(0.5 * 3600)  # 0.5 * 3600 секунд = 30 минут
+        # Пауза между проверками
+        print("Функция для проверки новых отзывов")
+        await asyncio.sleep(100)
 
         # Получаем данные о ресторанах
         restaurants = read_all_restaurant_data()
