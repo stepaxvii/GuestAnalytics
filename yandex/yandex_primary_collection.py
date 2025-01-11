@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from selenium.common.exceptions import NoSuchElementException
 
 from data_base.create_data import create_restaurant, create_review
-from data_base.read_data import read_restaurant_data
+from data_base.read_data import read_some_restaurant_data
 from constants import (
     ORG_NAME_BLOCK,
     ORG_ADDRESS_BLOCK,
@@ -145,7 +145,7 @@ def ya_prim_coll(original_url):
         )
 
         # Определяем id ресторана для связи с отзывами
-        restaurant_data = read_restaurant_data(org_url=org_url)
+        restaurant_data = read_some_restaurant_data(org_url=org_url)
         restaurant_id = restaurant_data['id']
 
         # Запись уникальных отзывов в файл после завершения сбора данных

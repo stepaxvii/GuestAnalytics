@@ -48,11 +48,11 @@ class Restaurant(Base):
     yandex_link = Column(String(MAX_LENGTH_STR), nullable=False, unique=True)
     twogis_link = Column(String(MAX_LENGTH_STR), nullable=True, unique=True)
     address = Column(Text, nullable=False)
-    subs = Column(Boolean, nullable=True)  # Времено пусто
-    manager_name = Column(String(MAX_LENGTH_STR), nullable=True)  # Времено пусто
-    manager_contact = Column(Integer, nullable=True)  # Времено пусто
-    tg_channal = Column(String(MAX_LENGTH_STR), nullable=True)  # Времено пусто
-    email = Column(String(MAX_LENGTH_STR), nullable=True)  # Времено пусто
+    subs = Column(Boolean, nullable=True)  # Времено
+    manager_name = Column(String(MAX_LENGTH_STR), nullable=True)  # Времено
+    manager_contact = Column(Integer, nullable=True)  # Времено
+    tg_channal = Column(String(MAX_LENGTH_STR), nullable=True)  # Времено
+    email = Column(String(MAX_LENGTH_STR), nullable=True)  # Времено
 
     company = relationship("Company", back_populates="restaurants")
 
@@ -73,6 +73,7 @@ class YandexReview(Base):
     rating = Column(SmallInteger, nullable=False)
     content = Column(Text, nullable=False)
     semantic = Column(String(MAX_LENGTH_STR), nullable=True)
+
     restaurant = relationship("Restaurant", back_populates="yandex_reviews")
 
 

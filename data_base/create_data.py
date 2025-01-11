@@ -2,7 +2,7 @@ from data_base.data_main import session, Restaurant, YandexReview
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 
-from constants import DATE_FORMAT
+from constants import DATE_FORMAT, TG_CHANNAL
 
 
 def create_restaurant(data):
@@ -15,7 +15,8 @@ def create_restaurant(data):
         restaurant = Restaurant(
             title=title,
             yandex_link=yandex_link,
-            address=address
+            address=address,
+            tg_channal=TG_CHANNAL
         )
         session.add(restaurant)
         session.commit()

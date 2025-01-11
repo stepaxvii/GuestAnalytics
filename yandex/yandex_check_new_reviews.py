@@ -9,7 +9,7 @@ from os import getenv
 from dotenv import load_dotenv
 
 from data_base.create_data import create_review
-from data_base.read_data import read_restaurant_data, read_rest_ya_reviews
+from data_base.read_data import read_some_restaurant_data, read_rest_ya_reviews
 from constants import (
     NEW_REVIEWS_SORTED,
     SORTED_BLOCK,
@@ -40,7 +40,7 @@ def ya_check_reviews(org_url):
 
     # Переходим на страницу с отзывами
     driver.get(review_url)
-    sleep(2)
+    sleep(4)
 
     try:
         # Ищем элемент сортировки "По умолчанию" и кликаем по нему
@@ -49,12 +49,16 @@ def ya_check_reviews(org_url):
         )
         filter_button.click()
 
-        # Ждём, пока появится элемент с опцией "По новизне" и кликаем по нему
+        # Ждем, пока появится элемент с опцией "По новизне" и кликаем по нему
         newest_filter = WebDriverWait(driver, 20).until(
             EC.element_to_be_clickable((By.XPATH, NEW_REVIEWS_SORTED))
         )
-        newest_filter.click()
 
+        # Прокрутка до элемента (если нужно)
+        driver.execute_script("arguments[0].scrollIntoView();", newest_filter)
+
+        # Кликаем по элементу "По новизне"
+        newest_filter.click()
         print("Сортировка по новизне выбрана.")
     except Exception as e:
         print(f"Ошибка при выборе сортировки: {e}")
@@ -108,7 +112,7 @@ def matching_reviews(org_url):
     """Функция сравнения собранных отзывов с БД."""
 
     # Определяем id ресторана для связи с отзывами
-    restaurant_data = read_restaurant_data(org_url=org_url)
+    restaurant_data = read_some_restaurant_data(org_url=org_url)
     restaurant_id = restaurant_data['id']
 
     # Обращаемся в БД к последним 50 сохранённым отзывам

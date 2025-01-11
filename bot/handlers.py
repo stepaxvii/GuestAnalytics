@@ -10,6 +10,7 @@ from aiogram.types import (
 )
 
 from constants import TG_CHANNAL
+from data_base.read_data import read_all_restaurant_data
 from utils.message_text import get_star_rating
 from yandex.yandex_primary_collection import ya_prim_coll
 from yandex.yandex_check_new_reviews import matching_reviews
@@ -50,34 +51,42 @@ async def get_yandex_link(callback_query: CallbackQuery):
 async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
     """Обрабатываем запрос проверки новых отзывов"""
     await callback_query.message.answer(
-        text='Проверяю наличие новых отзывов для ресторана Lali'
+        text='Проверяю наличие новых отзывов для ресторанов партнёров.'
     )
     await asyncio.sleep(1)
 
-    # Получаем новые отзывы
-    new_reviews = matching_reviews(
-        'https://yandex.ru/maps/org/lali/107765078887/'
-    )
+    restaurants = read_all_restaurant_data()
 
-    # Проверяем, есть ли новые отзывы
-    if new_reviews:
-        for review in new_reviews:
-            # Форматируем сообщение для отправки
-            message = (
-                f"{get_star_rating(review[2])}\n"
-                f"Яндекс, {review[0]}\n\n"
-                f"{review[3]}\n"
-                f"Автор: {review[1]}\n"
+    for restaurant in restaurants:
+        rest_title = restaurant['title']
+        rest_link = restaurant['yandex_link']
+        rest_address = restaurant['address']
+
+        # Получаем новые отзывы
+        new_reviews = matching_reviews(rest_link)
+
+        # Проверяем, есть ли новые отзывы
+        if new_reviews:
+            for review in new_reviews:
+                # Форматируем сообщение для отправки
+                message = (
+                    f"{rest_title}, {rest_address}.\n"
+                    f"{get_star_rating(review[2])}\n"
+                    f"Яндекс, {review[0]}\n\n"
+                    f"{review[3]}\n"
+                    f"Автор: {review[1]}\n"
+                )
+
+                # Отправляем сообщение в канал
+                await bot.send_message(TG_CHANNAL, message)
+
+            await callback_query.message.answer(
+                f"Новые отзывы для ресторана {rest_title} отправлены в канал!"
             )
-
-            # Отправляем сообщение в канал
-            await bot.send_message(TG_CHANNAL, message)
-
-        await callback_query.message.answer(
-            "Новые отзывы успешно отправлены в канал!"
-        )
-    else:
-        await callback_query.message.answer("Новых отзывов нет.")
+        else:
+            await callback_query.message.answer(
+                f"Новых отзывов для ресторана {rest_title} нет."
+            )
 
 
 @router.message(
