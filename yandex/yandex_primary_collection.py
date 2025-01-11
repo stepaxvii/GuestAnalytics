@@ -111,7 +111,9 @@ def ya_prim_coll(original_url):
     # Вычисляем общее количество отзывов
     try:
         total_count_element = WebDriverWait(driver, 5).until(
-            EC.visibility_of_element_located((By.CLASS_NAME, COUNT_REVIEWS_BLOCK))
+            EC.visibility_of_element_located(
+                (By.CLASS_NAME, COUNT_REVIEWS_BLOCK)
+            )
         )
         total_count_text = total_count_element.text
         total_count = int(total_count_text.split()[0])
@@ -152,7 +154,9 @@ def ya_prim_coll(original_url):
                     ).get_attribute('content')
                     logger.info(f"Рейтинг: {rating_value}")
                 except Exception as e:
-                    logger.error(f"Ошибка при получении значения рейтинга: {e}")
+                    logger.error(
+                        f"Ошибка при получении значения рейтинга: {e}"
+                    )
                     rating_value = None
 
                 text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
