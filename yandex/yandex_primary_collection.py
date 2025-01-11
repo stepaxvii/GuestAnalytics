@@ -1,4 +1,5 @@
 import logging
+
 from selenium.webdriver import Firefox, FirefoxOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service
