@@ -7,7 +7,8 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.state import State, StatesGroup
-from bot import handlers
+
+from bot import handlers, periodically_tasks
 
 load_dotenv()
 
@@ -28,6 +29,9 @@ async def main():
     )
     dp = Dispatcher()
     dp.include_router(handlers.router)
+
+    # Запуск фоновой задачи для проверки новых отзывов
+    asyncio.create_task(periodically_tasks.check_new_reviews_periodically(bot))
     try:
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot)
