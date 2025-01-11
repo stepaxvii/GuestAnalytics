@@ -148,7 +148,7 @@ def ya_prim_coll(original_url):
                 ).text
                 try:
                     # Попытка найти значение рейтинга
-                    rating_value = WebDriverWait(review, 10).until(
+                    rating_value = WebDriverWait(review, 15).until(
                         EC.presence_of_element_located(
                             (By.CSS_SELECTOR, RATING_ELEMENT)
                         )
@@ -174,7 +174,7 @@ def ya_prim_coll(original_url):
         for i in range(0, 30):
             # Прокрутка страницы вниз для получения следующего отзыва
             actions.scroll_by_amount(0, 2000).perform()
-            sleep(0.5)
+            sleep(3)
 
     # Сортировка отзывов по дате
     sorted_reviews = sorted(
