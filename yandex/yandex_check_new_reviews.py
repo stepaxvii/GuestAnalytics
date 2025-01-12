@@ -122,7 +122,7 @@ def matching_reviews(org_url):
     old_reviews_set = set()
     for review in old_review_data:
         review_tuple = (
-            # review.created_at,
+            review.created_at,
             review.author,
             review.rating,
             review.content
@@ -138,14 +138,13 @@ def matching_reviews(org_url):
     # Выводим новые отзывы и проверяем, есть ли они среди старых
     for review in new_review_data:
         review_tuple = (
-            # review[0],
+            review[0],
             review[1],
             int(review[2].split('.')[0]),
             review[3]
         )
         if review_tuple not in old_reviews_set:
             new_reviews_to_save.add(review_tuple)
-
 
     # Сортировка отзывов по датe
         sorted_new_reviews = sorted(

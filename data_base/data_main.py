@@ -68,7 +68,7 @@ class YandexReview(Base):
         ForeignKey("restaurants.id"),
         nullable=False
     )
-    created_at = Column(Date, nullable=False)
+    created_at = Column(String(MAX_LENGTH_STR), nullable=False)
     author = Column(String(MAX_LENGTH_STR), nullable=False)
     rating = Column(SmallInteger, nullable=False)
     content = Column(Text, nullable=False)
@@ -88,7 +88,7 @@ class TwogisReview(Base):
         ForeignKey("restaurants.id"),
         nullable=False
     )
-    created_at = Column(Date, nullable=False)
+    created_at = Column(String(MAX_LENGTH_STR), nullable=False)
     author = Column(String(MAX_LENGTH_STR), nullable=False)
     rating = Column(SmallInteger, nullable=False)
     content = Column(Text, nullable=False)
