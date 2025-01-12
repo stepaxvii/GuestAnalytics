@@ -79,7 +79,7 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
 
                 # Отправляем сообщение в канал
                 await bot.send_message(TG_CHANNAL, message)
-                await asyncio.sleep(1.5)
+                await asyncio.sleep(3)
 
             await callback_query.message.answer(
                 f"Новые отзывы для ресторана {rest_title} отправлены в канал!"
