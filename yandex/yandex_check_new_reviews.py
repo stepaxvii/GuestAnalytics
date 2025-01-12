@@ -149,7 +149,7 @@ def matching_reviews(org_url):
     # Сортировка отзывов по датe
         sorted_new_reviews = sorted(
             new_reviews_to_save,
-            key=lambda x: datetime.strptime(x[0], DATE_FORMAT)
+            key=lambda x: x[0]
         )
 
     # Если есть новые отзывы, можно их сохранить
