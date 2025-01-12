@@ -40,6 +40,6 @@ async def check_new_reviews_periodically(bot: Bot):
 
                     # Отправляем сообщение в канал
                     await bot.send_message(TG_CHANNAL, message)
-                    await asyncio.sleep(1.5)
+                    await asyncio.sleep(3)
 
         print("Проверка новых отзывов завершена.")

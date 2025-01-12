@@ -2,7 +2,6 @@ from sqlalchemy import (
     create_engine,
     Boolean,
     Column,
-    Date,
     Integer,
     ForeignKey,
     SmallInteger,
