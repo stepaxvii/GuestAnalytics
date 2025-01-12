@@ -138,9 +138,9 @@ def matching_reviews(org_url):
     # Выводим новые отзывы и проверяем, есть ли они среди старых
     for review in new_review_data:
         review_tuple = (
-            datetime.strptime(review[0], DATE_FORMAT).date(),
+            review[0],
             review[1],
-            int(review[2].split('.')[0]),
+            review[2],
             review[3]
         )
         if review_tuple not in old_reviews_set:
@@ -149,7 +149,7 @@ def matching_reviews(org_url):
     # Сортировка отзывов по датe
         sorted_new_reviews = sorted(
             new_reviews_to_save,
-            key=lambda x: x[0]
+            key=lambda x: datetime.strptime(x[0], DATE_FORMAT)
         )
 
     # Если есть новые отзывы, можно их сохранить
