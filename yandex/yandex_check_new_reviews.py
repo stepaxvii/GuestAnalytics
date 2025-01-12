@@ -140,7 +140,7 @@ def matching_reviews(org_url):
         review_tuple = (
             review[0],
             review[1],
-            review[2],
+            int(review[2].split('.')[0]),
             review[3]
         )
         if review_tuple not in old_reviews_set:
