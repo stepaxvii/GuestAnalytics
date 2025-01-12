@@ -115,8 +115,8 @@ def matching_reviews(org_url):
     restaurant_data = read_some_restaurant_data(org_url=org_url)
     restaurant_id = restaurant_data['id']
 
-    # Обращаемся в БД к последним 50 сохранённым отзывам
-    old_review_data = read_rest_ya_reviews(restaurant_id=restaurant_id)[-50:]
+    # Обращаемся в БД к последним 60 сохранённым отзывам
+    old_review_data = read_rest_ya_reviews(restaurant_id=restaurant_id)[-60:]
 
     # Создаём множество старых отзывов в виде кортежей (для быстрого поиска)
     old_reviews_set = set()
