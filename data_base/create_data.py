@@ -30,9 +30,8 @@ def create_review(data):
     """Создание отзыва."""
 
     # Извлекаем данные из уникального отзыва и приводим в необходимый формат
-    restaurant_id, created_at_str, author, rating_str, content = data
+    restaurant_id, created_at_str, author, rating, content = data
     created_at = datetime.strptime(created_at_str, DATE_FORMAT).date()
-    rating = int(rating_str.split('.')[0])
 
     review = YandexReview(
         restaurant_id=restaurant_id,
