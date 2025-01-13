@@ -89,6 +89,7 @@ async def check_new_reviews_periodically(bot: Bot):
                             f"Яндекс, {review[0]}\n\n"
                             f"{review[3]}\n"
                             f"Автор: {review[1]}\n"
+                            f"Семантика - '{review[4]}'"
                         )
 
                         # Отправляем сообщение в канал
