@@ -4,7 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-OPEN_AI_API_KEY = getenv('OPEN_AI_API_KEY')
+# OPEN_AI_API_KEY = getenv('OPEN_AI_API_KEY')
+OPEN_AI_API_KEY = 'sk-proj-phbR48wh25HIvdC89O7yT3BlbkFJCc6TZOphimzO0I6rd2IO'
 
 if not OPEN_AI_API_KEY:
     raise ValueError("API Key is missing!")
