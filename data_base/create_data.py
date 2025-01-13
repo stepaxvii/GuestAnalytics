@@ -29,14 +29,15 @@ def create_review(data):
     """Создание отзыва."""
 
     # Извлекаем данные из уникального отзыва и приводим в необходимый формат
-    restaurant_id, created_at, author, rating, content = data
+    restaurant_id, created_at, author, rating, content, semantic = data
 
     review = YandexReview(
         restaurant_id=restaurant_id,
         created_at=created_at,
         author=author,
         rating=rating,
-        content=content
+        content=content,
+        semantic=semantic
     )
     session.add(review)
     session.commit()

@@ -162,10 +162,12 @@ def ya_prim_coll(original_url):
                     rating_value = None
 
                 text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
+                semantic = None
 
                 # Сохранение отзыва в множество для уникальности
                 review_entry = (
-                    review_date, author_name, rating_value, text)
+                    review_date, author_name, rating_value, text, semantic
+                )
                 unique_reviews.add(review_entry)
                 logger.info(f'Уникальных отзывов: {len(unique_reviews)}')
 
@@ -190,9 +192,14 @@ def ya_prim_coll(original_url):
 
     # Запись уникальных отзывов в базу данных
     for review in sorted_reviews:
-        review_date, author_name, rating_value, text = review
+        review_date, author_name, rating_value, text, semantic = review
         review_data = (
-            restaurant_id, review_date, author_name, rating_value, text
+            restaurant_id,
+            review_date,
+            author_name,
+            rating_value,
+            text,
+            semantic
         )
         try:
             logger.info(f"Добавляем отзыв от {author_name} в базу данных...")

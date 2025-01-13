@@ -8,8 +8,6 @@ from time import sleep
 from os import getenv
 from dotenv import load_dotenv
 
-from data_base.create_data import create_review
-from data_base.read_data import read_some_restaurant_data, read_rest_ya_reviews
 from constants import (
     NEW_REVIEWS_SORTED,
     SORTED_BLOCK,
@@ -20,6 +18,9 @@ from constants import (
     RATING_ELEMENT,
     TEXT_ELEMENT
 )
+from data_base.create_data import create_review
+from data_base.read_data import read_some_restaurant_data, read_rest_ya_reviews
+from semantic_analysis.simple_semantic import simple_semantic
 
 load_dotenv()
 
@@ -133,6 +134,7 @@ def matching_reviews(org_url):
     new_review_data = ya_check_reviews(org_url=org_url)
 
     # Создаём множество для новых уникальных отзывов
+    new_reviews_to_semantic = set()
     new_reviews_to_save = set()
 
     # Выводим новые отзывы и проверяем, есть ли они среди старых
@@ -144,7 +146,15 @@ def matching_reviews(org_url):
             review[3]
         )
         if review_tuple not in old_reviews_set:
-            new_reviews_to_save.add(review_tuple)
+            new_reviews_to_semantic.add(review_tuple)
+
+    # Выбираем тексты отзывов для для формирования семантической оценки
+    if new_reviews_to_semantic:
+        for new_review in new_reviews_to_semantic:
+            review_text = new_review[3]
+            semantic = simple_semantic(review_text=review_text)
+            new_review.append(semantic)
+            new_reviews_to_save.add(new_review)
 
     # Сортировка отзывов по датe
         sorted_new_reviews = sorted(
@@ -157,9 +167,14 @@ def matching_reviews(org_url):
         # Вызываем функцию для сохранения новых отзывов
         for review in sorted_new_reviews:
             # Запись отзыва в базу данных
-            review_date, author_name, rating_value, text = review
+            review_date, author_name, rating_value, text, semantic = review
             review_data = (
-                restaurant_id, review_date, author_name, rating_value, text
+                restaurant_id,
+                review_date,
+                author_name,
+                rating_value,
+                text,
+                semantic
             )
             create_review(review_data)
 
