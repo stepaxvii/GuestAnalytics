@@ -22,6 +22,23 @@ class LinkFMS(StatesGroup):
     twogis_link = State()
 
 
+# async def main():
+#     bot = Bot(
+#         token=TELEGRAM_TOKEN,
+#         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+#     )
+#     dp = Dispatcher()
+#     dp.include_router(handlers.router)
+
+#     # Запуск фоновой задачи для проверки новых отзывов
+#     asyncio.create_task(periodically_tasks.check_new_reviews_periodically(bot))
+#     try:
+#         await bot.delete_webhook(drop_pending_updates=True)
+#         await dp.start_polling(bot)
+#     except Exception as error:
+#         logging.error(f"Произошла ошибка: {error}")
+
+
 async def main():
     bot = Bot(
         token=TELEGRAM_TOKEN,
@@ -31,10 +48,16 @@ async def main():
     dp.include_router(handlers.router)
 
     # Запуск фоновой задачи для проверки новых отзывов
-    asyncio.create_task(periodically_tasks.check_new_reviews_periodically(bot))
+    periodic_task = asyncio.create_task(
+        periodically_tasks.check_new_reviews_periodically(bot)
+    )
+
     try:
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot)
+        # Дожидаемся завершения фоновой задачи
+        # (если она не завершится по ошибке)
+        await periodic_task
     except Exception as error:
         logging.error(f"Произошла ошибка: {error}")
 
