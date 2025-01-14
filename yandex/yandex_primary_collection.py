@@ -132,7 +132,6 @@ def ya_prim_coll(original_url):
 
     while len(unique_reviews) < total_count:
         # Получаем все отзывы на странице
-        sleep(3)
         logger.info(f'Уникальных отзывов: {len(unique_reviews)}')
         reviews = driver.find_elements(By.CLASS_NAME, CARD_REVIEWS_BLOCK)
 
@@ -212,9 +211,7 @@ def ya_prim_coll(original_url):
             semantic
         )
         try:
-            logger.info(f"Добавляем отзыв от {author_name} в базу данных...")
             create_review(review_data)
-            logger.info(f"Отзыв от {author_name} успешно добавлен.")
         except Exception as e:
             logger.error(f"Ошибка при добавлении отзыва в базу данных: {e}")
 
