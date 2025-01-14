@@ -13,7 +13,7 @@ if not OPENAI_API_KEY:
 def simple_semantic(review_text):
     "Определение семантического настроения отдельного отзыва."
 
-    openai.api_key = OPENAI_API_KEY  # Убедитесь, что ключ передан
+    openai.api_key = OPENAI_API_KEY
 
     prompt = f"""Вы профессионал по анализу отзывов клиентов ресторана.
     Проведите семантический анализ и оцените, является ли следующий отзыв
