@@ -33,6 +33,3 @@ def simple_semantic(review_text):
     )
 
     return response['choices'][0]['message']['content']
-
-
-print(simple_semantic('всё супер.'))
