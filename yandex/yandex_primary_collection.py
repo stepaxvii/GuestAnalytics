@@ -157,7 +157,6 @@ def ya_prim_coll(original_url):
                         )
                     ).get_attribute('content')
                     rating_value = int(rating_value.split('.')[0])
-                    logger.info(f"Рейтинг: {rating_value}")
                 except Exception as e:
                     logger.error(
                         f"Ошибка при получении значения рейтинга: {e}"
