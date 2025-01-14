@@ -132,6 +132,7 @@ def ya_prim_coll(original_url):
 
     while len(unique_reviews) < total_count:
         # Получаем все отзывы на странице
+        sleep(3)
         reviews = driver.find_elements(By.CLASS_NAME, CARD_REVIEWS_BLOCK)
 
         # Сохраняем текущие отзывы из зоны видимости
