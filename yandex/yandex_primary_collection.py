@@ -12,8 +12,6 @@ from os import getenv
 from dotenv import load_dotenv
 from selenium.common.exceptions import NoSuchElementException
 
-from data_base.create_data import create_restaurant, create_review
-from data_base.read_data import read_some_restaurant_data
 from constants import (
     ORG_NAME_BLOCK,
     ORG_ADDRESS_BLOCK,
@@ -25,6 +23,9 @@ from constants import (
     RATING_ELEMENT,
     TEXT_ELEMENT
 )
+from data_base.create_data import create_restaurant, create_review
+from data_base.read_data import read_some_restaurant_data
+from semantic_analysis.simple_semantic import simple_semantic
 from utils.urls import process_url_yandex
 
 # Настройка логирования
@@ -162,11 +163,10 @@ def ya_prim_coll(original_url):
                     rating_value = None
 
                 text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
-                semantic = None
 
                 # Сохранение отзыва в множество для уникальности
                 review_entry = (
-                    review_date, author_name, rating_value, text, semantic
+                    review_date, author_name, rating_value, text,
                 )
                 unique_reviews.add(review_entry)
                 logger.info(f'Уникальных отзывов: {len(unique_reviews)}')
@@ -179,9 +179,19 @@ def ya_prim_coll(original_url):
             actions.scroll_by_amount(0, 2000).perform()
             sleep(0.5)
 
+    new_reviews_to_save = set()
+
+    # Отправляем тексты отвывов для определения семантики
+    for review in unique_reviews:
+        review_text = review[3]
+        semantic = simple_semantic(review_text=review_text)
+        # добавляем семантическую оценку
+        review_with_semantic = review + (semantic,)
+        new_reviews_to_save.add(review_with_semantic)
+
     # Сортировка отзывов по дате
     sorted_reviews = sorted(
-        unique_reviews,
+        new_reviews_to_save,
         key=lambda x: datetime.strptime(x[0], DATE_FORMAT)
     )
 
