@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-OPENAI_API_KEY = getenv('OPEN_AI_API_KEY')
+OPENAI_API_KEY = getenv('OPENAI_API_KEY')
 
 if not OPENAI_API_KEY:
     raise ValueError("API Key is missing!")
