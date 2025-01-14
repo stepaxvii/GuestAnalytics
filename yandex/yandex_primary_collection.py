@@ -133,6 +133,7 @@ def ya_prim_coll(original_url):
     while len(unique_reviews) < total_count:
         # Получаем все отзывы на странице
         sleep(3)
+        logger.info(f'Уникальных отзывов: {len(unique_reviews)}')
         reviews = driver.find_elements(By.CLASS_NAME, CARD_REVIEWS_BLOCK)
 
         # Сохраняем текущие отзывы из зоны видимости
@@ -170,7 +171,6 @@ def ya_prim_coll(original_url):
                     review_date, author_name, rating_value, text,
                 )
                 unique_reviews.add(review_entry)
-                logger.info(f'Уникальных отзывов: {len(unique_reviews)}')
 
             except Exception as e:
                 logger.error(f"Ошибка при получении информации об отзыве: {e}")
