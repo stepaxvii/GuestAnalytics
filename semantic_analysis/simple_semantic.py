@@ -4,17 +4,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# OPEN_AI_API_KEY = getenv('OPEN_AI_API_KEY')
-OPEN_AI_API_KEY = 'sk-proj-phbR48wh25HIvdC89O7yT3BlbkFJCc6TZOphimzO0I6rd2IO'
+OPENAI_API_KEY = getenv('OPEN_AI_API_KEY')
 
-if not OPEN_AI_API_KEY:
+if not OPENAI_API_KEY:
     raise ValueError("API Key is missing!")
 
 
 def simple_semantic(review_text):
     "Определение семантического настроения отдельного отзыва."
 
-    openai.api_key = OPEN_AI_API_KEY  # Убедитесь, что ключ передан
+    openai.api_key = OPENAI_API_KEY  # Убедитесь, что ключ передан
 
     prompt = f"""Вы профессионал по анализу отзывов клиентов ресторана.
     Проведите семантический анализ и оцените, является ли следующий отзыв
@@ -34,3 +33,6 @@ def simple_semantic(review_text):
     )
 
     return response['choices'][0]['message']['content']
+
+
+print(simple_semantic('всё супер.'))
