@@ -13,6 +13,8 @@ from dotenv import load_dotenv
 from selenium.common.exceptions import NoSuchElementException
 
 from constants import (
+    NEW_REVIEWS_SORTED,
+    SORTED_BLOCK,
     ORG_NAME_BLOCK,
     ORG_ADDRESS_BLOCK,
     AUTHOR_ELEMENT,
@@ -109,6 +111,27 @@ def ya_prim_coll(original_url):
     logger.info(f"Переходим на страницу с отзывами: {reviews_url}")
     driver.get(reviews_url)
     sleep(5)
+
+    try:
+        # Ищем элемент сортировки "По умолчанию" и кликаем по нему
+        filter_button = WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, SORTED_BLOCK))
+        )
+        filter_button.click()
+
+        # Ждем, пока появится элемент с опцией "По новизне" и кликаем по нему
+        newest_filter = WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.XPATH, NEW_REVIEWS_SORTED))
+        )
+
+        # Прокрутка до элемента (если нужно)
+        driver.execute_script("arguments[0].scrollIntoView();", newest_filter)
+
+        # Кликаем по элементу "По новизне"
+        newest_filter.click()
+        print("Сортировка по новизне выбрана.")
+    except Exception as e:
+        print(f"Ошибка при выборе сортировки: {e}")
 
     # Вычисляем общее количество отзывов
     try:
