@@ -260,9 +260,8 @@ def ya_prim_coll(original_url):
     # Добавляем семантику и сортируем по дате
     new_reviews_to_save = set()
     for review in all_reviews:
-        # review_text = review[3]
-        # semantic = simple_semantic(review_text=review_text)
-        semantic = 'H'  # Примерная семантика, можете заменить на реальную
+        review_text = review[3]
+        semantic = simple_semantic(review_text=review_text)
         # добавляем семантическую оценку
         review_with_semantic = review + (semantic,)
         new_reviews_to_save.add(review_with_semantic)
