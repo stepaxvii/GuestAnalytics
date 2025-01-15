@@ -252,8 +252,8 @@ def ya_prim_coll(original_url):
         # Добавляем собранные уникальные отзывы в общий список
         all_reviews.update(unique_reviews)
 
-    # Собираем отзывы по сортировке "По умолчанию"
-    collect_reviews(DEFAULT_REVIEWS_SORTED)
+    # Собираем отзывы по сортировке "По новизне"
+    collect_reviews(NEW_REVIEWS_SORTED)
 
     # Собираем отзывы по сортировке "Позитивные"
     collect_reviews(POZITIVE_REVIEWS_SORTED)
