@@ -1,11 +1,9 @@
 import logging
-
 from selenium.webdriver import Firefox, FirefoxOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
 from datetime import datetime
 from time import sleep
 from os import getenv
@@ -13,7 +11,10 @@ from dotenv import load_dotenv
 from selenium.common.exceptions import NoSuchElementException
 
 from constants import (
+    POZITIVE_REVIEWS_SORTED,
+    NEGATIVE_REVIEWS_SORTED,
     NEW_REVIEWS_SORTED,
+    DEFAULT_REVIEWS_SORTED,
     SORTED_BLOCK,
     ORG_NAME_BLOCK,
     ORG_ADDRESS_BLOCK,
@@ -39,6 +40,18 @@ load_dotenv()
 DRIVER_PATH = getenv('DRIVER_PATH', default='')
 
 
+def scroll_to_bottom(driver, elem, prev_reviews_count):
+    """Функция для скроллинга до последнего отзыва с проверкой."""
+    driver.execute_script("arguments[0].scrollIntoView();", elem)
+    sleep(1)  # Даем время на загрузку новых элементов
+    reviews = driver.find_elements(By.CLASS_NAME, CARD_REVIEWS_BLOCK)
+
+    # Проверяем, если количество отзывов не изменилось, заканчиваем
+    if len(reviews) == prev_reviews_count:
+        return True
+    return False
+
+
 def ya_prim_coll(original_url):
     """
     Функция для первичного сбора отзывов ресторана
@@ -54,7 +67,6 @@ def ya_prim_coll(original_url):
     try:
         logger.info("Запускаем Firefox WebDriver...")
         driver = Firefox(service=service, options=options)
-        actions = ActionChains(driver)
         logger.info("WebDriver успешно запущен.")
     except Exception as e:
         logger.error(f"Ошибка при запуске WebDriver: {e}")
@@ -80,7 +92,6 @@ def ya_prim_coll(original_url):
     try:
         org_name_element = driver.find_element(By.CSS_SELECTOR, ORG_NAME_BLOCK)
         org_name = org_name_element.text.strip()
-        logger.info(f"Название организации: {org_name}")
     except NoSuchElementException:
         org_name = None
         logger.error("Не удалось найти название организации")
@@ -89,7 +100,6 @@ def ya_prim_coll(original_url):
     try:
         address_element = driver.find_element(By.CLASS_NAME, ORG_ADDRESS_BLOCK)
         full_address = address_element.text.strip()
-        logger.info(f"Адрес организации: {full_address}")
     except NoSuchElementException:
         full_address = None
         logger.error("Не удалось найти полный адрес")
@@ -99,7 +109,6 @@ def ya_prim_coll(original_url):
         # Формирование общей информации о ресторане
         restaurant_data = (org_name, org_url, full_address)
         try:
-            logger.info("Добавляем ресторан в базу данных...")
             create_restaurant(data=restaurant_data)
             logger.info("Ресторан успешно добавлен в базу данных.")
         except Exception as e:
@@ -112,27 +121,7 @@ def ya_prim_coll(original_url):
     driver.get(reviews_url)
     sleep(5)
 
-    try:
-        # Ищем элемент сортировки "По умолчанию" и кликаем по нему
-        filter_button = WebDriverWait(driver, 20).until(
-            EC.element_to_be_clickable((By.CLASS_NAME, SORTED_BLOCK))
-        )
-        filter_button.click()
-
-        # Ждем, пока появится элемент с опцией "По новизне" и кликаем по нему
-        newest_filter = WebDriverWait(driver, 20).until(
-            EC.element_to_be_clickable((By.XPATH, NEW_REVIEWS_SORTED))
-        )
-
-        # Прокрутка до элемента (если нужно)
-        driver.execute_script("arguments[0].scrollIntoView();", newest_filter)
-
-        # Кликаем по элементу "По новизне"
-        newest_filter.click()
-        print("Сортировка по новизне выбрана.")
-    except Exception as e:
-        print(f"Ошибка при выборе сортировки: {e}")
-
+    # Если сортировка успешно выбрана, продолжаем выполнение функции
     # Вычисляем общее количество отзывов
     try:
         total_count_element = WebDriverWait(driver, 5).until(
@@ -150,63 +139,130 @@ def ya_prim_coll(original_url):
 
     sleep(2)
 
-    # Создаём текстовый документ для хранения и отправки отзывов юзеру
-    unique_reviews = set()
+    # Список для хранения всех уникальных отзывов
+    all_reviews = set()
 
-    while len(unique_reviews) < total_count:
-        # Получаем все отзывы на странице
-        logger.info(f'Уникальных отзывов: {len(unique_reviews)}')
-        reviews = driver.find_elements(By.CLASS_NAME, CARD_REVIEWS_BLOCK)
-
-        # Сохраняем текущие отзывы из зоны видимости
-        for review in reviews:
+    # Функция для сбора отзывов с заданной сортировкой
+    def collect_reviews(sort_xpath):
+        logger.info(f"Сортировка по: {sort_xpath}")
+        attempt_count = 0
+        while attempt_count < 3:
             try:
-                date_str = review.find_element(
-                    By.CSS_SELECTOR, DATE_ELEMENT
-                ).get_attribute('content')
-                review_date = datetime.strptime(
-                    date_str, "%Y-%m-%dT%H:%M:%S.%fZ"
-                ).strftime(DATE_FORMAT)
-                author_name = review.find_element(
-                    By.CSS_SELECTOR,
-                    AUTHOR_ELEMENT
-                ).text
-                try:
-                    # Попытка найти значение рейтинга
-                    rating_value = WebDriverWait(review, 10).until(
-                        EC.presence_of_element_located(
-                            (By.CSS_SELECTOR, RATING_ELEMENT)
-                        )
-                    ).get_attribute('content')
-                    rating_value = int(rating_value.split('.')[0])
-                except Exception as e:
-                    logger.error(
-                        f"Ошибка при получении значения рейтинга: {e}"
-                    )
-                    rating_value = None
-
-                text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
-
-                # Сохранение отзыва в множество для уникальности
-                review_entry = (
-                    review_date, author_name, rating_value, text,
+                # Ищем элемент сортировки и кликаем по нему
+                filter_button = WebDriverWait(driver, 20).until(
+                    EC.element_to_be_clickable((By.CLASS_NAME, SORTED_BLOCK))
                 )
-                unique_reviews.add(review_entry)
+                filter_button.click()
 
+                # Ждем, пока появится элемент с нужной опцией и кликаем по нему
+                sort_filter = WebDriverWait(driver, 20).until(
+                    EC.element_to_be_clickable((By.XPATH, sort_xpath))
+                )
+                # Прокручиваем до элемента (если нужно)
+                driver.execute_script(
+                    "arguments[0].scrollIntoView();", sort_filter
+                )
+
+                # Кликаем по элементу сортировки
+                sort_filter.click()
+                logger.info(f"Сортировка {sort_xpath} выбрана.")
+                sleep(5)
+                break
             except Exception as e:
-                logger.error(f"Ошибка при получении информации об отзыве: {e}")
+                logger.error(f"Ошибка при выборе сортировки: {e}")
+                attempt_count += 1
+                if attempt_count == 3:
+                    logger.error("Ошибка на стороне сервера, попробуйте позже")
+                    driver.quit()
+                    return "Ошибка на стороне сервера, попробуйте позже"
+                sleep(2)
 
-        for i in range(0, 30):
-            # Прокрутка страницы вниз для получения следующего отзыва
-            actions.scroll_by_amount(0, 2000).perform()
-            sleep(0.5)
+        # Прокручиваем страницу до конца, чтобы загрузить все отзывы
+        unique_reviews = set()
+        prev_reviews_count = 0
+        while len(unique_reviews) < total_count and len(unique_reviews) < 600:
+            logger.info(
+                f'Уникальных отзывов в сортировке {sort_xpath}: '
+                f'{len(unique_reviews)}'
+            )
 
+            # Получаем все отзывы на странице
+            reviews = driver.find_elements(By.CLASS_NAME, CARD_REVIEWS_BLOCK)
+
+            # Прокручиваем до последнего отзыва на странице
+            if reviews:
+                # Проверяем, загрузились ли новые отзывы
+                if scroll_to_bottom(driver, reviews[-1], prev_reviews_count):
+                    break  # Если новых отзывов нет, выходим
+                prev_reviews_count = len(reviews)
+
+            # Сохраняем текущие отзывы из зоны видимости
+            for review in reviews:
+                try:
+                    date_str = review.find_element(
+                        By.CSS_SELECTOR, DATE_ELEMENT
+                    ).get_attribute('content')
+                    review_date = datetime.strptime(
+                        date_str, "%Y-%m-%dT%H:%M:%S.%fZ"
+                    ).strftime(DATE_FORMAT)
+                    author_name = review.find_element(
+                        By.CSS_SELECTOR,
+                        AUTHOR_ELEMENT
+                    ).text
+                    try:
+                        # Попытка найти значение рейтинга
+                        rating_value = WebDriverWait(review, 10).until(
+                            EC.presence_of_element_located(
+                                (By.CSS_SELECTOR, RATING_ELEMENT)
+                            )
+                        ).get_attribute('content')
+                        rating_value = int(rating_value.split('.')[0])
+                    except Exception as e:
+                        logger.error(
+                            f"Ошибка при получении значения рейтинга: {e}"
+                        )
+                        rating_value = None
+
+                    text = review.find_element(
+                        By.CLASS_NAME, TEXT_ELEMENT
+                    ).text
+
+                    # Сохранение отзыва в множество для уникальности
+                    review_entry = (
+                        review_date, author_name, rating_value, text,
+                    )
+                    unique_reviews.add(review_entry)
+
+                except Exception as e:
+                    logger.error(f"Ошибка при получении информации: {e}")
+
+            # Ждем небольшую паузу перед следующей прокруткой
+            sleep(7)
+
+        # Добавляем собранные уникальные отзывы в общий список
+        all_reviews.update(unique_reviews)
+
+    # Собираем отзывы по сортировке "По новизне"
+    collect_reviews(NEW_REVIEWS_SORTED)
+
+    # Собираем отзывы по сортировке "Позитивные"
+    collect_reviews(POZITIVE_REVIEWS_SORTED)
+
+    # Собираем отзывы по сортировке "Негативные"
+    collect_reviews(NEGATIVE_REVIEWS_SORTED)
+
+    # Собираем отзывы по сортировке "По умолчанию"
+    collect_reviews(DEFAULT_REVIEWS_SORTED)
+
+    # Выводим количество собранных уникальных отзывов
+    logger.info(f"Общее количество уникальных отзывов: {len(all_reviews)}")
+
+    # Добавляем семантику и сортируем по дате
     new_reviews_to_save = set()
-
-    # Отправляем тексты отвывов для определения семантики
-    for review in unique_reviews:
-        review_text = review[3]
-        semantic = simple_semantic(review_text=review_text)
+    for review in all_reviews:
+        # review_text = review[3]
+        # semantic = simple_semantic(review_text=review_text)
+        semantic = 'H'  # Примерная семантика, можете заменить на реальную
         # добавляем семантическую оценку
         review_with_semantic = review + (semantic,)
         new_reviews_to_save.add(review_with_semantic)
@@ -242,4 +298,4 @@ def ya_prim_coll(original_url):
     logger.info("Закрываем браузер.")
     driver.quit()
 
-    return total_count
+    return len(sorted_reviews)
