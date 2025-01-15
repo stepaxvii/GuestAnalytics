@@ -41,15 +41,25 @@ DRIVER_PATH = getenv('DRIVER_PATH', default='')
 
 
 def scroll_to_bottom(driver, elem, prev_reviews_count):
-    """Функция для скроллинга до последнего отзыва с проверкой."""
+    """Функция для скроллинга до последнего отзыва."""
     driver.execute_script("arguments[0].scrollIntoView();", elem)
-    sleep(1)  # Даем время на загрузку новых элементов
+    sleep(3)
     reviews = driver.find_elements(By.CLASS_NAME, CARD_REVIEWS_BLOCK)
 
-    # Проверяем, если количество отзывов не изменилось, заканчиваем
-    if len(reviews) == prev_reviews_count:
-        return True
-    return False
+    # Проверяем изменение количества отзывов за три попытки
+    attempts = 0
+    while attempts < 3:
+        if len(reviews) == prev_reviews_count:
+            attempts += 1
+            logger.info(f"Попытка {attempts}: Количество не изменилось.")
+            sleep(1)
+            reviews = driver.find_elements(By.CLASS_NAME, CARD_REVIEWS_BLOCK)
+        else:
+            return False  # Отзывы изменились, продолжаем собирать
+
+    # Если три попытки подряд не дали изменений в количестве отзывов, завершаем
+    logger.info("Завершаем сбор.")
+    return True  # Возвращаем True, что значит, что новых отзывов нет
 
 
 def ya_prim_coll(original_url):
@@ -242,8 +252,8 @@ def ya_prim_coll(original_url):
         # Добавляем собранные уникальные отзывы в общий список
         all_reviews.update(unique_reviews)
 
-    # Собираем отзывы по сортировке "По новизне"
-    collect_reviews(NEW_REVIEWS_SORTED)
+    # Собираем отзывы по сортировке "По умолчанию"
+    collect_reviews(DEFAULT_REVIEWS_SORTED)
 
     # Собираем отзывы по сортировке "Позитивные"
     collect_reviews(POZITIVE_REVIEWS_SORTED)
