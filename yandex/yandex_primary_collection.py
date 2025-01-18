@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-DRIVER_PATH = getenv('DRIVER_PATH', default='C:\\Users\\stepa\\Downloads\\geckodriver-v0.35.0-win64\\geckodriver.exe')
+DRIVER_PATH = getenv('DRIVER_PATH')
 
 
 def scroll_to_bottom(driver, elem, prev_reviews_count):
