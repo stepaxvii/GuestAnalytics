@@ -72,7 +72,7 @@ def ya_prim_coll(original_url):
     logger.info(f"Начинаем сбор данных с URL: {original_url}")
 
     options = FirefoxOptions()
-    # options.add_argument('--headless')
+    options.add_argument('--headless')
     service = Service(DRIVER_PATH)
 
     # Инициализация драйвера Firefox
