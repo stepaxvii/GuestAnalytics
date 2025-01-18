@@ -22,13 +22,15 @@ from constants import (
     DATE_ELEMENT,
     DATE_FORMAT,
     COUNT_REVIEWS_BLOCK,
+    LINK_ELEMENT,
     CARD_REVIEWS_BLOCK,
     RATING_ELEMENT,
-    TEXT_ELEMENT
+    TEXT_ELEMENT,
+    MAX_VIEW_REVIEWS
 )
 from data_base.create_data import create_restaurant, create_review
 from data_base.read_data import read_some_restaurant_data
-from semantic_analysis.simple_semantic import simple_semantic
+# from semantic_analysis.simple_semantic import simple_semantic
 from utils.urls import process_url_yandex
 
 # Настройка логирования
@@ -37,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-DRIVER_PATH = getenv('DRIVER_PATH', default='')
+DRIVER_PATH = getenv('DRIVER_PATH', default='C:\\Users\\stepa\\Downloads\\geckodriver-v0.35.0-win64\\geckodriver.exe')
 
 
 def scroll_to_bottom(driver, elem, prev_reviews_count):
@@ -70,7 +72,7 @@ def ya_prim_coll(original_url):
     logger.info(f"Начинаем сбор данных с URL: {original_url}")
 
     options = FirefoxOptions()
-    options.add_argument('--headless')
+    # options.add_argument('--headless')
     service = Service(DRIVER_PATH)
 
     # Инициализация драйвера Firefox
@@ -190,7 +192,10 @@ def ya_prim_coll(original_url):
         # Прокручиваем страницу до конца, чтобы загрузить все отзывы
         unique_reviews = set()
         prev_reviews_count = 0
-        while len(unique_reviews) < total_count and len(unique_reviews) < 600:
+        while (
+            len(unique_reviews) < total_count
+            and len(unique_reviews) < MAX_VIEW_REVIEWS
+        ):
             logger.info(
                 f'Уникальных отзывов в сортировке {sort_xpath}: '
                 f'{len(unique_reviews)}'
@@ -205,7 +210,6 @@ def ya_prim_coll(original_url):
                 if scroll_to_bottom(driver, reviews[-1], prev_reviews_count):
                     break  # Если новых отзывов нет, выходим
                 prev_reviews_count = len(reviews)
-
             # Сохраняем текущие отзывы из зоны видимости
             for review in reviews:
                 try:
@@ -215,10 +219,13 @@ def ya_prim_coll(original_url):
                     review_date = datetime.strptime(
                         date_str, "%Y-%m-%dT%H:%M:%S.%fZ"
                     ).strftime(DATE_FORMAT)
+
+                    # Извлекаем имя автора
                     author_name = review.find_element(
                         By.CSS_SELECTOR,
                         AUTHOR_ELEMENT
                     ).text
+
                     try:
                         # Попытка найти значение рейтинга
                         rating_value = WebDriverWait(review, 10).until(
@@ -233,13 +240,39 @@ def ya_prim_coll(original_url):
                         )
                         rating_value = None
 
+                    # Текст отзыва
                     text = review.find_element(
                         By.CLASS_NAME, TEXT_ELEMENT
                     ).text
+                    # Ищем ссылку на пользователя в текущем отзыве
+                    try:
+                        author_link = review.find_element(
+                            By.CSS_SELECTOR, LINK_ELEMENT
+                        ).get_attribute("href")
+                    except NoSuchElementException:
+                        logger.error("Не удалось найти ссылку на пользователя")
+                        author_link = None
+
+                    # Сохраняем данные отзыва
+                    review_entry = (
+                        review_date,
+                        author_name,
+                        author_link,
+                        rating_value,
+                        text,
+                    )
+                    unique_reviews.add(review_entry)
+
+                except Exception as e:
+                    logger.error(f"Ошибка при получении информации: {e}")
 
                     # Сохранение отзыва в множество для уникальности
                     review_entry = (
-                        review_date, author_name, rating_value, text,
+                        review_date,
+                        author_name,
+                        author_link,
+                        rating_value,
+                        text,
                     )
                     unique_reviews.add(review_entry)
 
@@ -255,14 +288,16 @@ def ya_prim_coll(original_url):
     # Собираем отзывы по сортировке "По новизне"
     collect_reviews(NEW_REVIEWS_SORTED)
 
-    # Собираем отзывы по сортировке "Позитивные"
-    collect_reviews(POZITIVE_REVIEWS_SORTED)
+    # Изменяем сортировку, если общее количество отзывов больше 600
+    if total_count > MAX_VIEW_REVIEWS:
+        # Собираем отзывы по сортировке "Позитивные"
+        collect_reviews(POZITIVE_REVIEWS_SORTED)
 
-    # Собираем отзывы по сортировке "Негативные"
-    collect_reviews(NEGATIVE_REVIEWS_SORTED)
+        # Собираем отзывы по сортировке "Негативные"
+        collect_reviews(NEGATIVE_REVIEWS_SORTED)
 
-    # Собираем отзывы по сортировке "По умолчанию"
-    collect_reviews(DEFAULT_REVIEWS_SORTED)
+        # Собираем отзывы по сортировке "По умолчанию"
+        collect_reviews(DEFAULT_REVIEWS_SORTED)
 
     # Выводим количество собранных уникальных отзывов
     logger.info(f"Общее количество уникальных отзывов: {len(all_reviews)}")
@@ -270,8 +305,8 @@ def ya_prim_coll(original_url):
     # Добавляем семантику и сортируем по дате
     new_reviews_to_save = set()
     for review in all_reviews:
-        review_text = review[3]
-        semantic = simple_semantic(review_text=review_text)
+        # review_text = review[3]
+        semantic = None  # simple_semantic(review_text=review_text)
         # добавляем семантическую оценку
         review_with_semantic = review + (semantic,)
         new_reviews_to_save.add(review_with_semantic)
@@ -289,14 +324,18 @@ def ya_prim_coll(original_url):
 
     # Запись уникальных отзывов в базу данных
     for review in sorted_reviews:
-        review_date, author_name, rating_value, text, semantic = review
+        (
+            review_date, author_name, author_link, rating_value, text, semantic
+        ) = review
+
         review_data = (
             restaurant_id,
             review_date,
             author_name,
+            author_link,
             rating_value,
             text,
-            semantic
+            semantic,
         )
         try:
             create_review(review_data)

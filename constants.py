@@ -1,7 +1,7 @@
-TG_CHANNAL = -1002046637366
 TG_ID = 861742986
 DATE_FORMAT = '%Y-%m-%d'
 MAX_LENGTH_STR = 255
+MAX_VIEW_REVIEWS = 600
 
 # ЯндексКарты
 ORG_NAME_BLOCK = 'h1.orgpage-header-view__header'
@@ -15,5 +15,6 @@ NEGATIVE_REVIEWS_SORTED = '//div[@aria-label="Сначала отрицател�
 DEFAULT_REVIEWS_SORTED = '//div[@aria-label="По умолчанию"]'
 DATE_ELEMENT = 'meta[itemprop="datePublished"]'
 AUTHOR_ELEMENT = 'div.business-review-view__author-name span[itemprop="name"]'
+LINK_ELEMENT = 'a.business-review-view__user-icon'
 RATING_ELEMENT = 'span[itemprop="reviewRating"] meta[itemprop="ratingValue"]'
 TEXT_ELEMENT = 'business-review-view__body-text'

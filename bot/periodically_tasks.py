@@ -1,12 +1,17 @@
 import asyncio
 import logging
+from os import getenv
 
 from aiogram import Bot
+from dotenv import load_dotenv
 
-from constants import TG_CHANNAL
 from data_base.read_data import read_all_restaurant_data
 from utils.message_text import get_star_rating
 from yandex.yandex_check_new_reviews import matching_reviews
+
+load_dotenv()
+
+TG_GROUP = getenv('TG_GROUP')
 
 
 # Функция для проверки новых отзывов
@@ -42,7 +47,7 @@ async def check_new_reviews_periodically(bot: Bot):
                         )
 
                         # Отправляем сообщение в канал
-                        await bot.send_message(TG_CHANNAL, message)
+                        await bot.send_message(TG_GROUP, message)
                         await asyncio.sleep(3)
 
             logging.info("Проверка новых отзывов завершена.")

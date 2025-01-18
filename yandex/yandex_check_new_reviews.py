@@ -1,3 +1,5 @@
+import logging
+
 from selenium.webdriver import Firefox, FirefoxOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service
@@ -12,6 +14,7 @@ from constants import (
     NEW_REVIEWS_SORTED,
     SORTED_BLOCK,
     AUTHOR_ELEMENT,
+    LINK_ELEMENT,
     DATE_ELEMENT,
     DATE_FORMAT,
     CARD_REVIEWS_BLOCK,
@@ -20,9 +23,14 @@ from constants import (
 )
 from data_base.create_data import create_review
 from data_base.read_data import read_some_restaurant_data, read_rest_ya_reviews
-from semantic_analysis.simple_semantic import simple_semantic
+# from semantic_analysis.simple_semantic import simple_semantic
 
 load_dotenv()
+
+
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 DRIVER_PATH = getenv('DRIVER_PATH', default='')
 
@@ -60,9 +68,9 @@ def ya_check_reviews(org_url):
 
         # Кликаем по элементу "По новизне"
         newest_filter.click()
-        print("Сортировка по новизне выбрана.")
+        logging.info("Сортировка по новизне выбрана.")
     except Exception as e:
-        print(f"Ошибка при выборе сортировки: {e}")
+        logging.info(f"Ошибка при выборе сортировки: {e}")
 
     # Создаём множество для хранения уникальных отзывов
     unique_reviews = set()
@@ -81,6 +89,10 @@ def ya_check_reviews(org_url):
             author_name = review.find_element(
                 By.CSS_SELECTOR, AUTHOR_ELEMENT
             ).text
+            author_link = review.find_element(
+                By.CSS_SELECTOR,
+                LINK_ELEMENT
+            ).get_attribute('href')
             try:
                 # Попытка найти значение рейтинга
                 rating_value = WebDriverWait(review, 10).until(
@@ -89,20 +101,21 @@ def ya_check_reviews(org_url):
                     )
                 ).get_attribute('content')
             except Exception as e:
-                print(f"Ошибка при получении значения рейтинга: {e}")
+                logging.info(f"Ошибка при получении значения рейтинга: {e}")
             text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
             # Сохранение отзыва в множество для уникальности
             review_entry = (
                 review_date,
                 author_name,
                 rating_value,
-                text
+                text,
+                author_link,
             )
             unique_reviews.add(review_entry)
-            print(f'Уникальных отзывов: {len(unique_reviews)}')
 
         except Exception as e:
-            print(f"Ошибка при получении информации об отзыве: {e}")
+            logging.info(f"Ошибка при получении информации об отзыве: {e}")
+        logging.info(f'Уникальных отзывов: {len(unique_reviews)}')
 
     # Закрываем браузер
     driver.quit()
@@ -151,8 +164,8 @@ def matching_reviews(org_url):
     # Выбираем тексты отзывов для формирования семантической оценки
     if new_reviews_to_semantic:
         for new_review in new_reviews_to_semantic:
-            review_text = new_review[3]
-            semantic = simple_semantic(review_text=review_text)
+            # review_text = new_review[3]
+            semantic = None  # simple_semantic(review_text=review_text)
             # добавляем семантическую оценку
             new_review = new_review + (semantic,)
             new_reviews_to_save.add(new_review)
@@ -169,11 +182,19 @@ def matching_reviews(org_url):
 
         # Вызываем функцию для сохранения новых отзывов
         for review in sorted_new_reviews:
-            review_date, author_name, rating_value, text, semantic = review
+            (
+                review_date,
+                author_name,
+                author_link,
+                rating_value,
+                text,
+                semantic
+            ) = review
             review_data = (
                 restaurant_id,
                 review_date,
                 author_name,
+                author_link,
                 rating_value,
                 text,
                 semantic

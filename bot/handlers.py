@@ -1,4 +1,5 @@
 import asyncio
+from os import getenv
 
 from aiogram import Bot, Router
 from aiogram.filters import CommandStart
@@ -8,12 +9,17 @@ from aiogram.types import (
     CallbackQuery,
     Message
 )
+from dotenv import load_dotenv
 
-from constants import TG_CHANNAL
 from data_base.read_data import read_all_restaurant_data
 from utils.message_text import get_star_rating
 from yandex.yandex_primary_collection import ya_prim_coll
 from yandex.yandex_check_new_reviews import matching_reviews
+
+
+load_dotenv()
+
+TG_GROUP = getenv('TG_GROUP')
 
 router = Router()
 
@@ -78,7 +84,7 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
                 )
 
                 # Отправляем сообщение в канал
-                await bot.send_message(TG_CHANNAL, message)
+                await bot.send_message(TG_GROUP, message)
                 await asyncio.sleep(3)
 
             await callback_query.message.answer(
