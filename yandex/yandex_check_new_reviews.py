@@ -160,8 +160,8 @@ def matching_reviews(org_url):
         review_tuple = (
             review[0],
             review[1],
-            int(review[2].split('.')[0]),
-            review[3]
+            int(review[3].split('.')[0]),
+            review[4]
         )
         if review_tuple not in old_reviews_set:
             new_reviews_to_semantic.add(review_tuple)
