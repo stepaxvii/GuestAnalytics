@@ -33,7 +33,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-DRIVER_PATH = getenv('DRIVER_PATH', default='')
+DRIVER_PATH = getenv('DRIVER_PATH')
 
 
 def ya_check_reviews(org_url):
@@ -186,15 +186,11 @@ def matching_reviews(org_url):
         )
 
         # Вызываем функцию для сохранения новых отзывов
+        # Преобразование в кортеж с семантическим анализом (если он существует)
         for review in sorted_new_reviews:
-            (
-                review_date,
-                author_name,
-                author_link,
-                rating_value,
-                text,
-                semantic
-            ) = review
+            review_date, author_name, author_link, rating_value, text, *semantic_data = review
+            semantic = semantic_data[0] if semantic_data else None  # Получаем значение semantic или None
+
             review_data = (
                 restaurant_id,
                 review_date,
@@ -204,9 +200,11 @@ def matching_reviews(org_url):
                 text,
                 semantic
             )
+
             create_review(review_data)
 
+
     else:
-        print("Новых отзывов нет.")
+        logging.info("Новых отзывов нет.")
 
     return sorted_new_reviews
