@@ -64,93 +64,6 @@ def scroll_to_bottom(driver, elem, prev_reviews_count):
     return True  # Возвращаем True, что значит, что новых отзывов нет
 
 
-# def ya_prim_coll(original_url):
-#     """
-#     Функция для первичного сбора отзывов ресторана
-#     и заполнения БД данными о ресторане и отзывами.
-#     """
-#     logger.info(f"Начинаем сбор данных с URL: {original_url}")
-
-#     options = FirefoxOptions()
-#     options.add_argument('--headless')
-#     service = Service(DRIVER_PATH)
-
-#     # Инициализация драйвера Firefox
-#     try:
-#         logger.info("Запускаем Firefox WebDriver...")
-#         driver = Firefox(service=service, options=options)
-#         logger.info("WebDriver успешно запущен.")
-#     except Exception as e:
-#         logger.error(f"Ошибка при запуске WebDriver: {e}")
-#         return
-
-#     # Переходим на url юзера
-#     logger.info(f"Переходим по URL: {original_url}")
-#     driver.get(original_url)
-#     sleep(2)
-
-#     # Извлекаем полный url-адрес для дальнейшей работы
-#     full_org_url = driver.current_url
-#     logger.info(f"Полный URL компании: {full_org_url}")
-
-#     org_url, reviews_url = process_url_yandex(full_org_url)
-
-#     # Переходим на страницу компании и ждём полной загрузки
-#     logger.info(f"Переходим на страницу компании: {org_url}")
-#     driver.get(org_url)
-#     sleep(5)
-
-#     # Получаем название организации с обработкой ошибок
-#     try:
-#         org_name_element = driver.find_element(By.CSS_SELECTOR, ORG_NAME_BLOCK)
-#         org_name = org_name_element.text.strip()
-#     except NoSuchElementException:
-#         org_name = None
-#         logger.error("Не удалось найти название организации")
-
-#     # Получаем полный адрес с обработкой ошибок
-#     try:
-#         address_element = driver.find_element(By.CLASS_NAME, ORG_ADDRESS_BLOCK)
-#         full_address = address_element.text.strip()
-#     except NoSuchElementException:
-#         full_address = None
-#         logger.error("Не удалось найти полный адрес")
-
-#     # Проверяем, что данные получены перед сохранением в базу данных
-#     if org_name is not None:
-#         # Формирование общей информации о ресторане
-#         restaurant_data = (org_name, org_url, full_address)
-#         try:
-#             create_restaurant(data=restaurant_data)
-#             logger.info("Ресторан успешно добавлен в базу данных.")
-#         except Exception as e:
-#             logger.error(f"Ошибка при добавлении ресторана в базу данных: {e}")
-#     else:
-#         logger.info("Пропускаем ресторан, так как название не найдено.")
-
-#     # Переходим на страницу с отзывами и ждём полной загрузки
-#     logger.info(f"Переходим на страницу с отзывами: {reviews_url}")
-#     driver.get(reviews_url)
-#     sleep(5)
-
-#     # Если сортировка успешно выбрана, продолжаем выполнение функции
-#     # Вычисляем общее количество отзывов
-#     try:
-#         total_count_element = WebDriverWait(driver, 5).until(
-#             EC.visibility_of_element_located(
-#                 (By.CLASS_NAME, COUNT_REVIEWS_BLOCK)
-#             )
-#         )
-#         total_count_text = total_count_element.text
-#         total_count = int(total_count_text.split()[0])
-#         logger.info(f"Общее количество отзывов: {total_count}")
-#     except Exception as e:
-#         logger.error(f"Ошибка при получении общего количества отзывов: {e}")
-#         driver.quit()
-#         return
-
-#     sleep(2)
-
 #     # Список для хранения всех уникальных отзывов
 #     all_reviews = set()
 
@@ -349,12 +262,17 @@ def scroll_to_bottom(driver, elem, prev_reviews_count):
 #     return len(sorted_reviews)
 
 def ya_prim_coll(original_url):
+    """
+    Функция для первичного сбора отзывов ресторана
+    и заполнения БД данными о ресторане и отзывами.
+    """
     logger.info(f"Начинаем сбор данных с URL: {original_url}")
 
     options = FirefoxOptions()
     options.add_argument('--headless')
     service = Service(DRIVER_PATH)
 
+    # Инициализация драйвера Firefox
     try:
         logger.info("Запускаем Firefox WebDriver...")
         driver = Firefox(service=service, options=options)
@@ -363,16 +281,21 @@ def ya_prim_coll(original_url):
         logger.error(f"Ошибка при запуске WebDriver: {e}")
         return
 
+    # Переходим на url юзера
     driver.get(original_url)
     sleep(2)
+
+    # Извлекаем полный url-адрес для дальнейшей работы
     full_org_url = driver.current_url
     logger.info(f"Полный URL компании: {full_org_url}")
     org_url, reviews_url = process_url_yandex(full_org_url)
 
+    # Переходим на страницу компании и ждём полной загрузки
     logger.info(f"Переходим на страницу компании: {org_url}")
     driver.get(org_url)
     sleep(5)
 
+    # Получаем название и полный адрес с обработкой ошибок
     try:
         org_name_element = driver.find_element(By.CSS_SELECTOR, ORG_NAME_BLOCK)
         org_name = org_name_element.text.strip()
@@ -387,6 +310,7 @@ def ya_prim_coll(original_url):
         full_address = None
         logger.error("Не удалось найти полный адрес")
 
+    # Проверяем, что данные получены перед сохранением в базу данных
     if org_name:
         restaurant_data = {'org_name': org_name, 'org_url': org_url, 'full_address': full_address}
         try:
@@ -397,6 +321,7 @@ def ya_prim_coll(original_url):
     else:
         logger.info("Пропускаем ресторан, так как название не найдено.")
 
+    # Переходим на страницу с отзывами и ждём полной загрузки
     logger.info(f"Переходим на страницу с отзывами: {reviews_url}")
     driver.get(reviews_url)
     sleep(5)
@@ -456,9 +381,15 @@ def ya_prim_coll(original_url):
 
             for review in reviews:
                 try:
-                    date_str = review.find_element(By.CSS_SELECTOR, DATE_ELEMENT).get_attribute('content')
-                    review_date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ").strftime(DATE_FORMAT)
-                    author_name = review.find_element(By.CSS_SELECTOR, AUTHOR_ELEMENT).text
+                    date_str = review.find_element(
+                        By.CSS_SELECTOR, DATE_ELEMENT
+                    ).get_attribute('content')
+                    review_date = datetime.strptime(
+                        date_str, "%Y-%m-%dT%H:%M:%S.%fZ"
+                    ).strftime(DATE_FORMAT)
+                    author_name = review.find_element(
+                        By.CSS_SELECTOR, AUTHOR_ELEMENT
+                    ).text
 
                     try:
                         rating_value = WebDriverWait(review, 10).until(

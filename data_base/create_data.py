@@ -68,7 +68,7 @@ def create_review(data):
         # Логируем информацию о сохранённом отзыве
         logging.info(
             f"Отзыв сохранён: Дата - {created_at}, "
-            "Автор - {author}, Рейтинг - {rating}"
+            f"Автор - {author}, Рейтинг - {rating}"
         )
 
     except Exception as e:
