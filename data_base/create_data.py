@@ -31,11 +31,18 @@ def create_restaurant(data):
 
 
 def create_review(data):
-    """Создание отзыва."""
+    """Создание отзыва из словаря."""
+    
+    # Извлекаем данные из словаря
+    restaurant_id = data.get('restaurant_id')
+    created_at = data.get('review_date')
+    author = data.get('author_name')
+    link = data.get('author_link', None)  # Используем .get(), чтобы избежать KeyError, если ключ отсутствует
+    content = data.get('text')
+    semantic = data.get('semantic', None)  # Используем .get(), чтобы проверить наличие semantic
+    rating = data.get('rating_value')
 
-    # Извлекаем данные из уникального отзыва и приводим в необходимый формат
-    restaurant_id, created_at, author, link, content, semantic, rating = data
-
+    # Создаем экземпляр YandexReview с данными из словаря
     review = YandexReview(
         restaurant_id=restaurant_id,
         created_at=created_at,
@@ -45,6 +52,9 @@ def create_review(data):
         semantic=semantic,
         link=link,
     )
+    
+    # Добавляем и коммитим запись в базу данных
     session.add(review)
     session.commit()
-    session.close
+    session.close()
+

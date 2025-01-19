@@ -523,9 +523,9 @@ def ya_prim_coll(original_url):
                 'restaurant_id': restaurant_id,
                 'review_date': review['review_date'],
                 'author_name': review['author_name'],
-                'author_link': review['author_link'],
+                'author_link': review.get("author_link", None),
                 'text': review['text'],
-                'semantic': review['semantic'],
+                'semantic': review.get("semantic"),
                 'rating_value': review['rating_value']
             }
             create_review(review_data)
