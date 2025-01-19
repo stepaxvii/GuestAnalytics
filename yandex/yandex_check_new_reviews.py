@@ -480,17 +480,28 @@ def matching_reviews(org_url):
 
         # Вызываем функцию для сохранения новых отзывов
         for review in sorted_new_reviews:
-            review_data = (
+            review_data_tuple = (
             restaurant_id,
             review["review_date"],
             review["author_name"],
-            review.get("author_link", None),  # Используем .get(), чтобы не было ошибки
+            review.get("author_link", None),
             review["text"],
-            review.get("semantic"),  # Можно также проверить наличие semantic
+            review.get("semantic", None),
             review["rating_value"],
         )
 
-            create_review(review_data)
+        # Преобразуем кортеж в словарь
+        review_data_dict = {
+            'restaurant_id': review_data_tuple[0],
+            'review_date': review_data_tuple[1],
+            'author_name': review_data_tuple[2],
+            'author_link': review_data_tuple[3],
+            'text': review_data_tuple[4],
+            'semantic': review_data_tuple[5],
+            'rating_value': review_data_tuple[6],
+        }
+
+        create_review(review_data_dict)
 
     else:
         logging.info("Новых отзывов нет.")
