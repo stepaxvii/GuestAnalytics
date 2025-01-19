@@ -112,9 +112,9 @@ def ya_check_reviews(org_url):
             review_entry = (
                 review_date,
                 author_name,
+                author_link,
                 rating_value,
                 text,
-                author_link,
             )
             unique_reviews.add(review_entry)
 
