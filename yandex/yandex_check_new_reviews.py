@@ -278,9 +278,9 @@ def matching_reviews(org_url):
                 review_date,
                 author_name,
                 author_link,
-                rating_value,
                 text,
-                semantic
+                semantic,
+                rating_value,
             )
 
             create_review(review_data)
