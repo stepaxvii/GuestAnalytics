@@ -127,6 +127,88 @@ def ya_check_reviews(org_url):
     return unique_reviews
 
 
+# def matching_reviews(org_url):
+#     """Функция сравнения собранных отзывов с БД."""
+
+#     # Определяем id ресторана для связи с отзывами
+#     restaurant_data = read_some_restaurant_data(org_url=org_url)
+#     restaurant_id = restaurant_data['id']
+
+#     # Обращаемся в БД к сохранённым отзывам
+#     old_review_data = read_rest_ya_reviews(restaurant_id=restaurant_id)
+
+#     # Создаём множество старых отзывов в виде кортежей (для быстрого поиска)
+#     old_reviews_set = set()
+#     for review in old_review_data:
+#         review_tuple = (
+#             review.created_at,
+#             review.author,
+#             review.rating,
+#             review.content
+#         )
+#         old_reviews_set.add(review_tuple)
+
+#     # Собираем последние 50 отзывов на странице ресторана
+#     new_review_data = ya_check_reviews(org_url=org_url)
+
+#     # Создаём множество для новых уникальных отзывов
+#     new_reviews_to_semantic = set()
+#     new_reviews_to_save = set()
+
+#     # Выводим новые отзывы и проверяем, есть ли они среди старых
+#     for review in new_review_data:
+#         review_tuple = (
+#             review[0],
+#             review[1],
+#             int(review[3].split('.')[0]),
+#             review[4]
+#         )
+#         if review_tuple not in old_reviews_set:
+#             new_reviews_to_semantic.add(review_tuple)
+
+#     # Выбираем тексты отзывов для формирования семантической оценки
+#     if new_reviews_to_semantic:
+#         for new_review in new_reviews_to_semantic:
+#             # review_text = new_review[3]
+#             semantic = None  # simple_semantic(review_text=review_text)
+#             # добавляем семантическую оценку
+#             new_review = new_review + (semantic,)
+#             new_reviews_to_save.add(new_review)
+
+#     # Инициализируем переменную sorted_new_reviews даже если нет новых отзывов
+#     sorted_new_reviews = []
+
+#     # Если есть новые отзывы, сортируем их по дате и сохраняем
+#     if new_reviews_to_save:
+#         sorted_new_reviews = sorted(
+#             new_reviews_to_save,
+#             key=lambda x: datetime.strptime(x[0], DATE_FORMAT)
+#         )
+
+#         # Вызываем функцию для сохранения новых отзывов
+#         # Преобразование в кортеж с семантическим анализом (если он существует)
+#         for review in sorted_new_reviews:
+#             review_date, author_name, author_link, rating_value, text, *semantic_data = review
+#             semantic = semantic_data[0] if semantic_data else None  # Получаем значение semantic или None
+
+#             review_data = (
+#                 restaurant_id,
+#                 review_date,
+#                 author_name,
+#                 author_link,
+#                 rating_value,
+#                 text,
+#                 semantic
+#             )
+
+#             create_review(review_data)
+
+
+#     else:
+#         logging.info("Новых отзывов нет.")
+
+#     return sorted_new_reviews
+
 def matching_reviews(org_url):
     """Функция сравнения собранных отзывов с БД."""
 
@@ -169,7 +251,7 @@ def matching_reviews(org_url):
     # Выбираем тексты отзывов для формирования семантической оценки
     if new_reviews_to_semantic:
         for new_review in new_reviews_to_semantic:
-            # review_text = new_review[3]
+            # review_text = review[4]
             semantic = None  # simple_semantic(review_text=review_text)
             # добавляем семантическую оценку
             new_review = new_review + (semantic,)
@@ -202,7 +284,6 @@ def matching_reviews(org_url):
             )
 
             create_review(review_data)
-
 
     else:
         logging.info("Новых отзывов нет.")

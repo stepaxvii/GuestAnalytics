@@ -325,7 +325,7 @@ def ya_prim_coll(original_url):
     # Запись уникальных отзывов в базу данных
     for review in sorted_reviews:
         (
-            review_date, author_name, author_link, rating_value, text, semantic
+            review_date, author_name, author_link, rating_value, text, semantic,
         ) = review
 
         review_data = (
@@ -333,9 +333,9 @@ def ya_prim_coll(original_url):
             review_date,
             author_name,
             author_link,
-            rating_value,
             text,
             semantic,
+            rating_value,
         )
         try:
             create_review(review_data)
