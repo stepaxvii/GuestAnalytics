@@ -1,0 +1,7 @@
+beautifulsoup4==4.12.3
+python-dotenv==1.0.1
+selenium==4.25.0
+aiogram==3.13.1
+sqlalchemy==2.0.36
+openai==0.28
+alembic==1.14.0

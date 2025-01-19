@@ -77,10 +77,10 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
                 # Форматируем сообщение для отправки
                 message = (
                     f"{rest_title}, {rest_address}.\n"
-                    f"{get_star_rating(review[2])}\n"
-                    f"Яндекс, {review[0]}\n\n"
-                    f"{review[3]}\n"
-                    f"Автор: {review[1]}\n"
+                    f"{get_star_rating(review['rating_value'])}\n"
+                    f"Яндекс, {review['review_date']}\n\n"
+                    f"{review['text']}\n"
+                    f"Автор: {review['author_name']}\n"
                 )
 
                 # Отправляем сообщение в канал
