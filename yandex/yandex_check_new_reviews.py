@@ -1,5 +1,6 @@
 import logging
 
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver import Firefox, FirefoxOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service
@@ -89,10 +90,14 @@ def ya_check_reviews(org_url):
             author_name = review.find_element(
                 By.CSS_SELECTOR, AUTHOR_ELEMENT
             ).text
-            author_link = review.find_element(
-                By.CSS_SELECTOR,
-                LINK_ELEMENT
-            ).get_attribute('href')
+            # Ищем ссылку на пользователя в текущем отзыве
+            try:
+                author_link = review.find_element(
+                    By.CSS_SELECTOR, LINK_ELEMENT
+                ).get_attribute("href")
+            except NoSuchElementException:
+                logger.error("Не удалось найти ссылку на пользователя")
+                author_link = None
             try:
                 # Попытка найти значение рейтинга
                 rating_value = WebDriverWait(review, 10).until(

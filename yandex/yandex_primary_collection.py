@@ -1,4 +1,5 @@
 import logging
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver import Firefox, FirefoxOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service
@@ -8,7 +9,6 @@ from datetime import datetime
 from time import sleep
 from os import getenv
 from dotenv import load_dotenv
-from selenium.common.exceptions import NoSuchElementException
 
 from constants import (
     POZITIVE_REVIEWS_SORTED,
