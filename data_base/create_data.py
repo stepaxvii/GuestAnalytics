@@ -1,3 +1,5 @@
+import logging
+
 from os import getenv
 
 from sqlalchemy.exc import IntegrityError
@@ -5,6 +7,11 @@ from dotenv import load_dotenv
 from data_base.data_main import session, Restaurant, YandexReview
 
 load_dotenv()
+
+# Настройка логирования (можно настроить формат и уровень логирования)
+logging.basicConfig(
+    level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 TG_GROUP = getenv('TG_GROUP')
 
@@ -53,8 +60,21 @@ def create_review(data):
         link=link,
     )
     
-    # Добавляем и коммитим запись в базу данных
-    session.add(review)
-    session.commit()
-    session.close()
+    try:
+        # Добавляем и коммитим запись в базу данных
+        session.add(review)
+        session.commit()
+
+        # Логируем информацию о сохранённом отзыве
+        logging.info(
+            f"Отзыв сохранён: Дата - {created_at}, "
+            "Автор - {author}, Рейтинг - {rating}"
+        )
+
+    except Exception as e:
+        # Логируем ошибку, если что-то пошло не так
+        logging.error(f"Ошибка при сохранении отзыва: {e}")
+    finally:
+        # Закрываем сессию, чтобы избежать утечек ресурсов
+        session.close()
 
