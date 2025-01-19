@@ -3,6 +3,10 @@ import logging
 from os import getenv
 
 from aiogram import Bot
+from aiogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+)
 from dotenv import load_dotenv
 
 from data_base.read_data import read_all_restaurant_data
@@ -29,6 +33,7 @@ async def check_new_reviews_periodically(bot: Bot):
                 rest_title = restaurant['title']
                 rest_link = restaurant['yandex_link']
                 rest_address = restaurant['address']
+                rest_reviews_link = rest_link + 'reviews'
 
                 # Получаем новые отзывы
                 new_reviews = matching_reviews(rest_link)
@@ -46,8 +51,29 @@ async def check_new_reviews_periodically(bot: Bot):
                             f"Семантика - '{review.get("semantic")}'"
                         )
 
+                        # Проверка наличия ссылки на автора
+                        if 'link' in review and review['link']:
+                            # Если есть link, создаем кнопку с ссылкой на автора
+                            button_text = "Перейти к автору"
+                            button_url = review['link']
+                        else:
+                            # Если link нет, создаем кнопку с ссылкой на отзывы
+                            button_text = "Перейти к отзывам"
+                            button_url = rest_reviews_link
+
+                        # Создаем кнопку с условной ссылкой
+                        keyboard = InlineKeyboardMarkup(
+                            inline_keyboard=[
+                                [InlineKeyboardButton(
+                                    text=button_text, url=button_url
+                                )]
+                            ]
+                        )
+
                         # Отправляем сообщение в канал
-                        await bot.send_message(TG_GROUP, message)
+                        await bot.send_message(
+                            TG_GROUP, message, reply_markup=keyboard
+                        )
                         await asyncio.sleep(3)
 
             logging.info("Проверка новых отзывов завершена.")
