@@ -92,7 +92,8 @@ def ya_check_reviews(org_url):
                 author_link = review.find_element(
                     By.CSS_SELECTOR, LINK_ELEMENT
                 ).get_attribute("href")
-            except NoSuchElementException:
+            except NoSuchElementException as e:
+                logging.error(f"Ошибка ссылки: {e}")
                 pass
 
             try:
@@ -104,7 +105,7 @@ def ya_check_reviews(org_url):
                 ).get_attribute('content')
             except Exception as e:
                 logging.info(f"Ошибка при получении значения рейтинга: {e}")
-                rating_value = None
+                rating_value = 0
 
             text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
 
@@ -162,7 +163,7 @@ def matching_reviews(org_url):
             "author_name": review["author_name"],
             "rating_value": int(
                 review["rating_value"].split('.')[0]
-            ) if review["rating_value"] else None,
+            ) if review["rating_value"] else 0,
             "text": review["text"]
         }
 

@@ -64,203 +64,6 @@ def scroll_to_bottom(driver, elem, prev_reviews_count):
     return True  # Возвращаем True, что значит, что новых отзывов нет
 
 
-#     # Список для хранения всех уникальных отзывов
-#     all_reviews = set()
-
-#     # Функция для сбора отзывов с заданной сортировкой
-#     def collect_reviews(sort_xpath):
-#         logger.info(f"Сортировка по: {sort_xpath}")
-#         attempt_count = 0
-#         while attempt_count < 3:
-#             try:
-#                 # Ищем элемент сортировки и кликаем по нему
-#                 filter_button = WebDriverWait(driver, 20).until(
-#                     EC.element_to_be_clickable((By.CLASS_NAME, SORTED_BLOCK))
-#                 )
-#                 filter_button.click()
-
-#                 # Ждем, пока появится элемент с нужной опцией и кликаем по нему
-#                 sort_filter = WebDriverWait(driver, 20).until(
-#                     EC.element_to_be_clickable((By.XPATH, sort_xpath))
-#                 )
-#                 # Прокручиваем до элемента (если нужно)
-#                 driver.execute_script(
-#                     "arguments[0].scrollIntoView();", sort_filter
-#                 )
-
-#                 # Кликаем по элементу сортировки
-#                 sort_filter.click()
-#                 logger.info(f"Сортировка {sort_xpath} выбрана.")
-#                 sleep(5)
-#                 break
-#             except Exception as e:
-#                 logger.error(f"Ошибка при выборе сортировки: {e}")
-#                 attempt_count += 1
-#                 if attempt_count == 3:
-#                     logger.error("Ошибка на стороне сервера, попробуйте позже")
-#                     driver.quit()
-#                     return "Ошибка на стороне сервера, попробуйте позже"
-#                 sleep(2)
-
-#         # Прокручиваем страницу до конца, чтобы загрузить все отзывы
-#         unique_reviews = set()
-#         prev_reviews_count = 0
-#         while (
-#             len(unique_reviews) < total_count
-#             and len(unique_reviews) < MAX_VIEW_REVIEWS
-#         ):
-#             logger.info(
-#                 f'Уникальных отзывов в сортировке {sort_xpath}: '
-#                 f'{len(unique_reviews)}'
-#             )
-
-#             # Получаем все отзывы на странице
-#             reviews = driver.find_elements(By.CLASS_NAME, CARD_REVIEWS_BLOCK)
-
-#             # Прокручиваем до последнего отзыва на странице
-#             if reviews:
-#                 # Проверяем, загрузились ли новые отзывы
-#                 if scroll_to_bottom(driver, reviews[-1], prev_reviews_count):
-#                     break  # Если новых отзывов нет, выходим
-#                 prev_reviews_count = len(reviews)
-#             # Сохраняем текущие отзывы из зоны видимости
-#             for review in reviews:
-#                 try:
-#                     date_str = review.find_element(
-#                         By.CSS_SELECTOR, DATE_ELEMENT
-#                     ).get_attribute('content')
-#                     review_date = datetime.strptime(
-#                         date_str, "%Y-%m-%dT%H:%M:%S.%fZ"
-#                     ).strftime(DATE_FORMAT)
-
-#                     # Извлекаем имя автора
-#                     author_name = review.find_element(
-#                         By.CSS_SELECTOR,
-#                         AUTHOR_ELEMENT
-#                     ).text
-
-#                     try:
-#                         # Попытка найти значение рейтинга
-#                         rating_value = WebDriverWait(review, 10).until(
-#                             EC.presence_of_element_located(
-#                                 (By.CSS_SELECTOR, RATING_ELEMENT)
-#                             )
-#                         ).get_attribute('content')
-#                         rating_value = int(rating_value.split('.')[0])
-#                     except Exception as e:
-#                         logger.error(
-#                             f"Ошибка при получении значения рейтинга: {e}"
-#                         )
-#                         rating_value = None
-
-#                     # Текст отзыва
-#                     text = review.find_element(
-#                         By.CLASS_NAME, TEXT_ELEMENT
-#                     ).text
-#                     # Ищем ссылку на пользователя в текущем отзыве
-#                     try:
-#                         author_link = review.find_element(
-#                             By.CSS_SELECTOR, LINK_ELEMENT
-#                         ).get_attribute("href")
-#                     except NoSuchElementException:
-#                         logger.error("Не удалось найти ссылку на пользователя")
-#                         author_link = None
-
-#                     # Сохраняем данные отзыва
-#                     review_entry = (
-#                         review_date,
-#                         author_name,
-#                         author_link,
-#                         rating_value,
-#                         text,
-#                     )
-#                     unique_reviews.add(review_entry)
-
-#                 except Exception as e:
-#                     logger.error(f"Ошибка при получении информации: {e}")
-
-#                     # Сохранение отзыва в множество для уникальности
-#                     review_entry = (
-#                         review_date,
-#                         author_name,
-#                         author_link,
-#                         rating_value,
-#                         text,
-#                     )
-#                     unique_reviews.add(review_entry)
-
-#                 except Exception as e:
-#                     logger.error(f"Ошибка при получении информации: {e}")
-
-#             # Ждем небольшую паузу перед следующей прокруткой
-#             sleep(7)
-
-#         # Добавляем собранные уникальные отзывы в общий список
-#         all_reviews.update(unique_reviews)
-
-#     # Собираем отзывы по сортировке "По новизне"
-#     collect_reviews(NEW_REVIEWS_SORTED)
-
-#     # Изменяем сортировку, если общее количество отзывов больше 600
-#     if total_count > MAX_VIEW_REVIEWS:
-#         # Собираем отзывы по сортировке "Позитивные"
-#         collect_reviews(POZITIVE_REVIEWS_SORTED)
-
-#         # Собираем отзывы по сортировке "Негативные"
-#         collect_reviews(NEGATIVE_REVIEWS_SORTED)
-
-#         # Собираем отзывы по сортировке "По умолчанию"
-#         collect_reviews(DEFAULT_REVIEWS_SORTED)
-
-#     # Выводим количество собранных уникальных отзывов
-#     logger.info(f"Общее количество уникальных отзывов: {len(all_reviews)}")
-
-#     # Добавляем семантику и сортируем по дате
-#     new_reviews_to_save = set()
-#     for review in all_reviews:
-#         # review_text = review[3]
-#         semantic = None  # simple_semantic(review_text=review_text)
-#         # добавляем семантическую оценку
-#         review_with_semantic = review + (semantic,)
-#         new_reviews_to_save.add(review_with_semantic)
-
-#     # Сортировка отзывов по дате
-#     sorted_reviews = sorted(
-#         new_reviews_to_save,
-#         key=lambda x: datetime.strptime(x[0], DATE_FORMAT)
-#     )
-
-#     # Определяем id ресторана для связи с отзывами
-#     restaurant_data = read_some_restaurant_data(org_url=org_url)
-#     restaurant_id = restaurant_data['id']
-#     logger.info(f"ID ресторана: {restaurant_id}")
-
-#     # Запись уникальных отзывов в базу данных
-#     for review in sorted_reviews:
-#         (
-#             review_date, author_name, author_link, rating_value, text, semantic,
-#         ) = review
-
-#         review_data = (
-#             restaurant_id,
-#             review_date,
-#             author_name,
-#             author_link,
-#             text,
-#             semantic,
-#             rating_value,
-#         )
-#         try:
-#             create_review(review_data)
-#         except Exception as e:
-#             logger.error(f"Ошибка при добавлении отзыва в базу данных: {e}")
-
-#     # Закрываем браузер
-#     logger.info("Закрываем браузер.")
-#     driver.quit()
-
-#     return len(sorted_reviews)
-
 def ya_prim_coll(original_url):
     """
     Функция для первичного сбора отзывов ресторана
@@ -312,7 +115,11 @@ def ya_prim_coll(original_url):
 
     # Проверяем, что данные получены перед сохранением в базу данных
     if org_name:
-        restaurant_data = {'org_name': org_name, 'org_url': org_url, 'full_address': full_address}
+        restaurant_data = {
+            'org_name': org_name,
+            'org_url': org_url,
+            'full_address': full_address
+        }
         try:
             create_restaurant(data=restaurant_data)
             logger.info("Ресторан успешно добавлен в базу данных.")
@@ -326,9 +133,12 @@ def ya_prim_coll(original_url):
     driver.get(reviews_url)
     sleep(5)
 
+    # Собираем общее количество отзывов
     try:
         total_count_element = WebDriverWait(driver, 5).until(
-            EC.visibility_of_element_located((By.CLASS_NAME, COUNT_REVIEWS_BLOCK))
+            EC.visibility_of_element_located(
+                (By.CLASS_NAME, COUNT_REVIEWS_BLOCK)
+            )
         )
         total_count_text = total_count_element.text
         total_count = int(total_count_text.split()[0])
@@ -337,12 +147,16 @@ def ya_prim_coll(original_url):
         logger.error(f"Ошибка при получении общего количества отзывов: {e}")
         driver.quit()
         return
-
     sleep(2)
+
+    # Создаём множество для хранения всех отзывов
     all_reviews = set()
 
+
     def collect_reviews(sort_xpath):
-        logger.info(f"Сортировка по: {sort_xpath}")
+        """Функция для сбора отзывов с заданной сортировкой."""
+
+        # Задаём первоначальное количество попыток
         attempt_count = 0
         while attempt_count < 3:
             try:
@@ -370,8 +184,11 @@ def ya_prim_coll(original_url):
 
         unique_reviews = set()
         prev_reviews_count = 0
-        while len(unique_reviews) < total_count and len(unique_reviews) < MAX_VIEW_REVIEWS:
-            logger.info(f'Уникальных отзывов в сортировке {sort_xpath}: {len(unique_reviews)}')
+        while (
+            len(unique_reviews) < total_count 
+            and len(unique_reviews) < MAX_VIEW_REVIEWS
+        ):
+            logger.info(f'Уникальных отзывов: {len(unique_reviews)}')
             reviews = driver.find_elements(By.CLASS_NAME, CARD_REVIEWS_BLOCK)
 
             if reviews:
@@ -393,17 +210,24 @@ def ya_prim_coll(original_url):
 
                     try:
                         rating_value = WebDriverWait(review, 10).until(
-                            EC.presence_of_element_located((By.CSS_SELECTOR, RATING_ELEMENT))
+                            EC.presence_of_element_located(
+                                (By.CSS_SELECTOR, RATING_ELEMENT)
+                            )
                         ).get_attribute('content')
                         rating_value = int(rating_value.split('.')[0])
                     except Exception as e:
                         rating_value = None
 
-                    text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
+                    text = review.find_element(
+                        By.CLASS_NAME, TEXT_ELEMENT
+                    ).text
                     author_link = None
                     try:
-                        author_link = review.find_element(By.CSS_SELECTOR, LINK_ELEMENT).get_attribute("href")
-                    except NoSuchElementException:
+                        author_link = review.find_element(
+                            By.CSS_SELECTOR, LINK_ELEMENT
+                        ).get_attribute("href")
+                    except NoSuchElementException as e:
+                        logging.error(f"Ошибка ссылки: {e}")
                         pass
 
                     review_entry = {
