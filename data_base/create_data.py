@@ -8,10 +8,9 @@ from data_base.data_main import session, Restaurant, YandexReview
 
 load_dotenv()
 
-# Настройка логирования (можно настроить формат и уровень логирования)
-logging.basicConfig(
-    level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s'
-)
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 TG_GROUP = getenv('TG_GROUP')
 
@@ -39,42 +38,41 @@ def create_restaurant(data):
 
 def create_review(data):
     """Создание отзыва из словаря."""
-    
+
     # Извлекаем данные из словаря
     restaurant_id = data.get('restaurant_id')
     created_at = data.get('review_date')
     author = data.get('author_name')
-    link = data.get('author_link', None)  # Используем .get(), чтобы избежать KeyError, если ключ отсутствует
-    content = data.get('text')
-    semantic = data.get('semantic', None)  # Используем .get(), чтобы проверить наличие semantic
+    link = data.get('author_link', None)
     rating = data.get('rating_value')
+    content = data.get('text')
+    semantic = data.get('semantic', None)
+
+    # Проверка значений
+    if not created_at:
+        raise ValueError("Поле 'review_date' обязательно.")
+    if not author:
+        raise ValueError("Поле 'author_name' обязательно.")
+    if rating is None:
+        rating = 0  # Используем значение по умолчанию для рейтинга
 
     # Создаем экземпляр YandexReview с данными из словаря
     review = YandexReview(
         restaurant_id=restaurant_id,
         created_at=created_at,
         author=author,
+        link=link,
         rating=rating,
         content=content,
         semantic=semantic,
-        link=link,
     )
-    
+
     try:
         # Добавляем и коммитим запись в базу данных
         session.add(review)
         session.commit()
-
-        # Логируем информацию о сохранённом отзыве
-        logging.info(
-            f"Отзыв сохранён: Дата - {created_at}, "
-            "Автор - {author}, Рейтинг - {rating}"
-        )
-
     except Exception as e:
-        # Логируем ошибку, если что-то пошло не так
-        logging.error(f"Ошибка при сохранении отзыва: {e}")
+        session.rollback()  # Откат транзакции при ошибке
+        logger.error(f"Ошибка при добавлении отзыва в базу данных: {e}")
     finally:
-        # Закрываем сессию, чтобы избежать утечек ресурсов
         session.close()
-

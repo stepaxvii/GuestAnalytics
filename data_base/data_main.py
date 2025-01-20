@@ -69,10 +69,10 @@ class YandexReview(Base):
     )
     created_at = Column(String(MAX_LENGTH_STR), nullable=False)
     author = Column(String(MAX_LENGTH_STR), nullable=False)
+    link = Column(String(MAX_LENGTH_STR), nullable=True)
     rating = Column(SmallInteger, nullable=False)
     content = Column(Text, nullable=False)
     semantic = Column(String(MAX_LENGTH_STR), nullable=True)
-    link = Column(String(MAX_LENGTH_STR), nullable=True)
 
     restaurant = relationship("Restaurant", back_populates="yandex_reviews")
 
@@ -90,10 +90,11 @@ class TwogisReview(Base):
     )
     created_at = Column(String(MAX_LENGTH_STR), nullable=False)
     author = Column(String(MAX_LENGTH_STR), nullable=False)
+    link = Column(String(MAX_LENGTH_STR), nullable=True)
     rating = Column(SmallInteger, nullable=False)
     content = Column(Text, nullable=False)
     semantic = Column(String(MAX_LENGTH_STR), nullable=True)
-    link = Column(String(MAX_LENGTH_STR), nullable=True)
+
 
     restaurant = relationship("Restaurant", back_populates="twogis_reviews")
 

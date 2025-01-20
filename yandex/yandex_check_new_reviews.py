@@ -120,7 +120,7 @@ def ya_check_reviews(org_url):
 
         except Exception as e:
             logging.info(f"Ошибка при получении информации об отзыве: {e}")
-    logging.info(f'Уникальных отзывов: {len(unique_reviews)}')
+        logging.info(f'Уникальных отзывов: {len(unique_reviews)}')
 
     # Закрываем браузер
     driver.quit()
@@ -203,9 +203,9 @@ def matching_reviews(org_url):
             'review_date': review_data_tuple[1],
             'author_name': review_data_tuple[2],
             'author_link': review_data_tuple[3],
-            'text': review_data_tuple[4],
-            'semantic': review_data_tuple[5],
-            'rating_value': review_data_tuple[6],
+            'rating_value': review_data_tuple[4],
+            'text': review_data_tuple[5],
+            'semantic': review_data_tuple[6],
         }
 
         create_review(review_data_dict)

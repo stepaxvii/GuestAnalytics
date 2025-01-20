@@ -82,7 +82,7 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
                     f"Яндекс, {review['review_date']}\n\n"
                     f"{review['text']}\n"
                     f"Автор: {review['author_name']}\n"
-                    f"Семантика - '{review.get("semantic")}'"
+                    f"Семантика - \"{review.get('semantic')}\""
                 )
 
                 # Проверка наличия ссылки на автора
