@@ -76,6 +76,7 @@ def ya_check_reviews(org_url):
 
     # Сохраняем текущие отзывы из зоны видимости
     for review in reviews:
+        sleep(1)
         try:
             date_str = review.find_element(
                 By.CSS_SELECTOR, DATE_ELEMENT
@@ -89,13 +90,14 @@ def ya_check_reviews(org_url):
             # Ищем ссылку на пользователя в текущем отзыве
             author_link = 'None'
             try:
-                author_link = review.find_element(
-                    By.CSS_SELECTOR, LINK_ELEMENT
+                # Используем явное ожидание для ссылки
+                author_link = WebDriverWait(review, 10).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, LINK_ELEMENT))
                 ).get_attribute("href")
-            except NoSuchElementException:
-                logging.error("closed profile...")
-                pass
-
+            except NoSuchElementException as e:
+                logging.error(f"Ошибка при поиске ссылки на автора: {e}")
+            except Exception as e:
+                logging.error(f"Не удалось получить ссылку: {e}")
             try:
                 # Попытка найти значение рейтинга
                 rating_value = WebDriverWait(review, 10).until(
