@@ -91,15 +91,9 @@ def ya_check_reviews(org_url):
                 author_link = review.find_element(
                     By.CSS_SELECTOR, LINK_ELEMENT
                 ).get_attribute("href")
-<<<<<<< HEAD
-            except NoSuchElementException as e:
-                logging.error(f"Ошибка ссылки: {e}")
-                pass
-=======
             except NoSuchElementException:
                 logger.error("Не удалось найти ссылку на пользователя")
                 author_link = None
->>>>>>> parent of b26b677 (v/4.4 edit check new reviews)
 
             try:
                 # Попытка найти значение рейтинга
@@ -166,13 +160,7 @@ def matching_reviews(org_url):
         review_dict = {
             "review_date": review["review_date"],
             "author_name": review["author_name"],
-<<<<<<< HEAD
-            "rating_value": int(
-                review["rating_value"].split('.')[0]
-            ) if review["rating_value"] else 0,
-=======
             "rating_value": int(review["rating_value"].split('.')[0]) if review["rating_value"] else None,
->>>>>>> parent of b26b677 (v/4.4 edit check new reviews)
             "text": review["text"]
         }
 

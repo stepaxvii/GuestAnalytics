@@ -64,8 +64,6 @@ def scroll_to_bottom(driver, elem, prev_reviews_count):
     return True  # Возвращаем True, что значит, что новых отзывов нет
 
 
-<<<<<<< HEAD
-=======
 # def ya_prim_coll(original_url):
 #     """
 #     Функция для первичного сбора отзывов ресторана
@@ -350,7 +348,6 @@ def scroll_to_bottom(driver, elem, prev_reviews_count):
 
 #     return len(sorted_reviews)
 
->>>>>>> parent of b26b677 (v/4.4 edit check new reviews)
 def ya_prim_coll(original_url):
     logger.info(f"Начинаем сбор данных с URL: {original_url}")
 
