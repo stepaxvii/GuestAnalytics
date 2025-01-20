@@ -181,7 +181,6 @@ def ya_prim_coll(original_url):
                 prev_reviews_count = len(reviews)
 
             for review in reviews:
-                sleep(1.5)
                 try:
                     date_str = review.find_element(By.CSS_SELECTOR, DATE_ELEMENT).get_attribute('content')
                     review_date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ").strftime(DATE_FORMAT)
@@ -205,8 +204,8 @@ def ya_prim_coll(original_url):
                         author_link = review.find_element(
                             By.CSS_SELECTOR, LINK_ELEMENT
                         ).get_attribute("href")
-                    except NoSuchElementException as e:
-                        logging.error(f"Ошибка ссылки: {e}")
+                    except NoSuchElementException:
+                        logging.error("Ошибка ссылки")
                         pass
 
                     review_entry = (
