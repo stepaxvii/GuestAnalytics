@@ -24,7 +24,7 @@ async def check_new_reviews_periodically(bot: Bot):
         try:
             # Пауза между проверками
             await asyncio.sleep(2000)  # 2000 секунд = 33 минуты
-            print("Функция для проверки новых отзывов")
+            logging.info("Функция для проверки новых отзывов")
 
             # Получаем данные о ресторанах
             restaurants = read_all_restaurant_data()
@@ -53,11 +53,11 @@ async def check_new_reviews_periodically(bot: Bot):
 
                         # Проверка наличия ссылки на автора
                         if 'link' in review and review['link']:
-                            # Если есть link, создаем кнопку с ссылкой на автора
+                            # Если есть link, создаем кнопку с ссылкой автора
                             button_text = "Перейти к автору"
                             button_url = review['link']
                         else:
-                            # Если link нет, создаем кнопку с ссылкой на отзывы
+                            # Если link нет, создаем кнопку с ссылкой отзывов
                             button_text = "Перейти к отзывам"
                             button_url = rest_reviews_link
 

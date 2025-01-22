@@ -136,7 +136,6 @@ def ya_prim_coll(original_url):
     # Создаём множество для хранения всех отзывов
     all_reviews = set()
 
-
     def collect_reviews(sort_xpath):
         """Функция для сбора отзывов с заданной сортировкой."""
 
@@ -152,7 +151,9 @@ def ya_prim_coll(original_url):
                 sort_filter = WebDriverWait(driver, 20).until(
                     EC.element_to_be_clickable((By.XPATH, sort_xpath))
                 )
-                driver.execute_script("arguments[0].scrollIntoView();", sort_filter)
+                driver.execute_script(
+                    "arguments[0].scrollIntoView();", sort_filter
+                )
                 sort_filter.click()
                 logger.info(f"Сортировка {sort_xpath} выбрана.")
                 sleep(5)
@@ -182,9 +183,15 @@ def ya_prim_coll(original_url):
 
             for review in reviews:
                 try:
-                    date_str = review.find_element(By.CSS_SELECTOR, DATE_ELEMENT).get_attribute('content')
-                    review_date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ").strftime(DATE_FORMAT)
-                    author_name = review.find_element(By.CSS_SELECTOR, AUTHOR_ELEMENT).text
+                    date_str = review.find_element(
+                        By.CSS_SELECTOR, DATE_ELEMENT
+                    ).get_attribute('content')
+                    review_date = datetime.strptime(
+                        date_str, "%Y-%m-%dT%H:%M:%S.%fZ"
+                    ).strftime(DATE_FORMAT)
+                    author_name = review.find_element(
+                        By.CSS_SELECTOR, AUTHOR_ELEMENT
+                    ).text
 
                     try:
                         rating_value = WebDriverWait(review, 10).until(
@@ -193,7 +200,7 @@ def ya_prim_coll(original_url):
                             )
                         ).get_attribute('content')
                         rating_value = int(rating_value.split('.')[0])
-                    except Exception as e:
+                    except Exception:
                         rating_value = 0
 
                     text = review.find_element(
@@ -215,7 +222,6 @@ def ya_prim_coll(original_url):
                         rating_value,
                         text
                     )
-
 
                     unique_reviews.add(review_entry)
 
@@ -242,12 +248,10 @@ def ya_prim_coll(original_url):
         review_with_semantic = review + (semantic,)
         new_reviews_to_save.add(review_with_semantic)
 
-
     sorted_reviews = sorted(
         new_reviews_to_save,
         key=lambda x: datetime.strptime(x[0], DATE_FORMAT)
     )
-
 
     restaurant_data = read_some_restaurant_data(org_url=org_url)
     restaurant_id = restaurant_data['id']

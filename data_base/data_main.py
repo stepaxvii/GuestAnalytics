@@ -95,7 +95,6 @@ class TwogisReview(Base):
     content = Column(Text, nullable=False)
     semantic = Column(String(MAX_LENGTH_STR), nullable=True)
 
-
     restaurant = relationship("Restaurant", back_populates="twogis_reviews")
 
 
