@@ -29,3 +29,7 @@ def get_first_yandex_author():
             "message": "No reviews found"
         }, ensure_ascii=False)
         return Response(data, mimetype='application/json')
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
