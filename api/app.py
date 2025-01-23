@@ -210,6 +210,14 @@ def get_total_reviews():
                         "percentage_change": 5.0
                     }
                 })
+            if nickname == 'Maksym':
+                return jsonify({
+                    "success": True,
+                    "data": {
+                        "total_reviews": 700,
+                        "percentage_change": 5.0
+                    }
+                })
             else:
                 return jsonify({
                     "success": True,
@@ -222,7 +230,6 @@ def get_total_reviews():
             return jsonify({"error": "Invalid cookie format"}), 400
     else:
         return jsonify({"success": False, "message": "User not identified"}), 400
-
 
 
 if __name__ == '__main__':
