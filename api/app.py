@@ -75,15 +75,11 @@ def get_reviews_by_month():
     # Месяцы для отображения
     months = ['Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
 
-    # Подсчёт общего количества отзывов
-    total_reviews = sum(count for _, count in reviews_per_month)
-
     # Проверяем количество полученных данных и формируем ответ
     review_counts = {}
     for i, (month, count) in enumerate(reviews_per_month):
         if month >= 9 and month <= 12:  # Ограничиваем по месяцам с 9 по 12
             review_counts[months[month - 9]] = count
-
 
     # Возвращаем данные в формате JSON
     return jsonify({
@@ -92,6 +88,19 @@ def get_reviews_by_month():
             "гавно": 2,
             "дрочь": 8,
             "успех": 70
+        }
+    })
+
+
+@app.route('/api/total-reviews', methods=['GET'])
+def get_total_reviews():
+
+    # Отправляем количество отзывов
+    return jsonify({
+        "success": True,
+        "data": {
+            "total_reviews": 126,
+            "percentage_change": 4.75
         }
     })
 
