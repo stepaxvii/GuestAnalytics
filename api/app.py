@@ -46,6 +46,7 @@
 
 
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import func
 from data_base.data_main import YandexReview, engine
@@ -53,6 +54,8 @@ import urllib.parse
 
 # Создаём приложение Flask
 app = Flask(__name__)
+
+CORS(app)  # Разрешаем CORS для всех источников
 
 # Настройка сессии для работы с базой данных
 Session = sessionmaker(bind=engine)
