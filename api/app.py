@@ -84,16 +84,14 @@ def get_reviews_by_month():
         if month >= 9 and month <= 12:  # Ограничиваем по месяцам с 9 по 12
             review_counts[months[month - 9]] = count
 
-    # Формируем данные для графика с процентами
-    percentages = [count / total_reviews * 100 if total_reviews > 0 else 0 for count in review_counts.values()]
 
     # Возвращаем данные в формате JSON
     return jsonify({
         "success": True,
         "data": {
-            "counts": 2,
-            "percentages": 8,
-            "total": 10
+            "гавно": 2,
+            "дрочь": 8,
+            "успех": 70
         }
     })
 
