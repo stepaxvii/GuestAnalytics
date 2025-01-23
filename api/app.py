@@ -58,6 +58,9 @@ app = Flask(__name__)
 Session = sessionmaker(bind=engine)
 session = Session()
 
+# Включение отладки
+app.config['DEBUG'] = True
+
 
 @app.route('/api/yandex-reviews-by-month', methods=['GET'])
 def get_reviews_by_month():
