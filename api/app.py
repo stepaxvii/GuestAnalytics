@@ -121,6 +121,7 @@ def get_total_reviews():
         if len(cookie_parts) >= 2:
             nickname = cookie_parts[0]  # Первая часть — это никнейм пользователя
             user_id = cookie_parts[1]  # Вторая часть — это ID пользователя
+            print(nickname, user_id)
 
             # Теперь используем никнейм для персонализации данных
             if nickname == 'Igor':
