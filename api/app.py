@@ -91,6 +91,7 @@ app = Flask(__name__)
 Session = sessionmaker(bind=engine)
 session = Session()
 
+
 @app.route('/api/yandex-reviews-by-month', methods=['GET'])
 def get_reviews_by_month():
     # Фильтруем отзывы по дате и группируем их по месяцам
@@ -105,9 +106,14 @@ def get_reviews_by_month():
         'month'
     ).all()
 
-    # Формируем данные для JSON
+    # Месяцы для отображения
     months = ['Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
-    review_counts = {months[i-1]: count for i, count in reviews_per_month}
+
+    # Проверяем количество полученных данных и формируем ответ
+    review_counts = {}
+    for i, (month, count) in enumerate(reviews_per_month):
+        if month >= 9 and month <= 12:  # Ограничиваем по месяцам с 9 по 12
+            review_counts[months[month - 9]] = count
 
     # Возвращаем данные в формате JSON
     return jsonify({
