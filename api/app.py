@@ -108,63 +108,63 @@ def get_reviews_by_month():
 #         }
 #     })
 
-# @app.route('/api/total-reviews', methods=['GET'])
-# def get_total_reviews():
-#     # Печать всех cookies
-#     print("Received cookies:", request.cookies)
-
-#     # Извлекаем cookie с именем пользователя
-#     cookie = request.cookies.get('wordpress_logged_in_d5be2c11d7a17c96d47fd4cfeb45020a')
-#     if cookie:
-#         # Декодируем URL-кодирование в cookie
-#         decoded_cookie = urllib.parse.unquote(cookie)  # Декодируем %7C в |
-
-#         # Разделяем cookie по символу '|'
-#         cookie_parts = decoded_cookie.split('|')
-
-#         # Проверяем, что структура cookie правильная
-#         if len(cookie_parts) >= 2:
-#             nickname = cookie_parts[0]  # Первая часть — это никнейм пользователя
-#             user_id = cookie_parts[1]  # Вторая часть — это ID пользователя
-
-#             # Выводим в лог никнейм и ID для отладки
-#             print(f"Nickname: {nickname}, User ID: {user_id}")
-
-#             # Логика ответа
-#             if nickname == 'Igor':
-#                 return jsonify({
-#                     "success": True,
-#                     "data": {
-#                         "total_reviews": 200,
-#                         "percentage_change": 5.0
-#                     }
-#                 })
-#             else:
-#                 return jsonify({
-#                     "success": True,
-#                     "data": {
-#                         "total_reviews": 126,
-#                         "percentage_change": 4.75
-#                     }
-#                 })
-#         else:
-#             return jsonify({"error": "Invalid cookie format"}), 400
-#     else:
-#         return jsonify({"success": False, "message": "User not identified"}), 400
-
-
 @app.route('/api/total-reviews', methods=['GET'])
 def get_total_reviews():
-    # Получаем все cookies
+    # Печать всех cookies
     print("Received cookies:", request.cookies)
 
-    user_cookie = request.cookies.get('wordpress_logged_in_d5be2c11d7a17c96d47fd4cfeb45020a')
-    if user_cookie:
-        print(f"User identified: {user_cookie}")
-        return jsonify({"success": True, "message": "User identified"})
+    # Извлекаем cookie с именем пользователя
+    cookie = request.cookies.get('wordpress_logged_in_d5be2c11d7a17c96d47fd4cfeb45020a')
+    if cookie:
+        # Декодируем URL-кодирование в cookie
+        decoded_cookie = urllib.parse.unquote(cookie)  # Декодируем %7C в |
+
+        # Разделяем cookie по символу '|'
+        cookie_parts = decoded_cookie.split('%')
+
+        # Проверяем, что структура cookie правильная
+        if len(cookie_parts) >= 2:
+            nickname = cookie_parts[0]  # Первая часть — это никнейм пользователя
+            user_id = cookie_parts[1]  # Вторая часть — это ID пользователя
+
+            # Выводим в лог никнейм и ID для отладки
+            print(f"Nickname: {nickname}, User ID: {user_id}")
+
+            # Логика ответа
+            if nickname == 'Igor':
+                return jsonify({
+                    "success": True,
+                    "data": {
+                        "total_reviews": 200,
+                        "percentage_change": 5.0
+                    }
+                })
+            else:
+                return jsonify({
+                    "success": True,
+                    "data": {
+                        "total_reviews": 126,
+                        "percentage_change": 4.75
+                    }
+                })
+        else:
+            return jsonify({"error": "Invalid cookie format"}), 400
     else:
-        print("User not identified")
         return jsonify({"success": False, "message": "User not identified"}), 400
+
+
+# @app.route('/api/total-reviews', methods=['GET'])
+# def get_total_reviews():
+#     # Получаем все cookies
+#     print("Received cookies:", request.cookies)
+
+#     user_cookie = request.cookies.get('wordpress_logged_in_d5be2c11d7a17c96d47fd4cfeb45020a')
+#     if user_cookie:
+#         print(f"User identified: {user_cookie}")
+#         return jsonify({"success": True, "message": "User identified"})
+#     else:
+#         print("User not identified")
+#         return jsonify({"success": False, "message": "User not identified"}), 400
 
 
 if __name__ == '__main__':
