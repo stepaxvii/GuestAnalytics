@@ -45,7 +45,7 @@
 #     app.run(host='0.0.0.0', port=5000)
 
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import func
 from data_base.data_main import YandexReview, engine
@@ -92,17 +92,64 @@ def get_reviews_by_month():
     })
 
 
+# @app.route('/api/total-reviews', methods=['GET'])
+# def get_total_reviews():
+
+#     # Отправляем количество отзывов
+#     return jsonify({
+#         "success": True,
+#         "data": {
+#             "total_reviews": 126,
+#             "percentage_change": 4.75
+#         }
+#     })
+
+
 @app.route('/api/total-reviews', methods=['GET'])
 def get_total_reviews():
+    # Извлекаем никнейм пользователя из cookie
+    cookies = request.cookies.get('wordpress_logged_in_d5be2c11d7a17c96d47fd4cfeb45020a')
 
-    # Отправляем количество отзывов
-    return jsonify({
-        "success": True,
-        "data": {
-            "total_reviews": 126,
-            "percentage_change": 4.75
-        }
-    })
+    # Проверим, если cookie существует
+    if cookies:
+        # Разделим строку cookie, чтобы получить никнейм (предполагаем, что структура 'Имя|ID|...'):
+        try:
+            nickname = cookies.split('|')[0]  # Получаем никнейм (первая часть)
+        except IndexError:
+            return jsonify({"error": "Invalid cookie format"}), 400
+
+        # Теперь в зависимости от никнейма возвращаем разные данные
+        if nickname == 'Igor':
+            return jsonify({
+                "success": True,
+                "data": {
+                    "total_reviews": 200,
+                    "percentage_change": 5.0
+                }
+            })
+        elif nickname == 'Maksym':
+            return jsonify({
+                "success": True,
+                "data": {
+                    "total_reviews": 150,
+                    "percentage_change": 3.5
+                }
+            })
+        else:
+            return jsonify({
+                "success": True,
+                "data": {
+                    "total_reviews": 126,
+                    "percentage_change": 4.75
+                }
+            })
+    else:
+        return jsonify({"success": False, "message": "User not identified"}), 400
+
+
+@app.route('/api/', methods=['GET'])
+def get_1():
+    pass
 
 
 if __name__ == '__main__':
