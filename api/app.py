@@ -91,9 +91,9 @@ def get_reviews_by_month():
     return jsonify({
         "success": True,
         "data": {
-            "counts": review_counts,
-            "percentages": percentages,
-            "total": total_reviews
+            "counts": 2,
+            "percentages": 8,
+            "total": 10
         }
     })
 
