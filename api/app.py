@@ -108,7 +108,7 @@ def get_reviews_by_month():
 @app.route('/api/total-reviews', methods=['GET'])
 def get_total_reviews():
     # Извлекаем никнейм пользователя из cookie
-    cookies = request.cookies.get('wordpress_logged_in_d5be2c11d7a17c96d47fd4cfeb45020a')
+    cookies = request.cookies.get('wordpress_logged_in_')
 
     # Проверим, если cookie существует
     if cookies:
