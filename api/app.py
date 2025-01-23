@@ -49,6 +49,7 @@ from flask import Flask, jsonify, request
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import func
 from data_base.data_main import YandexReview, engine
+import urllib.parse
 
 # Создаём приложение Flask
 app = Flask(__name__)
@@ -104,45 +105,50 @@ def get_reviews_by_month():
 #         }
 #     })
 
-
 @app.route('/api/total-reviews', methods=['GET'])
 def get_total_reviews():
-    # Извлекаем никнейм пользователя из cookie
-    cookies = request.cookies.get('wordpress_logged_in_')
+    # Извлекаем cookie с именем пользователя
+    cookie = request.cookies.get('wordpress_logged_in_d5be2c11d7a17c96d47fd4cfeb45020a')
 
-    # Проверим, если cookie существует
-    if cookies:
-        # Разделим строку cookie, чтобы получить никнейм (предполагаем, что структура 'Имя|ID|...'):
-        try:
-            nickname = cookies.split('|')[0]  # Получаем никнейм (первая часть)
-        except IndexError:
-            return jsonify({"error": "Invalid cookie format"}), 400
+    if cookie:
+        # Декодируем URL-кодирование в cookie
+        decoded_cookie = urllib.parse.unquote(cookie)  # Декодируем %7C в |
 
-        # Теперь в зависимости от никнейма возвращаем разные данные
-        if nickname == 'Igor':
-            return jsonify({
-                "success": True,
-                "data": {
-                    "total_reviews": 200,
-                    "percentage_change": 5.0
-                }
-            })
-        elif nickname == 'Maksym':
-            return jsonify({
-                "success": True,
-                "data": {
-                    "total_reviews": 150,
-                    "percentage_change": 3.5
-                }
-            })
+        # Разделяем cookie по символу '|'
+        cookie_parts = decoded_cookie.split('|')
+
+        # Проверяем, что структура cookie правильная
+        if len(cookie_parts) >= 2:
+            nickname = cookie_parts[0]  # Первая часть — это никнейм пользователя
+            user_id = cookie_parts[1]  # Вторая часть — это ID пользователя
+
+            # Теперь используем никнейм для персонализации данных
+            if nickname == 'Igor':
+                return jsonify({
+                    "success": True,
+                    "data": {
+                        "total_reviews": 200,
+                        "percentage_change": 5.0
+                    }
+                })
+            elif nickname == 'Maksym':
+                return jsonify({
+                    "success": True,
+                    "data": {
+                        "total_reviews": 150,
+                        "percentage_change": 3.5
+                    }
+                })
+            else:
+                return jsonify({
+                    "success": True,
+                    "data": {
+                        "total_reviews": 126,
+                        "percentage_change": 4.75
+                    }
+                })
         else:
-            return jsonify({
-                "success": True,
-                "data": {
-                    "total_reviews": 126,
-                    "percentage_change": 4.75
-                }
-            })
+            return jsonify({"error": "Invalid cookie format"}), 400
     else:
         return jsonify({"success": False, "message": "User not identified"}), 400
 
