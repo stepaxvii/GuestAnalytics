@@ -110,26 +110,26 @@ def get_reviews_by_month():
 #             "percentage_change": 4.75
 #         }
 #     })
-
 @app.route('/api/total-reviews', methods=['GET'])
 def get_total_reviews():
-    # Печать всех заголовков запроса для отладки
-    print("Request headers:", request.headers)
-
     # Печать всех cookies
     print("Received cookies:", request.cookies)
 
+    # Извлекаем cookie с именем пользователя
     cookie = request.cookies.get('wordpress_logged_in_d5be2c11d7a17c96d47fd4cfeb45020a')
     if cookie:
+        # Декодируем URL-кодирование в cookie
         decoded_cookie = urllib.parse.unquote(cookie)  # Декодируем %7C в |
-        cookie_parts = decoded_cookie.split('%')
 
+        # Разделяем cookie по символу '|'
+        cookie_parts = decoded_cookie.split('|')
+
+        # Проверяем, что структура cookie правильная
         if len(cookie_parts) >= 2:
-            nickname = cookie_parts[0]
-            user_id = cookie_parts[1]
+            nickname = cookie_parts[0]  # Первая часть — это никнейм пользователя
+            user_id = cookie_parts[1]  # Вторая часть — это ID пользователя
 
-            print(f"Nickname: {nickname}, User ID: {user_id}")
-
+            # Логика ответа
             if nickname == 'Igor':
                 return jsonify({
                     "success": True,
@@ -150,7 +150,6 @@ def get_total_reviews():
             return jsonify({"error": "Invalid cookie format"}), 400
     else:
         return jsonify({"success": False, "message": "User not identified"}), 400
-
 
 
 # @app.route('/api/total-reviews', methods=['GET'])
