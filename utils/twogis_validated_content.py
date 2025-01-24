@@ -12,13 +12,133 @@ load_dotenv()
 
 # Настройки драйвера и пути
 DRIVER_PATH = getenv('DRIVER_PATH', default='')
-validated_url = 'https://2gis.ru/sochi/firm/70000001067211531/tab/reviews'
+validated_url = 'https://2gis.ru/krasnodar/firm/70000001095624348/tab/reviews'
+# validated_url = 'https://2gis.ru/krasnodar/firm/70000001024907255/tab/reviews'
+
+
+# def twogis_valid_content(url):
+#     """Функция для определения необходимых для парсинга контейнеров."""
+#     options = FirefoxOptions()
+#     # options.add_argument('--headless')
+#     service = Service(DRIVER_PATH)
+#     driver = Firefox(service=service, options=options)
+
+#     # Открываем страницу
+#     driver.get(url)
+#     sleep(5)
+
+#     try:
+#         # Находим кнопку "Полезно"
+#         useful_button = WebDriverWait(driver, 10).until(
+#             EC.presence_of_element_located(
+#                 (By.XPATH, '//button[.//div[text()="Полезно"]]'))
+#         )
+
+#         # Находим блок отзыва для кнопки "Полезно"
+#         review_block = useful_button.find_element(
+#             By.XPATH, './ancestor::div[contains(@class, "_1k5soqfl")]')
+
+#         # Ищем имя автора
+#         author_element = review_block.find_element(
+#             By.XPATH, './/span[contains(@title, "")]')
+#         author_class = author_element.get_attribute("class")
+
+#         # Ищем текст отзыва
+#         review_text_element = review_block.find_element(By.XPATH, './/a')
+#         review_text_class = review_text_element.get_attribute("class")
+
+#         # Ищем блок со звездами через позицию относительно текста или автора
+#         rating_container = review_block.find_element(
+#             By.XPATH, './/div[contains(@style, "width")]')
+#         rating_class = rating_container.get_attribute("class")
+
+#         # Ищем контейнер с датой по отношению к кнопке "Полезно"
+#         date_element = review_block.find_element(
+#             By.XPATH, './/div[not(@class="") and contains(text(), " ")]')
+#         date_class = date_element.get_attribute("class")
+#     except Exception as e:
+#         logging.error(f"Ошибка при определении классов контейнеров: {e}")
+#     finally:
+#         driver.quit()
+
+#     return {
+#         'review': review_block,
+#         'author': author_class,
+#         'content': review_text_class,
+#         'rating': rating_class,
+#         'date': date_class
+#     }
+
+
+# def twogis_valid_content(url):
+#     """Функция для определения необходимых для парсинга контейнеров."""
+#     options = FirefoxOptions()
+#     # options.add_argument('--headless')
+#     service = Service(DRIVER_PATH)
+#     driver = Firefox(service=service, options=options)
+
+#     # Открываем страницу
+#     driver.get(url)
+#     sleep(5)
+
+#     try:
+#         # Находим кнопку "Полезно"
+#         useful_button = WebDriverWait(driver, 10).until(
+#             EC.presence_of_element_located(
+#                 (By.XPATH, '//button[.//div[text()="Полезно"]]'))
+#         )
+
+#         # Находим блок отзыва для кнопки "Полезно"
+#         review_block = useful_button.find_element(
+#             By.XPATH, './ancestor::div[contains(@class, "_1k5soqfl")]')
+
+#         # Ищем имя автора
+#         author_element = review_block.find_element(
+#             By.XPATH, './/span[contains(@title, "")]')
+#         author_name = author_element.text
+
+#         # Ищем текст отзыва
+#         review_text_element = review_block.find_element(By.XPATH, './/a')
+#         review_text = review_text_element.text
+
+#         # Ищем блок со звездами через позицию относительно текста или автора
+#         rating_container = review_block.find_element(
+#             By.XPATH, './/div[contains(@style, "width")]')
+#         rating = rating_container.get_attribute("style")  # Или вычислить рейтинг на основе ширины
+
+#         # Ищем контейнер с датой по отношению к кнопке "Полезно"
+#         date_element = review_block.find_element(
+#             By.XPATH, './/div[not(@class="") and contains(text(), " ")]')
+#         review_date = date_element.text
+
+#     except Exception as e:
+#         logging.error(f"Ошибка при определении классов контейнеров: {e}")
+#     finally:
+#         driver.quit()
+
+#     return {
+#         'review': review_text,
+#         'author': author_name,
+#         'content': review_text,
+#         'rating': rating,
+#         'date': review_date
+#     }
+
+
+# print(twogis_valid_content(validated_url))
+
+
+import re
+import logging
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 def twogis_valid_content(url):
     """Функция для определения необходимых для парсинга контейнеров."""
     options = FirefoxOptions()
-    options.add_argument('--headless')
+    # options.add_argument('--headless')
     service = Service(DRIVER_PATH)
     driver = Firefox(service=service, options=options)
 
@@ -26,8 +146,13 @@ def twogis_valid_content(url):
     driver.get(url)
     sleep(5)
 
+    review_text = ""
+    author_name = ""
+    rating_percentage = ""
+    review_date = ""
+
     try:
-        # Находим кнопку "Полезно"
+        # Находим кнопку "Полезно" (кнопка, которая гарантированно есть на странице)
         useful_button = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located(
                 (By.XPATH, '//button[.//div[text()="Полезно"]]'))
@@ -38,35 +163,60 @@ def twogis_valid_content(url):
             By.XPATH, './ancestor::div[contains(@class, "_1k5soqfl")]')
 
         # Ищем имя автора
-        author_element = review_block.find_element(
-            By.XPATH, './/span[contains(@title, "")]')
-        author_class = author_element.get_attribute("class")
+        try:
+            author_element = review_block.find_element(
+                By.XPATH, './/span[@class="_14quei"]//span[@class="_16s5yj36"]')
+            author_name = author_element.text.strip() if author_element else "Не указано"
+        except Exception as e:
+            logging.error(f"Не удалось найти автора: {e}")
+            author_name = "Не указано"
 
         # Ищем текст отзыва
-        review_text_element = review_block.find_element(By.XPATH, './/a')
-        review_text_class = review_text_element.get_attribute("class")
+        try:
+            review_text_element = review_block.find_element(By.XPATH, './/a[@class="_1oir7fah"]')
+            review_text = review_text_element.text.strip() if review_text_element else "Отзыв не найден"
+        except Exception as e:
+            logging.error(f"Не удалось найти текст отзыва: {e}")
+            review_text = "Отзыв не найден"
 
-        # Ищем блок со звездами через позицию относительно текста или автора
-        rating_container = review_block.find_element(
-            By.XPATH, './/div[contains(@style, "width")]')
-        rating_class = rating_container.get_attribute("class")
+        # Ищем блок со звездами (для рейтинга)
+        try:
+            rating_container = review_block.find_element(
+                By.XPATH, './/div[contains(@style, "width")]')
+            rating_style = rating_container.get_attribute("style")
+            rating_percentage = rating_style.split("width:")[1].split("%")[0].strip() if "width" in rating_style else "Не указан"
+        except Exception as e:
+            logging.error(f"Не удалось найти рейтинг: {e}")
+            rating_percentage = "Не указан"
 
-        # Ищем контейнер с датой по отношению к кнопке "Полезно"
-        date_element = review_block.find_element(
-            By.XPATH, './/div[not(@class="") and contains(text(), " ")]')
-        date_class = date_element.get_attribute("class")
+        # Ищем дату отзыва (попробуем искать по шаблону даты)
+        try:
+            # Поиск по всем блокам с текстом, который может содержать дату
+            date_elements = review_block.find_elements(By.XPATH, './/div[contains(text(), "янв") or contains(text(), "фев")]')
+            # Используем регулярные выражения, чтобы вычленить дату
+            for date_elem in date_elements:
+                date_text = date_elem.text.strip()
+                if re.match(r'\d{1,2}\s[а-яА-Я]+\s\d{4}', date_text):  # Шаблон для даты в формате "01 янв 2025"
+                    review_date = date_text
+                    break
+            else:
+                review_date = "Дата не указана"
+        except Exception as e:
+            logging.error(f"Не удалось найти дату: {e}")
+            review_date = "Дата не указана"
+
     except Exception as e:
-        logging.error(f"Ошибка при определении классов контейнеров: {e}")
+        logging.error(f"Ошибка при обработке страницы: {e}")
     finally:
         driver.quit()
 
-    return (
-        review_block,
-        author_class,
-        review_text_class,
-        rating_class,
-        date_class
-    )
+    return {
+        'review': review_text,
+        'author': author_name,
+        'content': review_text,
+        'rating': rating_percentage,
+        'date': review_date
+    }
 
 
-# print(twogis_valid_content(validated_url))
+print(twogis_valid_content(validated_url))

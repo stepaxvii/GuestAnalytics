@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 
 DRIVER_PATH = getenv('DRIVER_PATH')
 
+
 def ya_check_reviews(org_url):
     """
     Проверка наличия новых отзывов о ресторане
@@ -92,7 +93,9 @@ def ya_check_reviews(org_url):
             try:
                 # Используем явное ожидание для ссылки
                 author_link = WebDriverWait(review, 10).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, LINK_ELEMENT))
+                    EC.presence_of_element_located(
+                        (By.CSS_SELECTOR, LINK_ELEMENT)
+                    )
                 ).get_attribute("href")
             except NoSuchElementException as e:
                 logging.error(f"Ошибка при поиске ссылки на автора: {e}")
@@ -163,7 +166,9 @@ def matching_reviews(org_url):
         review_dict = {
             "review_date": review["review_date"],
             "author_name": review["author_name"],
-            "rating_value": int(review["rating_value"].split('.')[0]) if review["rating_value"] else None,
+            "rating_value": int(
+                review["rating_value"].split('.')[0]
+            ) if review["rating_value"] else None,
             "text": review["text"]
         }
 
@@ -174,7 +179,7 @@ def matching_reviews(org_url):
     # Выбираем тексты отзывов для формирования семантической оценки
     if new_reviews_to_semantic:
         for new_review in new_reviews_to_semantic:
-            semantic = None  # Здесь можно добавить семантический анализ текста отзыва
+            semantic = None  # Здесь добавить семантический анализ
             new_review["semantic"] = semantic
             new_reviews_to_save.append(new_review)
 
@@ -191,14 +196,14 @@ def matching_reviews(org_url):
         # Вызываем функцию для сохранения новых отзывов
         for review in sorted_new_reviews:
             review_data_tuple = (
-            restaurant_id,
-            review["review_date"],
-            review["author_name"],
-            review.get("author_link", None),
-            review["rating_value"],
-            review["text"],
-            review.get("semantic", None),
-        )
+                restaurant_id,
+                review["review_date"],
+                review["author_name"],
+                review["author_link"],
+                review["rating_value"],
+                review["text"],
+                review["semantic"],
+            )
 
         # Преобразуем кортеж в словарь
         review_data_dict = {

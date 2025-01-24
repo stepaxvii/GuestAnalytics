@@ -22,8 +22,8 @@ TG_GROUP = getenv('TG_GROUP')
 async def check_new_reviews_periodically(bot: Bot):
     while True:
         try:
-            # Пауза между проверками
-            await asyncio.sleep(2000)  # 2000 секунд = 33 минуты
+            # Пауза между проверками 1 час
+            await asyncio.sleep(3600)
             logging.info("Функция для проверки новых отзывов")
 
             # Получаем данные о ресторанах
@@ -48,7 +48,7 @@ async def check_new_reviews_periodically(bot: Bot):
                             f"Яндекс, {review['review_date']}\n\n"
                             f"{review['text']}\n"
                             f"Автор: {review['author_name']}\n"
-                            f"Семантика - \"{review.get('semantic')}\""
+                            # f"Семантика - \"{review.get('semantic')}\""
                         )
 
                         # Проверка наличия ссылки на автора
