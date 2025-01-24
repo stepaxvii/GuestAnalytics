@@ -77,7 +77,6 @@ def ya_check_reviews(org_url):
 
     # Сохраняем текущие отзывы из зоны видимости
     for review in reviews:
-        sleep(1)
         try:
             date_str = review.find_element(
                 By.CSS_SELECTOR, DATE_ELEMENT
