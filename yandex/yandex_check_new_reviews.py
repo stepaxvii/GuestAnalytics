@@ -235,7 +235,6 @@ def ya_check_reviews(org_url):
     return unique_reviews
 
 
-
 def matching_reviews(org_url):
     """Функция сравнения собранных отзывов с БД."""
 
@@ -252,6 +251,7 @@ def matching_reviews(org_url):
         review_dict = {
             "review_date": review.created_at,
             "author_name": review.author,
+            "author_link": review.link,
             "rating_value": review.rating,
             "text": review.content
         }
@@ -269,6 +269,7 @@ def matching_reviews(org_url):
         review_dict = {
             "review_date": review["review_date"],
             "author_name": review["author_name"],
+            "author_link": review["author_link"],
             "rating_value": int(
                 review["rating_value"].split('.')[0]
             ) if review["rating_value"] else None,
@@ -302,7 +303,7 @@ def matching_reviews(org_url):
                 restaurant_id,
                 review["review_date"],
                 review["author_name"],
-                review["author_link"],
+                review.get("author_link", None),
                 review["rating_value"],
                 review["text"],
                 review["semantic"],
