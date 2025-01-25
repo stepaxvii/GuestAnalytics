@@ -118,10 +118,10 @@ async def check_new_reviews_periodically(bot: Bot):
                         )
 
                         # Проверка наличия ссылки на автора
-                        if 'link' in review and review['link']:
+                        if 'author_link' in review and review['author_link']:
                             button_text = "Перейти к автору"
-                            button_url = review['link']
-                            logging.info(f"Ссылка на автора найдена: {review['link']}")
+                            button_url = review['author_link']
+                            logging.info(f"Ссылка на автора найдена: {review['author_link']}")
                         else:
                             button_text = "Перейти к отзывам"
                             button_url = rest_reviews_link
