@@ -325,4 +325,4 @@ def matching_reviews(org_url):
     else:
         logging.info("Новых отзывов нет.")
 
-    return review_data_dict
+    return sorted_new_reviews

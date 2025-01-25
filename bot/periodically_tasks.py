@@ -116,6 +116,7 @@ async def check_new_reviews_periodically(bot: Bot):
                             f"{review['text']}\n"
                             f"Автор: {review['author_name']}\n"
                         )
+                        logging.info(f"---{review['author_link']}")
 
                         # Проверка наличия ссылки на автора
                         if 'author_link' in review and review['author_link']:
