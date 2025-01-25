@@ -214,7 +214,7 @@ def ya_check_reviews(org_url):
             text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
 
             # Логируем информацию о текущем отзыве
-            logging.info(f"Дата отзыва: {review_date}, Автор: {author_name}, Рейтинг: {rating_value}, Текст: {text}, Ссылка на автора: {author_link}")
+            # logging.info(f"Дата отзыва: {review_date}, Автор: {author_name}, Рейтинг: {rating_value}, Текст: {text}, Ссылка на автора: {author_link}")
 
             # Сохранение отзыва в список для уникальности
             review_entry = {

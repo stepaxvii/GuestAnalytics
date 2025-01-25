@@ -85,11 +85,12 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
                     f"Семантика - \"{review.get('semantic')}\""
                 )
 
+                print(review['author_link'])
                 # Проверка наличия ссылки на автора
-                if 'link' in review and review['link']:
+                if 'author_link' in review and review['author_link']:
                     # Если есть link, создаем кнопку с ссылкой на автора
                     button_text = "Перейти к автору"
-                    button_url = review['link']
+                    button_url = review['author_link']
                 else:
                     # Если link нет, создаем кнопку с ссылкой на отзывы
                     button_text = "Перейти к отзывам"
