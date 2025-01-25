@@ -111,7 +111,7 @@ async def check_new_reviews_periodically(bot: Bot):
                         logging.info(f"Обрабатываем отзыв от {review.get('author_name', 'неизвестен')}")
                         message = (
                             f"{rest_title}, {rest_address}.\n"
-                            f"{get_star_rating(review['rating_value'])}\n"
+                            f"{get_star_rating(int(review['rating_value']))}\n"
                             f"Яндекс, {review['review_date']}\n\n"
                             f"{review['text']}\n"
                             f"Автор: {review['author_name']}\n"
