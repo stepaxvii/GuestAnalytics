@@ -117,7 +117,7 @@ def ya_check_reviews(org_url):
             # Логируем информацию о текущем отзыве
             logging.info(
                 f"Дата отзыва: {review_date}, "
-                "Автор: {author_name}, Рейтинг: {rating_value}"
+                f"Автор: {author_name}, Рейтинг: {rating_value}"
             )
 
             # Сохранение отзыва в список для уникальности
@@ -213,18 +213,18 @@ def matching_reviews(org_url):
                 review["semantic"],
             )
 
-        # Преобразуем кортеж в словарь
-        review_data_dict = {
-            'restaurant_id': review_data_tuple[0],
-            'review_date': review_data_tuple[1],
-            'author_name': review_data_tuple[2],
-            'author_link': review_data_tuple[3],
-            'rating_value': review_data_tuple[4],
-            'text': review_data_tuple[5],
-            'semantic': review_data_tuple[6],
-        }
+            # Преобразуем кортеж в словарь
+            review_data_dict = {
+                'restaurant_id': review_data_tuple[0],
+                'review_date': review_data_tuple[1],
+                'author_name': review_data_tuple[2],
+                'author_link': review_data_tuple[3],
+                'rating_value': review_data_tuple[4],
+                'text': review_data_tuple[5],
+                'semantic': review_data_tuple[6],
+            }
 
-        create_review(review_data_dict)
+            create_review(review_data_dict)
 
     else:
         logging.info("Новых отзывов нет.")
