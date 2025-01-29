@@ -123,6 +123,7 @@ app = Flask(__name__)
 @app.route('/api/total-reviews', methods=['GET'])
 def total_reviews():
     user_id = request.args.get('user_id')
+    print(f"------{user_id}----------")
     if not user_id:
         return jsonify({
             "success": False,
