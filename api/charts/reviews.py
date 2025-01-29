@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from sqlalchemy.orm import joinedload
 from datetime import datetime
 
-from data_base.data_main import YandexReview
+from data_base.data_main import YandexReview, session
 
 trend_reviews_bp = Blueprint('trend_reviews', __name__)
 
@@ -22,7 +22,7 @@ def trend_reviews():
     current_year = datetime.now().year
 
     # Пример запроса, чтобы получить отзывы по restaurant_id (user_id)
-    reviews = YandexReview.query.filter(
+    reviews = session.query(YandexReview).filter(
         YandexReview.restaurant_id == user_id
     ).all()
 
