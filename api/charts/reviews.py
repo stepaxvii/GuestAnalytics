@@ -18,8 +18,8 @@ def trend_reviews():
         }), 400
 
     # Получаем текущую дату
-    current_month = datetime.now().month
-    current_year = datetime.now().year
+    # current_month = datetime.now().month
+    # current_year = datetime.now().year
 
     # Пример запроса, чтобы получить отзывы по restaurant_id (user_id)
     reviews = session.query(YandexReview).filter(
@@ -33,12 +33,28 @@ def trend_reviews():
             "data": None,
             "message": "Отзывы не найдены"
         }), 404
-
+    
     # Данные для графика (по месяцам)
     months_data = {"Январь": 0, "Февраль": 0, "Март": 0, "Апрель": 0}
+    
+    # Перебираем все отзывы
     for review in reviews:
-        review_date = datetime.strptime(review.created_at, "%Y-%m-%d")  # Предполагаем формат даты: YYYY-MM-DD
-        month_name = review_date.strftime("%B")  # Месяц в виде строки, например, Январь
+        # Преобразуем строку в datetime (формат даты 'YYYY-MM-DD')
+        review_date = datetime.strptime(review.created_at, "%Y-%m-%d")
+        
+        # Получаем месяц в числовом формате (1-12)
+        month_num = review_date.month
+        
+        # Сопоставляем числовой месяц с названием месяца
+        month_names = {
+            1: "Январь", 2: "Февраль", 3: "Март", 4: "Апрель",
+            5: "Май", 6: "Июнь", 7: "Июль", 8: "Август",
+            9: "Сентябрь", 10: "Октябрь", 11: "Ноябрь", 12: "Декабрь"
+        }
+        
+        month_name = month_names.get(month_num)
+        
+        # Если месяц входит в наш диапазон (например, Январь - Апрель), то добавляем рейтинг
         if month_name in months_data:
             months_data[month_name] += review.rating  # Суммируем рейтинг для каждого месяца
 
