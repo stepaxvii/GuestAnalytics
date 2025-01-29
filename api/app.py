@@ -122,7 +122,7 @@ app = Flask(__name__)
 # 1) /api/total-reviews
 @app.route('/api/total-reviews', methods=['GET'])
 def total_reviews():
-    user_id = request.args.get('user_id')
+    user_id = int(request.args.get('user_id'))
     print(f"------{user_id}----------")
     if not user_id:
         return jsonify({
@@ -132,12 +132,12 @@ def total_reviews():
         }), 400
 
     if user_id == 1:
-        # Пример логики: берём из БД общее число отзывов (условно 123)
+
         total_reviews = 234
         percentage_change = 100.2  # Условно +10.2%
 
     if user_id == 2:
-        # Пример логики: берём из БД общее число отзывов (условно 123)
+
         total_reviews = 432
         percentage_change = 30.2  # Условно +10.2%
 
