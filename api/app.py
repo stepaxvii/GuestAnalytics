@@ -130,9 +130,15 @@ def total_reviews():
             "message": "Не указан user_id"
         }), 400
 
-    # Пример логики: берём из БД общее число отзывов (условно 123)
-    total_reviews = 123
-    percentage_change = 10.2  # Условно +10.2%
+    if user_id == 1:
+        # Пример логики: берём из БД общее число отзывов (условно 123)
+        total_reviews = 234
+        percentage_change = 100.2  # Условно +10.2%
+
+    if user_id == 2:
+        # Пример логики: берём из БД общее число отзывов (условно 123)
+        total_reviews = 432
+        percentage_change = 30.2  # Условно +10.2%
 
     return jsonify({
         "success": True,
