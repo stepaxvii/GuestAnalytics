@@ -85,25 +85,42 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
                     f"Семантика - \"{review.get('semantic')}\""
                 )
 
-                print(review['author_link'])
-                # Проверка наличия ссылки на автора
-                if 'author_link' in review and review['author_link']:
-                    # Если есть link, создаем кнопку с ссылкой на автора
-                    button_text = "Перейти к автору"
-                    button_url = review['author_link']
+                if (
+                    'author_link' in review
+                    and review['author_link']
+                    and review['author_link'] != 'None'
+                ):
+                    # Если ссылка на автора есть
+                    # и не равна 'None', создаем обе кнопки
+                    button_text_1 = "К автору"
+                    button_url_1 = review['author_link']
+                    button_text_2 = " К отзывам"
+                    button_url_2 = rest_reviews_link
+
+                    keyboard = InlineKeyboardMarkup(
+                        inline_keyboard=[
+                            [
+                                InlineKeyboardButton(
+                                    text=button_text_1,
+                                    url=button_url_1
+                                ),
+                                InlineKeyboardButton(
+                                    text=button_text_2,
+                                    url=button_url_2
+                                )
+                            ]
+                        ]
+                    )
                 else:
-                    # Если link нет, создаем кнопку с ссылкой на отзывы
                     button_text = "Перейти к отзывам"
                     button_url = rest_reviews_link
 
-                # Создаем кнопку с условной ссылкой
-                keyboard = InlineKeyboardMarkup(
-                    inline_keyboard=[
-                        [InlineKeyboardButton(
+                    keyboard = InlineKeyboardMarkup(
+                        inline_keyboard=[[InlineKeyboardButton(
                             text=button_text, url=button_url
-                        )]
-                    ]
-                )
+                        )]]
+                    )
+
                 # Отправляем сообщение в канал
                 await bot.send_message(
                     TG_GROUP, message, reply_markup=keyboard
