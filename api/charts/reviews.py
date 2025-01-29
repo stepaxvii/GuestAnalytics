@@ -32,10 +32,10 @@ def trend_reviews():
 
     # Получаем текущую дату
     current_date = datetime.now()
-    
+
     # Получаем текущий год и месяц в формате 'yyyy-mm'
     current_month = current_date.strftime("%Y-%m")
-    
+
     # Генерируем список последних 4 месяцев в формате 'yyyy-mm'
     months = [current_month]
     for i in range(1, 4):
@@ -47,26 +47,17 @@ def trend_reviews():
     # Создаем словарь для хранения суммарных рейтингов по месяцам
     months_data = {month: 0 for month in months}
 
-
-    # Если нет отзывов, возвращаем пустой ответ
-    if not reviews:
-        return jsonify({
-            "success": False,
-            "data": None,
-            "message": "Отзывы не найдены"
-        }), 404
-    
     # Перебираем все отзывы
     for review in reviews:
         # Преобразуем строку в datetime (формат даты 'YYYY-MM-DD')
         review_date = datetime.strptime(review.created_at, "%Y-%m-%d")
-        
+
         # Получаем месяц и год отзыва в формате 'yyyy-mm'
         review_month = review_date.strftime("%Y-%m")
-        
-        # Если месяц отзыва есть в нашем списке последних 4 месяцев, добавляем рейтинг
+
+        # Если месяц отзыва есть в нашем списке, увеличиваем счетчик
         if review_month in months_data:
-            months_data[review_month] += review.rating  # Суммируем рейтинг для каждого месяца
+            months_data[review_month] += 1
 
     # Переходим к подготовке данных для графика
     data = {
@@ -83,45 +74,6 @@ def trend_reviews():
         "data": data,
         "message": "Данные по trend-reviews получены"
     }), 200
-    # # Данные для графика (по месяцам)
-    # months_data = {"Январь": 0, "Февраль": 0, "Март": 0, "Апрель": 0}
-    
-    # # Перебираем все отзывы
-    # for review in reviews:
-    #     # Преобразуем строку в datetime (формат даты 'YYYY-MM-DD')
-    #     review_date = datetime.strptime(review.created_at, "%Y-%m-%d")
-        
-    #     # Получаем месяц в числовом формате (1-12)
-    #     month_num = review_date.month
-        
-    #     # Сопоставляем числовой месяц с названием месяца
-    #     month_names = {
-    #         1: "Январь", 2: "Февраль", 3: "Март", 4: "Апрель",
-    #         5: "Май", 6: "Июнь", 7: "Июль", 8: "Август",
-    #         9: "Сентябрь", 10: "Октябрь", 11: "Ноябрь", 12: "Декабрь"
-    #     }
-        
-    #     month_name = month_names.get(month_num)
-        
-    #     # Если месяц входит в наш диапазон (например, Январь - Апрель), то добавляем рейтинг
-    #     if month_name in months_data:
-    #         months_data[month_name] += review.rating  # Суммируем рейтинг для каждого месяца
-
-    # # Переходим к подготовке данных для графика
-    # data = {
-    #     "labels": list(months_data.keys()),
-    #     "dataset": {
-    #         "label": "Отзывы",
-    #         "data": list(months_data.values()),
-    #         "borderColor": "#36A2EB"
-    #     }
-    # }
-
-    # return jsonify({
-    #     "success": True,
-    #     "data": data,
-    #     "message": "Данные по trend-reviews получены"
-    # }), 200
 
 
 total_reviews_bp = Blueprint('total_reviews', __name__)
