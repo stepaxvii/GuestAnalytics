@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 from data_base.data_main import YandexReview, session
 
@@ -31,28 +32,41 @@ def trend_reviews():
 
     # Получаем текущую дату
     current_date = datetime.now()
+    
+    # Получаем текущий год и месяц в формате 'yyyy-mm'
+    current_month = current_date.strftime("%Y-%m")
+    
+    # Генерируем список последних 4 месяцев в формате 'yyyy-mm'
+    months = [current_month]
+    for i in range(1, 4):
+        # Используем relativedelta для точного вычитания месяцев
+        prev_month_date = current_date - relativedelta(months=i)
+        prev_month = prev_month_date.strftime("%Y-%m")  # Форматируем как 'yyyy-mm'
+        months.append(prev_month)
 
-    # Получаем список месяцев за последние 4 месяца, включая текущий
-    months_data = {}
-    for i in range(4):
-        # Для каждого месяца получаем дату в прошлом
-        month_date = current_date - timedelta(days=i * 30)
-        # Получаем название месяца
-        month_name = month_date.strftime("%B")
-        # Инициализируем месяц с нулевой суммой рейтинга
-        months_data[month_name] = 0
+    # Создаем словарь для хранения суммарных рейтингов по месяцам
+    months_data = {month: 0 for month in months}
 
+
+    # Если нет отзывов, возвращаем пустой ответ
+    if not reviews:
+        return jsonify({
+            "success": False,
+            "data": None,
+            "message": "Отзывы не найдены"
+        }), 404
+    
     # Перебираем все отзывы
     for review in reviews:
         # Преобразуем строку в datetime (формат даты 'YYYY-MM-DD')
         review_date = datetime.strptime(review.created_at, "%Y-%m-%d")
-
-        # Получаем месяц и год отзыва
-        month_name = review_date.strftime("%B")  # Получаем название месяца
-
-        # Если месяц находится в последние 4 месяца, то добавляем рейтинг
-        if month_name in months_data:
-            months_data[month_name] += review.rating  # Суммируем рейтинг для каждого месяца
+        
+        # Получаем месяц и год отзыва в формате 'yyyy-mm'
+        review_month = review_date.strftime("%Y-%m")
+        
+        # Если месяц отзыва есть в нашем списке последних 4 месяцев, добавляем рейтинг
+        if review_month in months_data:
+            months_data[review_month] += review.rating  # Суммируем рейтинг для каждого месяца
 
     # Переходим к подготовке данных для графика
     data = {
