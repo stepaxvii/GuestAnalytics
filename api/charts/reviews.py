@@ -60,6 +60,7 @@ def trend_reviews():
         # Если месяц отзыва есть в нашем списке, увеличиваем счетчик
         if review_month in months_data:
             months_data[review_month] += 1
+        months_data = reversed(months_data)
 
     # Переходим к подготовке данных для графика
     data = {
@@ -133,13 +134,15 @@ def total_reviews():
                 total_reviews_this_month - total_reviews_prev_month
             ) / total_reviews_prev_month
         ) * 100
+        # Округляем процентное изменение до одного знака после запятой
+        percentage_change = round(percentage_change, 1)
     else:
         percentage_change = 100
 
     return jsonify({
         "success": True,
         "data": {
-            "total_reviews": total_reviews_prev_month,
+            "total_reviews": total_reviews_this_month,
             "percentage_change": percentage_change
         },
         "message": "Данные по total-reviews получены"
