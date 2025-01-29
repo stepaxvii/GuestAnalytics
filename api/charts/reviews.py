@@ -16,10 +16,6 @@ def trend_reviews():
             "message": "Не указан user_id"
         }), 400
 
-    # Получаем текущую дату
-    # current_month = datetime.now().month
-    # current_year = datetime.now().year
-
     # Пример запроса, чтобы получить отзывы по restaurant_id (user_id)
     reviews = session.query(YandexReview).filter(
         YandexReview.restaurant_id == user_id
@@ -32,38 +28,28 @@ def trend_reviews():
             "data": None,
             "message": "Отзывы не найдены"
         }), 404
+
     # Получаем текущую дату
     current_date = datetime.now()
-    
+
     # Получаем список месяцев за последние 4 месяца, включая текущий
     months_data = {}
     for i in range(4):
         # Для каждого месяца получаем дату в прошлом
         month_date = current_date - timedelta(days=i * 30)
-        month_name = month_date.strftime("%B")  # Получаем название месяца
-        months_data[month_name] = 0  # Инициализируем месяц с нулевой суммой рейтинга
+        # Получаем название месяца
+        month_name = month_date.strftime("%B")
+        # Инициализируем месяц с нулевой суммой рейтинга
+        months_data[month_name] = 0
 
-    # Пример запроса, чтобы получить отзывы по restaurant_id (user_id)
-    reviews = YandexReview.query.filter(
-        YandexReview.restaurant_id == user_id
-    ).all()
-
-    # Если нет отзывов, возвращаем пустой ответ
-    if not reviews:
-        return jsonify({
-            "success": False,
-            "data": None,
-            "message": "Отзывы не найдены"
-        }), 404
-    
     # Перебираем все отзывы
     for review in reviews:
         # Преобразуем строку в datetime (формат даты 'YYYY-MM-DD')
         review_date = datetime.strptime(review.created_at, "%Y-%m-%d")
-        
+
         # Получаем месяц и год отзыва
         month_name = review_date.strftime("%B")  # Получаем название месяца
-        
+
         # Если месяц находится в последние 4 месяца, то добавляем рейтинг
         if month_name in months_data:
             months_data[month_name] += review.rating  # Суммируем рейтинг для каждого месяца
@@ -122,31 +108,6 @@ def trend_reviews():
     #     "data": data,
     #     "message": "Данные по trend-reviews получены"
     # }), 200
-
-# @trend_reviews_bp.route('/trend-reviews', methods=['GET'])
-# def trend_reviews():
-#     user_id = request.args.get('user_id')
-#     if not user_id:
-#         return jsonify({
-#             "success": False,
-#             "data": None,
-#             "message": "Не указан user_id"
-#         }), 400
-
-#     data = {
-#         "labels": ["Январь", "Февраль", "Март", "Апрель"],
-#         "dataset": {
-#             "label": "Отзывы",
-#             "data": [100, 120, 140, 160],
-#             "borderColor": "#36A2EB"
-#         }
-#     }
-
-#     return jsonify({
-#         "success": True,
-#         "data": data,
-#         "message": "Данные по trend-reviews получены"
-#     }), 200
 
 
 total_reviews_bp = Blueprint('total_reviews', __name__)
