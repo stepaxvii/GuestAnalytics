@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from datetime import datetime, timedelta
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from data_base.data_main import YandexReview, session
@@ -9,7 +9,8 @@ trend_reviews_bp = Blueprint('trend_reviews', __name__)
 
 @trend_reviews_bp.route('/trend-reviews', methods=['GET'])
 def trend_reviews():
-    user_id = request.args.get('user_id')  # Получаем user_id, который совпадает с restaurant_id
+    # Получаем user_id, который совпадает с restaurant_id
+    user_id = request.args.get('user_id')
     if not user_id:
         return jsonify({
             "success": False,
@@ -41,7 +42,8 @@ def trend_reviews():
     for i in range(1, 4):
         # Используем relativedelta для точного вычитания месяцев
         prev_month_date = current_date - relativedelta(months=i)
-        prev_month = prev_month_date.strftime("%Y-%m")  # Форматируем как 'yyyy-mm'
+        # Форматируем как 'yyyy-mm'
+        prev_month = prev_month_date.strftime("%Y-%m")
         months.append(prev_month)
 
     # Создаем словарь для хранения суммарных рейтингов по месяцам
@@ -89,18 +91,55 @@ def total_reviews():
             "message": "Не указан user_id"
         }), 400
 
-    if user_id == 1:
-        total_reviews = 234
-        percentage_change = 100.2
+    # Получаем текущую дату
+    current_date = datetime.now()
 
-    if user_id == 2:
-        total_reviews = 432
-        percentage_change = 30.2
+    # Получаем текущий год и месяц в формате 'yyyy-mm'
+    current_month = current_date.strftime("%Y-%m")
+
+    # Получаем предыдущий месяц
+    prev_month_date = current_date - relativedelta(months=1)
+    prev_month = prev_month_date.strftime("%Y-%m")
+
+    # Пример запроса, чтобы получить отзывы по restaurant_id (user_id)
+    reviews = session.query(YandexReview).filter(
+        YandexReview.restaurant_id == user_id
+    ).all()
+
+    # Если нет отзывов, возвращаем пустой ответ
+    if not reviews:
+        return jsonify({
+            "success": False,
+            "data": None,
+            "message": "Отзывы не найдены"
+        }), 404
+
+    # Подсчитываем количество отзывов для текущего месяца
+    total_reviews_this_month = session.query(YandexReview).filter(
+        YandexReview.restaurant_id == user_id,
+        YandexReview.created_at.like(f"{current_month}%")
+    ).count()
+
+    # Подсчитываем количество отзывов для предыдущего месяца
+    total_reviews_prev_month = session.query(YandexReview).filter(
+        YandexReview.restaurant_id == user_id,
+        YandexReview.created_at.like(f"{prev_month}%")
+    ).count()
+
+    # Вычисляем процентное изменение (если предыдущий месяц не ноль)
+    if total_reviews_prev_month > 0:
+        percentage_change = (
+            (
+                total_reviews_this_month - total_reviews_prev_month
+            ) / total_reviews_prev_month
+        ) * 100
+    else:
+        percentage_change = 100
 
     return jsonify({
         "success": True,
         "data": {
-            "total_reviews": total_reviews,
+            "total_reviews": total_reviews_prev_month,
             "percentage_change": percentage_change
         },
         "message": "Данные по total-reviews получены"
