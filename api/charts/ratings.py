@@ -25,7 +25,7 @@ def ratings_distribution():
     # Получаем количество отзывов в текущем месяце для указанного restaurant_id (user_id)
     reviews = session.query(YandexReview).filter(
         YandexReview.restaurant_id == user_id,
-        func.strftime('%Y-%m', YandexReview.date) == current_month  # Фильтрация по текущему месяцу
+        func.strftime('%Y-%m', YandexReview.created_at) == current_month  # Фильтрация по текущему месяцу
     ).all()
 
     # Считаем количество отзывов по каждому рейтингу
