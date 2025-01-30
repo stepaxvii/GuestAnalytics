@@ -1,4 +1,9 @@
+from datetime import datetime
+
 from flask import Blueprint, jsonify, request
+from sqlalchemy import func
+
+from data_base.data_main import YandexReview, session
 
 ratings_distribution_bp = Blueprint('ratings_distribution', __name__)
 
@@ -13,10 +18,50 @@ def ratings_distribution():
             "message": "Не указан user_id"
         }), 400
 
-    data = {
-        "labels": ["5 звёзд", "4 звезды", "3 звезды", "2 звезды", "1 звезда"],
-        "values": [50, 30, 10, 5, 5]
+    # Получаем текущую дату
+    current_date = datetime.now()
+    current_month = current_date.strftime("%Y-%m")
+
+    # Получаем количество отзывов в текущем месяце для указанного restaurant_id (user_id)
+    reviews = session.query(YandexReview).filter(
+        YandexReview.restaurant_id == user_id,
+        func.strftime('%Y-%m', YandexReview.date) == current_month  # Фильтрация по текущему месяцу
+    ).all()
+
+    # Считаем количество отзывов по каждому рейтингу
+    ratings_count = {
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0
     }
+
+    for review in reviews:
+        if review.rating in ratings_count:
+            ratings_count[review.rating] += 1
+
+    # Общее количество отзывов
+    total_reviews = sum(ratings_count.values())
+
+    # Если отзывов нет, возвращаем 0% для всех рейтингов
+    if total_reviews == 0:
+        data = {
+            "labels": ["★☆☆☆☆", "★★☆☆☆", "★★★☆☆", "★★★★☆", "★★★★★"],
+            "values": [0, 0, 0, 0, 0]
+        }
+    else:
+        # Рассчитываем проценты для каждого рейтинга
+        data = {
+            "labels": ["★☆☆☆☆", "★★☆☆☆", "★★★☆☆", "★★★★☆", "★★★★★"],
+            "values": [
+                (ratings_count[1] / total_reviews) * 100,
+                (ratings_count[2] / total_reviews) * 100,
+                (ratings_count[3] / total_reviews) * 100,
+                (ratings_count[4] / total_reviews) * 100,
+                (ratings_count[5] / total_reviews) * 100
+            ]
+        }
 
     return jsonify({
         "success": True,
