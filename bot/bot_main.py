@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.fsm.state import State
+from aiogram.fsm.state import State, StatesGroup
 
 from bot import handlers, periodically_tasks
 
@@ -17,7 +17,7 @@ TELEGRAM_TOKEN = getenv('TELEGRAM_TOKEN')
 
 
 # Модуль с состояниями
-class RestaurantEditState(State):
+class RestaurantEditState(StatesGroup):
     title_edit = State()
     address_edit = State()
     tg_channal_edit = State()
