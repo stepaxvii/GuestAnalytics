@@ -2,7 +2,7 @@ import asyncio
 from os import getenv
 
 from aiogram import Bot, Router
-from aiogram.filters import CommandStart
+from aiogram.filters import Command, CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import (
     InlineKeyboardButton,
@@ -188,7 +188,7 @@ async def validate_link(message: Message):
     )
 
 
-@router.message(commands=['data_edit'])
+@router.message(Command('data_edit'))
 async def handle_data_edit(message: Message):
     # Получаем все рестораны с помощью вашей функции
     restaurants_list = read_all_restaurant_data()
