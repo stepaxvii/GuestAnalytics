@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.state import State
 
 from bot import handlers, periodically_tasks
 
@@ -16,10 +16,11 @@ load_dotenv()
 TELEGRAM_TOKEN = getenv('TELEGRAM_TOKEN')
 
 
-class LinkFMS(StatesGroup):
-    """Определение состояния FMS."""
-    yandex_link = State()
-    twogis_link = State()
+# Модуль с состояниями
+class RestaurantEditState(State):
+    title_edit = State()
+    address_edit = State()
+    tg_channal_edit = State()
 
 
 async def main():

@@ -3,6 +3,7 @@ from os import getenv
 
 from aiogram import Bot, Router
 from aiogram.filters import CommandStart
+from aiogram.fsm.context import FSMContext
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -11,6 +12,8 @@ from aiogram.types import (
 )
 from dotenv import load_dotenv
 
+from bot.bot_main import RestaurantEditState
+from data_base.data_main import session, Restaurant
 from data_base.read_data import read_all_restaurant_data
 from utils.message_text import get_star_rating
 from yandex.yandex_primary_collection import ya_prim_coll
@@ -183,3 +186,148 @@ async def validate_link(message: Message):
         'Анализ завершён.\n'
         f'Проанализировано отзывов: {total_count}. '
     )
+
+
+@router.message(commands=['data_edit'])
+async def handle_data_edit(message: Message):
+    # Получаем все рестораны с помощью вашей функции
+    restaurants_list = read_all_restaurant_data()
+
+    # Проверяем, есть ли рестораны
+    if not restaurants_list:
+        await message.answer("Нет доступных ресторанов для изменения.")
+        return
+
+    # Генерируем клавиатуру с кнопками для каждого ресторана
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=restaurant['title'],  # Название ресторана
+                    callback_data=f"data_edit_restaurant_{restaurant['id']}"
+                )
+            ] for restaurant in restaurants_list
+        ]
+    )
+
+    # Отправляем сообщение с клавиатурой
+    await message.answer(
+        "Выберите ресторан для редактирования:", reply_markup=keyboard
+    )
+
+
+@router.callback_query(lambda c: c.data.startswith('data_edit_restaurant_'))
+async def edit_restaurant(callback_query: CallbackQuery, state: FSMContext):
+    restaurant_id = int(callback_query.data.split('_')[-1])
+
+    # Сохраняем id ресторана в состоянии
+    await state.update_data(restaurant_id=restaurant_id)
+
+    # Генерируем клавиатуру с кнопками для выбора действия
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="Изменить название", callback_data="edit_title"),
+                InlineKeyboardButton(text="Изменить адрес", callback_data="edit_address"),
+                InlineKeyboardButton(text="Изменить TG канал", callback_data="edit_tg_channal")
+            ]
+        ]
+    )
+
+    await callback_query.message.answer(
+        "Что вы хотите изменить в ресторане?",
+        reply_markup=keyboard
+    )
+
+
+@router.callback_query(lambda c: c.data == "edit_title")
+async def edit_title(callback_query: CallbackQuery, state: FSMContext):
+    # Переходим к состоянию редактирования названия
+    await state.set_state(RestaurantEditState.title_edit)
+
+    await callback_query.message.answer("Введите новое название ресторана:")
+
+
+@router.callback_query(lambda c: c.data == "edit_address")
+async def edit_address(callback_query: CallbackQuery, state: FSMContext):
+    # Переходим к состоянию редактирования адреса
+    await state.set_state(RestaurantEditState.address_edit)
+
+    await callback_query.message.answer("Введите новый адрес ресторана:")
+
+
+@router.callback_query(lambda c: c.data == "edit_tg_channal")
+async def edit_tg_channal(callback_query: CallbackQuery, state: FSMContext):
+    # Переходим к состоянию редактирования tg_channal
+    await state.set_state(RestaurantEditState.tg_channal_edit)
+
+    await callback_query.message.answer("Введите новый TG канал ресторана:")
+
+
+@router.message(RestaurantEditState.title_edit)
+async def save_title(message: Message, state: FSMContext):
+    new_title = message.text.strip()
+
+    if new_title:
+        data = await state.get_data()
+        restaurant_id = data.get("restaurant_id")
+
+        # Обновляем название в базе данных
+        restaurant = session.query(Restaurant).filter(Restaurant.id == restaurant_id).first()
+
+        if restaurant:
+            restaurant.title = new_title
+            session.commit()
+            await message.answer(f"Название ресторана обновлено на {new_title}.")
+        else:
+            await message.answer("Ресторан не найден.")
+
+    # Завершаем редактирование
+    await state.finish()
+    await message.answer("Редактирование завершено.")
+
+
+@router.message(RestaurantEditState.address_edit)
+async def save_address(message: Message, state: FSMContext):
+    new_address = message.text.strip()
+
+    if new_address:
+        data = await state.get_data()
+        restaurant_id = data.get("restaurant_id")
+
+        # Обновляем адрес в базе данных
+        restaurant = session.query(Restaurant).filter(Restaurant.id == restaurant_id).first()
+
+        if restaurant:
+            restaurant.address = new_address
+            session.commit()
+            await message.answer(f"Адрес ресторана обновлен на {new_address}.")
+        else:
+            await message.answer("Ресторан не найден.")
+
+    # Завершаем редактирование
+    await state.finish()
+    await message.answer("Редактирование завершено.")
+
+
+@router.message(RestaurantEditState.tg_channal_edit)
+async def save_tg_channal(message: Message, state: FSMContext):
+    new_tg_channal = message.text.strip()
+
+    if new_tg_channal:
+        data = await state.get_data()
+        restaurant_id = data.get("restaurant_id")
+
+        # Обновляем TG канал в базе данных
+        restaurant = session.query(Restaurant).filter(Restaurant.id == restaurant_id).first()
+
+        if restaurant:
+            restaurant.tg_channal = new_tg_channal
+            session.commit()
+            await message.answer(f"TG канал ресторана обновлен на {new_tg_channal}.")
+        else:
+            await message.answer("Ресторан не найден.")
+    
+    # Завершаем редактирование
+    await state.finish()
+    await message.answer("Редактирование завершено.")
