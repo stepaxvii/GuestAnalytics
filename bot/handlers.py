@@ -23,7 +23,7 @@ from yandex.yandex_check_new_reviews import matching_reviews
 load_dotenv()
 
 TG_GROUP = getenv('TG_GROUP')
-ADMIN_ID = getenv('ADMIN_ID')
+ADMIN_ID = int(getenv('ADMIN_ID'))
 
 router = Router()
 

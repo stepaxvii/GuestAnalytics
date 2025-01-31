@@ -170,7 +170,7 @@ def ya_prim_coll(original_url):
         unique_reviews = set()
         prev_reviews_count = 0
         while (
-            len(unique_reviews) < total_count 
+            len(unique_reviews) < total_count
             and len(unique_reviews) < MAX_VIEW_REVIEWS
         ):
             logger.info(f'Уникальных отзывов: {len(unique_reviews)}')
