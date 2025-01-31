@@ -1,6 +1,6 @@
 
 def get_star_rating(rating):
-    """Функция для генерации звездного рейтинга."""
+    """Функция для генерации звездного рейтинга с дополнительными символами."""
 
     full_stars = "★★★★★"
     empty_stars = "☆☆☆☆☆"
@@ -12,4 +12,12 @@ def get_star_rating(rating):
     empty_star_count = 5 - full_star_count
 
     # Формируем рейтинг: полные звезды и пустые звезды
-    return full_stars[:full_star_count] + empty_stars[:empty_star_count]
+    star_rating = full_stars[:full_star_count] + empty_stars[:empty_star_count]
+
+    # Добавляем дополнительные символы в зависимости от рейтинга
+    if full_star_count == 3:
+        star_rating = " 🚩" + star_rating
+    elif full_star_count < 3:
+        star_rating = "🚨" + star_rating + "🚨"
+
+    return star_rating
