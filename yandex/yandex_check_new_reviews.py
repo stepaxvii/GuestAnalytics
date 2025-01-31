@@ -22,6 +22,7 @@ from constants import (
 )
 from data_base.create_data import create_review
 from data_base.read_data import read_some_restaurant_data, read_rest_ya_reviews
+from semantic_analysis.simple_semantic import simple_semantic
 
 load_dotenv()
 
@@ -187,7 +188,7 @@ def matching_reviews(org_url):
     # Выбираем тексты отзывов для формирования семантической оценки
     if new_reviews_to_semantic:
         for new_review in new_reviews_to_semantic:
-            semantic = None  # Здесь добавить семантический анализ
+            semantic = simple_semantic(review_text=new_review["text"])
             new_review["semantic"] = semantic
             new_reviews_to_save.append(new_review)
 

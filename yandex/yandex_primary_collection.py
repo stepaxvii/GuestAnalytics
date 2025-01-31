@@ -30,7 +30,7 @@ from constants import (
 )
 from data_base.create_data import create_restaurant, create_review
 from data_base.read_data import read_some_restaurant_data
-# from semantic_analysis.simple_semantic import simple_semantic
+from semantic_analysis.simple_semantic import simple_semantic
 from utils.urls import process_url_yandex
 
 # Настройка логирования
@@ -243,7 +243,7 @@ def ya_prim_coll(original_url):
 
     new_reviews_to_save = set()
     for review in all_reviews:
-        semantic = None  # ТУТ НУЖНО ВЫЗЫВАТЬ ФУНКЦИЮ ДЛЯ СЕМАНТИКИ
+        semantic = simple_semantic(review_text=review[4])
         # Создаём новый кортеж, добавляя 'semantic' в конец
         review_with_semantic = review + (semantic,)
         new_reviews_to_save.add(review_with_semantic)
