@@ -50,7 +50,7 @@ async def check_new_reviews_periodically(bot: Bot):
                             f"{review.get('author_name', 'неизвестен' )}"
                         )
                         message = (
-                            f"{rest_title}, {rest_address}.\n"
+                            f"{rest_title}, <b>{rest_address}</b>.\n"
                             f"{get_star_rating(int(review['rating_value']))}\n"
                             f"Яндекс, {review['review_date']}\n\n"
                             f"{review['text']}\n\n"

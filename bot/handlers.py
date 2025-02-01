@@ -90,12 +90,11 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
                 for review in new_reviews:
                     # Форматируем сообщение для отправки
                     message = (
-                        f"{rest_title}, {rest_address}.\n"
+                        f"{rest_title}, <b>{rest_address}</b>.\n"
                         f"{get_star_rating(review['rating_value'])}\n"
                         f"Яндекс, {review['review_date']}\n\n"
-                        f"{review['text']}\n"
+                        f"{review['text']}\n\n"
                         f"Автор: {review['author_name']}\n"
-                        f"Семантика - \"{review.get('semantic')}\""
                     )
 
                     if (
