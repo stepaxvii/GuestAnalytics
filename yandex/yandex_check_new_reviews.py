@@ -92,7 +92,7 @@ def ya_check_reviews(org_url):
             author_link = 'None'
             try:
                 # Используем явное ожидание для ссылки
-                author_link = WebDriverWait(review, 10).until(
+                author_link = WebDriverWait(review, 5).until(
                     EC.presence_of_element_located(
                         (By.CSS_SELECTOR, LINK_ELEMENT)
                     )

@@ -15,8 +15,6 @@ from yandex.yandex_check_new_reviews import matching_reviews
 
 load_dotenv()
 
-TG_GROUP = getenv('TG_GROUP')
-
 
 async def check_new_reviews_periodically(bot: Bot):
     """Функция переодической проверки новых отзывов."""
@@ -34,6 +32,7 @@ async def check_new_reviews_periodically(bot: Bot):
                 rest_title = restaurant['title']
                 rest_link = restaurant['yandex_link']
                 rest_address = restaurant['address']
+                rest_tg_channal = restaurant['tg_channal']
                 rest_reviews_link = rest_link + 'reviews'
 
                 # Получаем новые отзывы
@@ -54,7 +53,7 @@ async def check_new_reviews_periodically(bot: Bot):
                             f"{rest_title}, {rest_address}.\n"
                             f"{get_star_rating(int(review['rating_value']))}\n"
                             f"Яндекс, {review['review_date']}\n\n"
-                            f"{review['text']}\n"
+                            f"{review['text']}\n\n"
                             f"Автор: {review['author_name']}\n"
                         )
 
@@ -96,7 +95,7 @@ async def check_new_reviews_periodically(bot: Bot):
 
                         # Отправляем сообщение в канал
                         await bot.send_message(
-                            TG_GROUP, message, reply_markup=keyboard
+                            rest_tg_channal, message, reply_markup=keyboard
                         )
                         await asyncio.sleep(3)
 

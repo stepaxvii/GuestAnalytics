@@ -22,7 +22,6 @@ from yandex.yandex_check_new_reviews import matching_reviews
 
 load_dotenv()
 
-TG_GROUP = getenv('TG_GROUP')
 ADMIN_ID = int(getenv('ADMIN_ID'))
 
 router = Router()
@@ -80,6 +79,7 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
             rest_title = restaurant['title']
             rest_link = restaurant['yandex_link']
             rest_address = restaurant['address']
+            rest_tg_channal = restaurant['tg_channal']
             rest_reviews_link = rest_link + 'reviews'
 
             # Получаем новые отзывы
@@ -136,7 +136,7 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
 
                     # Отправляем сообщение в канал
                     await bot.send_message(
-                        TG_GROUP, message, reply_markup=keyboard
+                        rest_tg_channal, message, reply_markup=keyboard
                     )
                     await asyncio.sleep(3)
 

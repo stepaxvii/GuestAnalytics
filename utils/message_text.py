@@ -18,6 +18,6 @@ def get_star_rating(rating):
     if full_star_count == 3:
         star_rating = " 🚩" + star_rating
     elif full_star_count < 3:
-        star_rating = "🚨" + star_rating + "🚨"
+        star_rating = "🚩" + star_rating + "🚩"
 
     return star_rating

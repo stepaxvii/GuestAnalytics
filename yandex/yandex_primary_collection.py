@@ -212,7 +212,6 @@ def ya_prim_coll(original_url):
                             By.CSS_SELECTOR, LINK_ELEMENT
                         ).get_attribute("href")
                     except NoSuchElementException:
-                        logging.error("closed profile...")
                         pass
 
                     review_entry = (
