@@ -15,6 +15,59 @@ logging.basicConfig(level=logging.DEBUG)
 sentiment_distribution_bp = Blueprint('sentiment_distribution', __name__)
 
 
+# @sentiment_distribution_bp.route('/sentiment-distribution', methods=['GET'])
+# def sentiment_distribution():
+#     user_id = request.args.get('user_id')
+#     if not user_id:
+#         return jsonify({
+#             "success": False,
+#             "data": None,
+#             "message": "Не указан user_id"
+#         }), 400
+
+#     # Пример запроса, чтобы получить отзывы по restaurant_id (user_id)
+#     reviews = read_rest_ya_reviews(restaurant_id=user_id)
+#     # Если нет отзывов, возвращаем пустой ответ
+#     if not reviews:
+#         return jsonify({
+#             "success": False,
+#             "data": None,
+#             "message": "Отзывы не найдены"
+#         }), 404
+
+#     # Считаем количество каждого типа настроения
+#     sentiment_counts = {
+#         "positive": 0,
+#         "neutral": 0,
+#         "negative": 0
+#     }
+
+#     for review in reviews:
+#         if review.semantic == "П":  # Положительные отзывы
+#             sentiment_counts["positive"] += 1
+#         elif review.semantic == "Н":  # Нейтральные отзывы
+#             sentiment_counts["neutral"] += 1
+#         elif review.semantic == "О":  # Отрицательные отзывы
+#             sentiment_counts["negative"] += 1
+
+#     # Формируем данные для графика
+#     data = {
+#         "labels": ["Положительные", "Нейтральные", "Отрицательные"],
+#         "values": [
+#             sentiment_counts["positive"], 
+#             sentiment_counts["neutral"], 
+#             sentiment_counts["negative"]
+#         ]
+#     }
+
+#     return jsonify({
+#         "success": True,
+#         "data": data,
+#         "message": "Данные по sentiment-distribution получены"
+#     }), 200
+
+from datetime import datetime
+
 @sentiment_distribution_bp.route('/sentiment-distribution', methods=['GET'])
 def sentiment_distribution():
     user_id = request.args.get('user_id')
@@ -25,8 +78,9 @@ def sentiment_distribution():
             "message": "Не указан user_id"
         }), 400
 
-    # Пример запроса, чтобы получить отзывы по restaurant_id (user_id)
+    # Получаем все отзывы для данного ресторана
     reviews = read_rest_ya_reviews(restaurant_id=user_id)
+
     # Если нет отзывов, возвращаем пустой ответ
     if not reviews:
         return jsonify({
@@ -35,6 +89,17 @@ def sentiment_distribution():
             "message": "Отзывы не найдены"
         }), 404
 
+    # Получаем текущий месяц
+    current_date = datetime.now()
+    current_month = current_date.strftime("%Y-%m")
+
+    # Фильтруем отзывы за текущий месяц
+    current_month_reviews = [
+        review for review in reviews if review.created_at.startswith(
+            current_month
+        )
+    ]
+
     # Считаем количество каждого типа настроения
     sentiment_counts = {
         "positive": 0,
@@ -42,7 +107,7 @@ def sentiment_distribution():
         "negative": 0
     }
 
-    for review in reviews:
+    for review in current_month_reviews:
         if review.semantic == "П":  # Положительные отзывы
             sentiment_counts["positive"] += 1
         elif review.semantic == "Н":  # Нейтральные отзывы
