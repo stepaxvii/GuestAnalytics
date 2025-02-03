@@ -1,3 +1,5 @@
+import logging
+
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
@@ -5,6 +7,10 @@ from flask import Blueprint, jsonify, request
 
 from data_base.data_main import YandexReview, session
 from utils.date import month_dict
+
+# Настройка логирования
+logging.basicConfig(level=logging.DEBUG)
+
 
 sentiment_distribution_bp = Blueprint('sentiment_distribution', __name__)
 
@@ -194,6 +200,9 @@ def sentiment_trend():
             "message": "Не указан user_id"
         }), 400
 
+    # Логируем user_id
+    logging.debug(f"Получен user_id: {user_id}")
+
     # Получаем текущую дату
     current_date = datetime.now()
 
@@ -206,10 +215,15 @@ def sentiment_trend():
         prev_month = prev_month_date.strftime("%Y-%m")
         months.append(prev_month)
 
+    logging.debug(f"Последние 4 месяца: {months}")
+
     # Пример запроса, чтобы получить отзывы по restaurant_id (user_id)
     reviews = session.query(YandexReview).filter(
         YandexReview.restaurant_id == user_id
     ).all()
+
+    # Логируем количество отзывов
+    logging.debug(f"Количество отзывов в базе для user_id {user_id}: {len(reviews)}")
 
     # Если нет отзывов, возвращаем пустой ответ
     if not reviews:
@@ -234,21 +248,31 @@ def sentiment_trend():
         # Получаем месяц и год отзыва в формате 'yyyy-mm'
         review_month = review_date.strftime("%Y-%m")
 
+        # Логируем информацию о текущем отзыве
+        logging.debug(f"Обрабатываем отзыв: {review.id}, дата: {review.created_at}, semantic: {review.semantic}")
+
         # Если месяц отзыва есть в нашем списке, считаем его для sentiment
         if review_month in sentiment_data:
             # Получаем значение поля 'semantic' и проверяем его
             sentiment = review.semantic
 
-            # Если semantic равно None (NULL), считаем отзыв нейтральным
+            # Логируем решение по каждому отзыву
             if sentiment == "П":
                 sentiment_data["Положительные"][review_month] += 1
+                logging.debug(f"Отзыв положительный. Месяц: {review_month}, Положительные: {sentiment_data['Положительные'][review_month]}")
             elif sentiment == "Н":
                 sentiment_data["Нейтральные"][review_month] += 1
+                logging.debug(f"Отзыв нейтральный. Месяц: {review_month}, Нейтральные: {sentiment_data['Нейтральные'][review_month]}")
             elif sentiment == "О":
                 sentiment_data["Отрицательные"][review_month] += 1
+                logging.debug(f"Отзыв отрицательный. Месяц: {review_month}, Отрицательные: {sentiment_data['Отрицательные'][review_month]}")
             else:
                 # Если значение semantic None, считаем отзыв нейтральным
                 sentiment_data["Нейтральные"][review_month] += 1
+                logging.debug(f"Неизвестный sentiment или None, считаем нейтральным. Месяц: {review_month}, Нейтральные: {sentiment_data['Нейтральные'][review_month]}")
+
+    # Логируем итоговые данные перед отправкой
+    logging.debug(f"Итоговые данные для графика: {sentiment_data}")
 
     # Переходим к подготовке данных для графика
     data = {
