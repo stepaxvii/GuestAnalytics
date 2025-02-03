@@ -50,13 +50,13 @@ def ratings_distribution():
     # Если отзывов нет, возвращаем 0% для всех рейтингов
     if total_reviews == 0:
         data = {
-            "labels": ["★☆☆☆☆", "★★☆☆☆", "★★★☆☆", "★★★★☆", "★★★★★"],
+            "labels": ["★", "★★", "★★★", "★★★★", "★★★★★"],
             "values": [0, 0, 0, 0, 0]
         }
     else:
         # Рассчитываем проценты для каждого рейтинга
         data = {
-            "labels": ["★☆☆☆☆", "★★☆☆☆", "★★★☆☆", "★★★★☆", "★★★★★"],
+            "labels": ["★", "★★", "★★★", "★★★★", "★★★★★"],
             "values": [
                 round((ratings_count[1] / total_reviews) * 100, 1),
                 round((ratings_count[2] / total_reviews) * 100, 1),
@@ -76,54 +76,6 @@ def ratings_distribution():
 ratings_trend_bp = Blueprint('ratings_trend', __name__)
 
 
-# @ratings_trend_bp.route('/ratings-trend', methods=['GET'])
-# def ratings_trend():
-#     user_id = request.args.get('user_id')
-#     if not user_id:
-#         return jsonify({
-#             "success": False,
-#             "data": None,
-#             "message": "Не указан user_id"
-#         }), 400
-
-#     data = {
-#         "labels": ["Январь", "Февраль", "Март", "Апрель"],
-#         "datasets": [
-#             {
-#                 "label": "5 звёзд",
-#                 "data": [20, 22, 25, 27],
-#                 "borderColor": "#2ECC71"
-#             },
-#             {
-#                 "label": "4 звезды",
-#                 "data": [10, 14, 18, 20],
-#                 "borderColor": "#3498DB"
-#             },
-#             {
-#                 "label": "3 звезды",
-#                 "data": [5, 7, 9, 6],
-#                 "borderColor": "#9B59B6"
-#             },
-#             {
-#                 "label": "2 звезды",
-#                 "data": [3, 2, 4, 5],
-#                 "borderColor": "#F1C40F"
-#             },
-#             {
-#                 "label": "1 звезда",
-#                 "data": [2, 3, 1, 2],
-#                 "borderColor": "#E74C3C"
-#             }
-#         ]
-#     }
-
-#     return jsonify({
-#         "success": True,
-#         "data": data,
-#         "message": "Данные по ratings-trend получены"
-#     }), 200
-
-
 @ratings_trend_bp.route('/ratings-trend', methods=['GET'])
 def ratings_trend():
     user_id = request.args.get('user_id')
@@ -139,15 +91,18 @@ def ratings_trend():
 
     # Генерируем список последних 4 месяцев в формате 'yyyy-mm'
     months = []
-    for i in range(3, -1, -1):  # Сначала добавляем старые месяцы, начиная с 3
+    # Сначала добавляем старые месяцы, начиная с 3
+    for i in range(3, -1, -1):
         # Используем relativedelta для точного вычитания месяцев
         prev_month_date = current_date - relativedelta(months=i)
         # Форматируем как 'yyyy-mm'
         prev_month = prev_month_date.strftime("%Y-%m")
         months.append(prev_month)
 
-    # Создаем словарь для хранения количества отзывов по каждому рейтингу за каждый месяц
-    ratings_count_by_month = {month: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0} for month in months}
+    # Создаем словарь для хранения количества отзывов
+    ratings_count_by_month = {
+        month: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0} for month in months
+    }
 
     # Пример запроса, чтобы получить отзывы по restaurant_id (user_id)
     reviews = session.query(YandexReview).filter(
@@ -162,9 +117,8 @@ def ratings_trend():
         # Получаем месяц и год отзыва в формате 'yyyy-mm'
         review_month = review_date.strftime("%Y-%m")
 
-        # Если месяц отзыва есть в нашем списке, увеличиваем счетчик для соответствующего рейтинга
         if review_month in ratings_count_by_month:
-            rating = review.rating  # предполагаем, что рейтинг хранится в поле review.rating
+            rating = review.rating
             if rating in ratings_count_by_month[review_month]:
                 ratings_count_by_month[review_month][rating] += 1
 
@@ -205,3 +159,5 @@ def ratings_trend():
         "data": data,
         "message": "Данные по ratings-trend получены"
     }), 200
+
+# "labels": ["★☆☆☆☆", "★★☆☆☆", "★★★☆☆", "★★★★☆", "★★★★★"]
