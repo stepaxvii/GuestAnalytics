@@ -206,7 +206,7 @@ def sentiment_trend():
     # Получаем текущую дату
     current_date = datetime.now()
 
-    # Генерируем список последних 4 месяцев в формате 'yyyy-mm'
+    # Вместо того чтобы жестко фиксировать 4 месяца, динамически генерируем последние месяцы
     months = []
     for i in range(3, -1, -1):  # Сначала добавляем старые месяцы, начиная с 3
         # Используем relativedelta для точного вычитания месяцев
@@ -248,31 +248,24 @@ def sentiment_trend():
         # Получаем месяц и год отзыва в формате 'yyyy-mm'
         review_month = review_date.strftime("%Y-%m")
 
-        # Логируем информацию о текущем отзыве
-        logging.debug(f"Обрабатываем отзыв: {review.id}, дата: {review.created_at}, semantic: {review.semantic}")
+        logging.debug(f"Обрабатываем отзыв: {review.id}, дата: {review.created_at}, month: {review_month}, semantic: {review.semantic}")
 
         # Если месяц отзыва есть в нашем списке, считаем его для sentiment
         if review_month in sentiment_data:
-            # Получаем значение поля 'semantic' и проверяем его
             sentiment = review.semantic
 
-            # Логируем решение по каждому отзыву
             if sentiment == "П":
                 sentiment_data["Положительные"][review_month] += 1
-                logging.debug(f"Отзыв положительный. Месяц: {review_month}, Положительные: {sentiment_data['Положительные'][review_month]}")
             elif sentiment == "Н":
                 sentiment_data["Нейтральные"][review_month] += 1
-                logging.debug(f"Отзыв нейтральный. Месяц: {review_month}, Нейтральные: {sentiment_data['Нейтральные'][review_month]}")
             elif sentiment == "О":
                 sentiment_data["Отрицательные"][review_month] += 1
-                logging.debug(f"Отзыв отрицательный. Месяц: {review_month}, Отрицательные: {sentiment_data['Отрицательные'][review_month]}")
             else:
                 # Если значение semantic None, считаем отзыв нейтральным
                 sentiment_data["Нейтральные"][review_month] += 1
-                logging.debug(f"Неизвестный sentiment или None, считаем нейтральным. Месяц: {review_month}, Нейтральные: {sentiment_data['Нейтральные'][review_month]}")
 
-    # Логируем итоговые данные перед отправкой
-    logging.debug(f"Итоговые данные для графика: {sentiment_data}")
+        # Логируем итоговые данные перед отправкой
+        logging.debug(f"Итоговые данные для графика: {sentiment_data}")
 
     # Переходим к подготовке данных для графика
     data = {
