@@ -97,7 +97,6 @@ def ya_check_reviews(org_url):
                         (By.CSS_SELECTOR, LINK_ELEMENT)
                     )
                 ).get_attribute("href")
-                logging.info(f"Найдена ссылка на автора: {author_link}")
             except NoSuchElementException as e:
                 logging.error(f"Ошибка при поиске ссылки на автора: {e}")
             except Exception as e:

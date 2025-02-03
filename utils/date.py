@@ -27,3 +27,19 @@ def formatted_date(date_str):
     formatted_review_date = review_date.strftime(DATE_FORMAT)
 
     return formatted_review_date
+
+
+month_dict = {
+    "01": "январь",
+    "02": "февраль",
+    "03": "март",
+    "04": "апрель",
+    "05": "май",
+    "06": "июнь",
+    "07": "июль",
+    "08": "август",
+    "09": "сентябрь",
+    "10": "октябрь",
+    "11": "ноябрь",
+    "12": "декабрь"
+}
