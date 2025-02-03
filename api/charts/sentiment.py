@@ -156,7 +156,7 @@ def sentiment_trend():
 
     # Генерируем список последних 4 месяцев в формате 'yyyy-mm' (от старого к новому)
     months = []
-    for i in range(0, 4):  # Теперь начинаем с самого старого месяца
+    for i in range(3, -1, -1):  # Начинаем с самого старого месяца (3 месяца назад) до текущего
         prev_month_date = current_date - relativedelta(months=i)
         prev_month = prev_month_date.strftime("%Y-%m")
         months.append(prev_month)
