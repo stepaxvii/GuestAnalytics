@@ -154,9 +154,9 @@ def sentiment_trend():
     # Получаем текущую дату
     current_date = datetime.now()
 
-    # Генерируем список последних 4 месяцев в формате 'yyyy-mm'
+    # Генерируем список последних 4 месяцев в формате 'yyyy-mm' (от старого к новому)
     months = []
-    for i in range(3, -1, -1):  # Сначала добавляем старые месяцы, начиная с 3
+    for i in range(0, 4):  # Теперь начинаем с самого старого месяца
         prev_month_date = current_date - relativedelta(months=i)
         prev_month = prev_month_date.strftime("%Y-%m")
         months.append(prev_month)
@@ -190,7 +190,7 @@ def sentiment_trend():
 
     # Формируем данные для графика
     data = {
-        "labels": months_labels,  # Теперь в labels будут русские названия месяцев
+        "labels": months_labels,  # Теперь в labels будут русские названия месяцев от старого к новому
         "datasets": [
             {
                 "label": "Положительные",
