@@ -53,7 +53,12 @@ def sentiment_trend():
 
     reviews = read_rest_ya_reviews(restaurant_id=user_id)
     for review in reviews:
-        print(review)
+        if review.semantic:
+            # Обработка, если значение присутствует
+            print(f"Semantic: {review.semantic}")
+        else:
+            # Обработка, если значение отсутствует
+            print("Нет данных в поле 'semantic'")
 
     data = {
         "labels": ["Январь", "Февраль", "Март", "Апрель"],
