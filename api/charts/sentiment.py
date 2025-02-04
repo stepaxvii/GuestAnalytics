@@ -66,8 +66,8 @@ def sentiment_distribution():
     data = {
         "labels": ["Положительные", "Нейтральные", "Отрицательные"],
         "values": [
-            sentiment_counts["positive"], 
-            sentiment_counts["neutral"], 
+            sentiment_counts["positive"],
+            sentiment_counts["neutral"],
             sentiment_counts["negative"]
         ]
     }
