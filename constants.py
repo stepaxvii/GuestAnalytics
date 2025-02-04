@@ -1,4 +1,3 @@
-TG_ID = 861742986
 DATE_FORMAT = '%Y-%m-%d'
 MAX_LENGTH_STR = 255
 MAX_VIEW_REVIEWS = 600
@@ -18,3 +17,11 @@ AUTHOR_ELEMENT = 'div.business-review-view__author-name span[itemprop="name"]'
 LINK_ELEMENT = 'a.business-review-view__user-icon'
 RATING_ELEMENT = 'span[itemprop="reviewRating"] meta[itemprop="ratingValue"]'
 TEXT_ELEMENT = 'business-review-view__body-text'
+
+
+# 2ГИС
+TWOGIS_REVIEW_BLOCK = '_1k5soqfl'
+TWOGIS_AUTHOR_CLASS = '_16s5yj36'
+TWOGIS_REVIEW_TEXT_CLASS = 'div._49x36f > a'
+TWOGIS_RATING_COLOR = '#ffb81c'
+TWOGIS_DATE_CLASS = '_139ll30'

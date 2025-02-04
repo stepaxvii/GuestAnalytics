@@ -1,27 +1,52 @@
-from selenium.webdriver import Firefox, FirefoxOptions
-from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
-from datetime import datetime
-from bs4 import BeautifulSoup
-from time import sleep
-from os import getenv
-from dotenv import load_dotenv
 import logging
-from utils.date import formatted_date
-from utils.twogis_validated_content import twogis_valid_content
+from datetime import datetime
+from os import getenv
+from time import sleep
 
+from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+from selenium.webdriver.common.by import By
+from selenium.webdriver import Firefox, FirefoxOptions
+from selenium.webdriver.firefox.service import Service
+
+from constants import (
+    TWOGIS_REVIEW_BLOCK,
+    TWOGIS_AUTHOR_CLASS,
+    TWOGIS_REVIEW_TEXT_CLASS,
+    TWOGIS_RATING_COLOR,
+    TWOGIS_DATE_CLASS,
+)
+from utils.date import handle_date
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
-logging.info("Скрипт запущен.")
-
-
 DRIVER_PATH = getenv('DRIVER_PATH', default='')
-validated_url = 'https://2gis.ru/sochi/firm/70000001067211531/tab/reviews'
+
+# Логирование
+logging.basicConfig(level=logging.INFO)
+
+
+def scroll_to_bottom(driver, elem, prev_reviews_count):
+    """Функция для скроллинга до последнего отзыва."""
+    driver.execute_script("arguments[0].scrollIntoView();", elem)
+    sleep(3)
+    reviews = driver.find_elements(By.CLASS_NAME, TWOGIS_REVIEW_BLOCK)
+
+    # Проверяем изменение количества отзывов за три попытки
+    attempts = 0
+    while attempts < 3:
+        if len(reviews) == prev_reviews_count:
+            attempts += 1
+            logging.info(f"Попытка {attempts}: Количество не изменилось.")
+            sleep(1)
+            reviews = driver.find_elements(By.CLASS_NAME, TWOGIS_REVIEW_BLOCK)
+        else:
+            return False  # Отзывы изменились, продолжаем собирать
+
+    # Если три попытки подряд не дали изменений в количестве отзывов, завершаем
+    logging.info("Завершаем сбор. Новых отзывов больше нет.")
+    return True  # Возвращаем True, что значит, что новых отзывов нет
 
 
 def twogis_prim_coll(url):
@@ -29,124 +54,100 @@ def twogis_prim_coll(url):
     options.add_argument('--headless')
     service = Service(DRIVER_PATH)
     driver = Firefox(service=service, options=options)
-    actions = ActionChains(driver)
-
-    # Определяем текущую дату
-    actual_date = datetime.now().strftime("%Y-%m-%d")
-    print(actual_date)
-
-    # Переходим на страницу с отзывами и ждём полной загрузки
     driver.get(url)
+
+    # Подождём, пока страница полностью загрузится
     sleep(5)
 
-    # Извлекаем актуальные названия блоков
-    (review_block, author_class, review_text_class,
-     rating_class, date_class) = twogis_valid_content(url)
-    logging.INFO(review_block, author_class,
-                 review_text_class, rating_class, date_class)
+    # Считываем начальное количество отзывов
+    reviews = driver.find_elements(By.CLASS_NAME, TWOGIS_REVIEW_BLOCK)
+    prev_reviews_count = len(reviews)
 
-    if url.startswith('https://2gis.ru/'):
-        total_reviews_element = WebDriverWait(driver, 5).until(
-            EC.visibility_of_element_located(
-                (By.XPATH, '//a[contains(@class, "_rdxuhv3")]/span'))
+    # Прокручиваем страницу и собираем новые отзывы
+    while True:
+        # Получаем последний элемент отзывов
+        last_review = driver.find_elements(
+            By.CLASS_NAME, TWOGIS_REVIEW_BLOCK
+        )[-1]
+        is_end = scroll_to_bottom(driver, last_review, prev_reviews_count)
+        if is_end:
+            break
+        else:
+            reviews = driver.find_elements(By.CLASS_NAME, TWOGIS_REVIEW_BLOCK)
+            prev_reviews_count = len(reviews)
+
+    # Считываем HTML страницы с BeautifulSoup после полной загрузки
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+    # Собираем все уникальные отзывы
+    unique_reviews = set()
+
+    helpful_divs = soup.find_all(lambda tag: (
+        tag.name in ("button", "div") and "Полезно" in tag.get_text(strip=True)
+    ))
+
+    for helpful_div in helpful_divs:
+        review_container = helpful_div.find_parent(
+            "div", class_=TWOGIS_REVIEW_BLOCK
         )
-        total_reviews_text = total_reviews_element.text
-        total_count = int(total_reviews_text)
-        print(f"Общее количество отзывов: {total_count}")
+        if not review_container:
+            continue  # Пропускаем, если контейнер не найден
 
-        with open("test_2g_docs.txt", "w", encoding='utf-8') as file:
-            attempts = 0
-            unique_reviews = set()
+        # --- ИЩЕМ ДАТУ ---
+        date_div = review_container.find('div', class_=TWOGIS_DATE_CLASS)
+        review_date = date_div.get_text(
+            strip=True
+        ) if date_div else "Дата не найдена"
+        actual_date = datetime.now()  # Текущая дата
+        formatted_date = handle_date(review_date, actual_date)
 
-            while attempts < 5 and len(unique_reviews) < total_count:
-                reviews_block = WebDriverWait(driver, 5).until(
-                    EC.presence_of_element_located(
-                        (By.CLASS_NAME, review_block))
-                )
-                soup = BeautifulSoup(driver.page_source, 'html.parser')
-                reviews = soup.find_all('div', class_='_1k5soqfl')
+        # --- ИЩЕМ АВТОРА ---
+        author_span = review_container.find(
+            'span', class_=TWOGIS_AUTHOR_CLASS
+        )
+        author_name = author_span.get_text(
+            strip=True
+        ) if author_span else "Автор не найден"
 
-                for review in reviews:
-                    try:
-                        date_str = review.find(
-                            'div', class_=date_class).get_text(strip=True)
-                        date_str = date_str.split(',')[0].strip()
-                        formatted_review_date = formatted_date(
-                            date_str=date_str)
+        # --- ИЩЕМ РЕЙТИНГ ---
+        rating_svgs = review_container.find_all(
+            'svg', fill=TWOGIS_RATING_COLOR
+        )
+        rating = len(rating_svgs)
 
-                        author = review.find('span', class_=author_class)
-                        author_name = author.get_text(
-                            strip=True) if author else "Автор не найден"
+        # --- ИЩЕМ ТЕКСТ ОТЗЫВА ---
+        review_text_a = review_container.select_one(TWOGIS_REVIEW_TEXT_CLASS)
+        review_text_content = review_text_a.get_text(
+            strip=True
+        ) if review_text_a else "Текст не найден"
 
-                        rating_stars = review.find_all('svg', fill="#ffb81c")
-                        rating = len(rating_stars)
-
-                        review_text = review.find(
-                            'a', class_=review_text_class)
-                        review_text_content = review_text.get_text(
-                            strip=True) if review_text else "Текст не найден"
-
-                        # Проверка наличия текста отзыва
-                        if review_text_content == "Текст отзыва не найден":
-                            print(f"Отзыв без текста: {date_str}, Автор: {author_name}, Рейтинг: {rating}.0")
-
-                            # Вернёмся к блоку с отзывами и ищем текст по имени
-                            # Получаем все отзывы снова
-                            all_reviews = driver.find_elements(
-                                By.CLASS_NAME, review_block)
-                            for r in all_reviews:
-                                try:
-                                    author_check = r.find(
-                                        'span', class_=author_class)
-                                    if author_check and author_check.get_text(strip=True) == author_name:
-                                        # Если нашли отзыв с таким же автором
-                                        new_review_text = r.find(
-                                            'a', class_=review_text_class)
-                                        if new_review_text:
-                                            review_text_content = new_review_text.get_text(strip=True)
-                                            print(f"Текст отзыва найден при повторной проверке: {review_text_content}")
-                                            break  # Выходим из цикла после нахождения текста
-                                except Exception as e:
-                                    print(f"Ошибка при повторной проверке текста отзыва: {e}")
-
-                        # Создаем запись отзыва
-                        review_entry = (
-                            formatted_review_date,
-                            '2gis',
-                            author_name,
-                            f'{rating}.0',
-                            review_text_content,
-                        )
-
-                        unique_reviews.add(review_entry)
-                        print(f'Количество уникальных отзывов: {len(unique_reviews)}')
-
-                    except Exception as e:
-                        print(f"Ошибка при получении информации об отзыве: {e}")
-
-                # Прокрутка страницы вниз на фиксированное расстояние (например, 100 пикселей)
-                previous_height = driver.execute_script("return arguments[0].scrollHeight", reviews_block)
-                driver.execute_script("arguments[0].scrollTop += 100;", reviews_block)
-                sleep(3)  # Увеличьте время ожидания
-
-                new_height = driver.execute_script("return arguments[0].scrollHeight", reviews_block)
-
-                if new_height == previous_height:
-                    attempts += 1  # Увеличиваем счетчик неудачных попыток
-                    print("Не удалось загрузить новые отзывы.")
-                else:
-                    attempts = 0  # Сбрасываем счетчик неудачных попыток
-
-            sorted_reviews = sorted(unique_reviews, key=lambda x: datetime.strptime(x[0], '%Y-%m-%d'), reverse=True)
-
-            for review in sorted_reviews:
-                file.write(f"{review}\n")
-
-    print("Сбор данных завершен.")
+        # --- ФИЛЬТРАЦИЯ ДУБЛИКАТОВ ---
+        review_entry = (
+            formatted_date, author_name, rating, review_text_content
+        )
+        unique_reviews.add(review_entry)
 
     # Закрываем браузер
     driver.quit()
-    return 'DONE!'
+
+    # Возвращаем все уникальные отзывы
+    results = [
+        {
+            "date": review[0],
+            "author": review[1],
+            "rating": review[2],
+            "text": review[3]
+        }
+        for review in unique_reviews
+    ]
+
+    return results
 
 
-print(twogis_prim_coll(url=validated_url))
+if __name__ == "__main__":
+    url = "https://2gis.ru/sochi/firm/70000001082615141/tab/reviews"
+    results = twogis_prim_coll(url)
+
+    for r in results:
+        print(r)
+    print(len(results))
