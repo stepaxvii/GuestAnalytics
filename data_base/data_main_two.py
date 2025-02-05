@@ -74,7 +74,7 @@ class YandexReview(Base):
     content = Column(Text, nullable=False)
     semantic = Column(String(MAX_LENGTH_STR), nullable=True)
 
-    restaurant = relationship("Restaurant", back_populates="yandex_reviews")
+    restaurant = relationship("RestaurantTwo", back_populates="yandex_reviews")
 
 
 class TwogisReview(Base):
@@ -95,15 +95,15 @@ class TwogisReview(Base):
     content = Column(Text, nullable=False)
     semantic = Column(String(MAX_LENGTH_STR), nullable=True)
 
-    restaurant = relationship("Restaurant", back_populates="twogis_reviews")
+    restaurant = relationship("RestaurantTwo", back_populates="twogis_reviews")
 
 
 # Обратные связи моделей
 Company.restaurants = relationship(
-    "Restaurant", order_by=Restaurant.id, back_populates="company")
-Restaurant.yandex_reviews = relationship(
+    "Restaurant", order_by=RestaurantTwo.id, back_populates="company")
+RestaurantTwo.yandex_reviews = relationship(
     "YandexReview", order_by=YandexReview.id, back_populates="restaurant")
-Restaurant.twogis_reviews = relationship(
+RestaurantTwo.twogis_reviews = relationship(
     "TwogisReview", order_by=TwogisReview.id, back_populates="restaurant")
 
 
