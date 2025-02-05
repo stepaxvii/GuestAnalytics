@@ -5,6 +5,7 @@ from os import getenv
 from sqlalchemy.exc import IntegrityError
 from dotenv import load_dotenv
 from data_base.data_main import session, Restaurant, YandexReview
+from data_base.data_main_two import session_two, RestaurantTwo
 
 load_dotenv()
 
@@ -13,6 +14,28 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 TG_GROUP = getenv('TG_GROUP')
+
+
+def create_restaurant_from_api(data):
+    """Создание ресторана."""
+
+    # Извлекаем данные из собранной о ресторане информации
+    id, title, yandex_link, address, tg_channal = data
+
+    try:
+        restaurant = RestaurantTwo(
+            id=id,
+            title=title,
+            yandex_link=yandex_link,
+            address=address,
+            tg_channal=tg_channal,
+        )
+        session_two.add(restaurant)
+        session_two.commit()
+    except IntegrityError as e:
+        session_two.rollback()
+        print(f'Ошибка уникальности: {e}')
+    session_two.close()
 
 
 def create_restaurant(data):

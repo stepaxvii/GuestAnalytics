@@ -15,7 +15,6 @@ app.register_blueprint(ratings.ratings_distribution_bp, url_prefix='/api')
 app.register_blueprint(ratings.ratings_trend_bp, url_prefix='/api')
 app.register_blueprint(sentiment.sentiment_distribution_bp, url_prefix='/api')
 app.register_blueprint(sentiment.sentiment_trend_bp, url_prefix='/api')
-app.register_blueprint(create_restaurant.create_restaurant_test_bp, url_prefix='/api')
 app.register_blueprint(create_restaurant.create_restaurant_bp, url_prefix='/api')
 
 if __name__ == '__main__':
