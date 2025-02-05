@@ -100,7 +100,7 @@ class TwogisReview(Base):
 
 # Обратные связи моделей
 Company.restaurants = relationship(
-    "Restaurant", order_by=RestaurantTwo.id, back_populates="company")
+    "RestaurantTwo", order_by=RestaurantTwo.id, back_populates="company")
 RestaurantTwo.yandex_reviews = relationship(
     "YandexReview", order_by=YandexReview.id, back_populates="restaurant")
 RestaurantTwo.twogis_reviews = relationship(
