@@ -18,7 +18,6 @@ LINK_ELEMENT = 'a.business-review-view__user-icon'
 RATING_ELEMENT = 'span[itemprop="reviewRating"] meta[itemprop="ratingValue"]'
 TEXT_ELEMENT = 'business-review-view__body-text'
 
-
 # 2ГИС
 TWOGIS_REVIEW_BLOCK = '_1k5soqfl'
 TWOGIS_AUTHOR_CLASS = '_16s5yj36'

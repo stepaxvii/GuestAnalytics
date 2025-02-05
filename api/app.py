@@ -4,6 +4,7 @@ from api.charts import (
     reviews,
     sentiment
 )
+from api.restaurants import create_restaurant
 
 app = Flask(__name__)
 
@@ -14,6 +15,7 @@ app.register_blueprint(ratings.ratings_distribution_bp, url_prefix='/api')
 app.register_blueprint(ratings.ratings_trend_bp, url_prefix='/api')
 app.register_blueprint(sentiment.sentiment_distribution_bp, url_prefix='/api')
 app.register_blueprint(sentiment.sentiment_trend_bp, url_prefix='/api')
+app.register_blueprint(create_restaurant.create_restaurant_bp, url_prefix='/api')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
