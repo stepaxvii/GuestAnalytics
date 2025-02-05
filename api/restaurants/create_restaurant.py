@@ -13,6 +13,8 @@ def create_restaurant_test():
     print(f'title - {rest_title}')
     print(f'link - {rest_link}')
 
+    return jsonify({"status": "ok"}), 200
+
 
 # # http://217.114.9.10:5000/api/create_restaurant
 
