@@ -13,23 +13,29 @@ app.register_blueprint(
     reviews.total_reviews_bp, url_prefix='/api'
 )
 app.register_blueprint(
-    reviews.trend_reviews_bp, url_prefix='/api'
+    reviews.trend_reviews_bp,
+    url_prefix='/api'
 )
 app.register_blueprint(
-    ratings.ratings_distribution_bp, url_prefix='/api'
+    ratings.ratings_distribution_bp,
+    url_prefix='/api'
 )
 app.register_blueprint(
-    ratings.ratings_trend_bp, url_prefix='/api'
+    ratings.ratings_trend_bp,
+    url_prefix='/api'
 )
 app.register_blueprint(
-    sentiment.sentiment_distribution_bp, url_prefix='/api'
+    sentiment.sentiment_distribution_bp,
+    url_prefix='/api'
 )
 app.register_blueprint(
-    sentiment.sentiment_trend_bp, url_prefix='/api'
+    sentiment.sentiment_trend_bp,
+    url_prefix='/api'
 )
 app.register_blueprint(
-    create_restaurant.create_restaurant_bp, url_prefix='/api'
+    create_restaurant.create_restaurant_bp,
+    url_prefix='/api'
 )
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='127.0.0.1', port=5000, debug=True)
