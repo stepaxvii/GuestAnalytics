@@ -1,12 +1,21 @@
 import logging
-
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
+from threading import Thread  # Импортируем Thread для многозадачности
 
 from data_base.data_main import Restaurant, session
 from yandex.yandex_primary_collection import ya_prim_coll
 
 create_restaurant_bp = Blueprint("create_restaurant", __name__)
+
+
+# Функция для асинхронного вызова ya_prim_coll
+def call_ya_prim_coll_async(rest_link):
+    try:
+        # Запуск ya_prim_coll в фоновом режиме
+        ya_prim_coll(rest_link)
+    except Exception as e:
+        logging.error(f"Ошибка при вызове ya_prim_coll для {rest_link}: {e}")
 
 
 @create_restaurant_bp.route("/create_restaurant", methods=["POST"])
@@ -34,6 +43,11 @@ def create_restaurant():
             # Добавляем ресторан в сессию и сохраняем
             session.add(restaurant)
             session.commit()
+
+            # Теперь вызываем функцию для асинхронного выполнения
+            thread = Thread(target=call_ya_prim_coll_async, args=(rest_link,))
+            thread.start()
+
             return jsonify(
                 {"status": "ok", "message": "Restaurant created successfully."}
             ), 200
