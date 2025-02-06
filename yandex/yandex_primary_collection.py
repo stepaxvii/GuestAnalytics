@@ -113,9 +113,9 @@ def ya_prim_coll(original_url):
     # else:
     #     logger.info("Пропускаем ресторан, так как название не найдено.")
 
-    # logger.info(f"Переходим на страницу с отзывами: {reviews_url}")
-    # driver.get(reviews_url)
-    # sleep(5)
+    logger.info(f"Переходим на страницу с отзывами: {reviews_url}")
+    driver.get(reviews_url)
+    sleep(5)
 
     # Собираем общее количество отзывов
     try:
