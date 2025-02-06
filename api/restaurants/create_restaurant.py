@@ -1,6 +1,10 @@
+import logging
+
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
-from data_base.data_main_two import RestaurantTwo, session_two
+
+from data_base.data_main import Restaurant, session
+from yandex.yandex_primary_collection import ya_prim_coll
 
 create_restaurant_bp = Blueprint("create_restaurant", __name__)
 
@@ -20,7 +24,7 @@ def create_restaurant():
     if action == "create":
         try:
             # Создаем новый ресторан в базе данных
-            restaurant = RestaurantTwo(
+            restaurant = Restaurant(
                 id=rest_id,
                 title=rest_title,
                 yandex_link=rest_link,
@@ -28,15 +32,20 @@ def create_restaurant():
                 tg_channal=tg_id,
             )
             # Добавляем ресторан в сессию и сохраняем
-            session_two.add(restaurant)
-            session_two.commit()
-            return jsonify({"status": "ok", "message": "Restaurant created successfully."}), 200
+            session.add(restaurant)
+            session.commit()
+            return jsonify(
+                {"status": "ok", "message": "Restaurant created successfully."}
+            ), 200
         except IntegrityError as e:
-            session_two.rollback()
-            print(f"Ошибка уникальности: {e}")
-            return jsonify({"status": "error", "message": "Restaurant already exists."}), 400
+            session.rollback()
+            logging.info(f"Ошибка уникальности: {e}")
+            return jsonify(
+                {"status": "error", "message": "Restaurant already exists."}
+            ), 400
         finally:
-            session_two.close()
+            session.close()
+    ya_prim_coll(rest_link)
 
     # Если действие не является 'create', возвращаем ошибку
     return jsonify({"status": "error", "message": "Invalid action."}), 400

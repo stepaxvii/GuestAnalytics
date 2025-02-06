@@ -1,6 +1,5 @@
 from sqlalchemy import (
     create_engine,
-    Boolean,
     Column,
     Integer,
     ForeignKey,
@@ -14,7 +13,7 @@ from constants import MAX_LENGTH_STR
 
 
 # Настраиваем базу данных
-DATA_URL = "sqlite:///guestanal.db"
+DATA_URL = "sqlite:///guestanalytics.db"
 Base = declarative_base()
 engine = create_engine(DATA_URL)
 Session = sessionmaker(bind=engine)
@@ -23,37 +22,17 @@ Session()
 session = Session()
 
 
-class Company(Base):
-    """Модель компании."""
-
-    __tablename__ = "companies"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String(MAX_LENGTH_STR), nullable=False)
-    country = Column(String(MAX_LENGTH_STR), nullable=True)
-    manager_name = Column(String(MAX_LENGTH_STR), nullable=False)
-    manager_contact = Column(Integer, nullable=True)
-    email = Column(String(MAX_LENGTH_STR), nullable=False)
-
-
 class Restaurant(Base):
     """Модель ресторана."""
 
     __tablename__ = "restaurants"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    company_id = Column(Integer, ForeignKey("companies.id"), nullable=True)
+    id = Column(Integer, primary_key=True)
     title = Column(String(MAX_LENGTH_STR), nullable=False)
     yandex_link = Column(String(MAX_LENGTH_STR), nullable=False, unique=True)
     twogis_link = Column(String(MAX_LENGTH_STR), nullable=True, unique=True)
     address = Column(Text, nullable=False)
-    subs = Column(Boolean, nullable=True)  # Времено
-    manager_name = Column(String(MAX_LENGTH_STR), nullable=True)  # Времено
-    manager_contact = Column(Integer, nullable=True)  # Времено
-    tg_channal = Column(String(MAX_LENGTH_STR), nullable=True)  # Времено
-    email = Column(String(MAX_LENGTH_STR), nullable=True)  # Времено
-
-    company = relationship("Company", back_populates="restaurants")
+    tg_channal = Column(String(MAX_LENGTH_STR), nullable=True)
 
 
 class YandexReview(Base):
@@ -99,8 +78,6 @@ class TwogisReview(Base):
 
 
 # Обратные связи моделей
-Company.restaurants = relationship(
-    "Restaurant", order_by=Restaurant.id, back_populates="company")
 Restaurant.yandex_reviews = relationship(
     "YandexReview", order_by=YandexReview.id, back_populates="restaurant")
 Restaurant.twogis_reviews = relationship(
