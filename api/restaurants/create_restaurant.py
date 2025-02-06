@@ -34,7 +34,6 @@ def create_restaurant():
             # Добавляем ресторан в сессию и сохраняем
             session.add(restaurant)
             session.commit()
-            ya_prim_coll(rest_link)
             return jsonify(
                 {"status": "ok", "message": "Restaurant created successfully."}
             ), 200
