@@ -16,8 +16,8 @@ from constants import (
     NEW_REVIEWS_SORTED,
     DEFAULT_REVIEWS_SORTED,
     SORTED_BLOCK,
-    # ORG_NAME_BLOCK,
-    # ORG_ADDRESS_BLOCK,
+    ORG_NAME_BLOCK,
+    ORG_ADDRESS_BLOCK,
     AUTHOR_ELEMENT,
     DATE_ELEMENT,
     DATE_FORMAT,
@@ -85,33 +85,34 @@ def ya_prim_coll(original_url):
     logger.info(f"Полный URL компании: {full_org_url}")
     org_url, reviews_url = process_url_yandex(full_org_url)
 
-    # logger.info(f"Переходим на страницу компании: {org_url}")
-    # driver.get(org_url)
-    # sleep(5)
+    logger.info(f"Переходим на страницу компании: {org_url}")
+    driver.get(org_url)
+    sleep(5)
 
-    # try:
-    #     org_name_element = driver.find_element(By.CSS_SELECTOR, ORG_NAME_BLOCK)
-    #     org_name = org_name_element.text.strip()
-    # except NoSuchElementException:
-    #     org_name = None
-    #     logger.error("Не удалось найти название организации")
+    try:
+        org_name_element = driver.find_element(By.CSS_SELECTOR, ORG_NAME_BLOCK)
+        org_name = org_name_element.text.strip()
+    except NoSuchElementException:
+        org_name = None
+        logger.error("Не удалось найти название организации")
 
-    # try:
-    #     address_element = driver.find_element(By.CLASS_NAME, ORG_ADDRESS_BLOCK)
-    #     full_address = address_element.text.strip()
-    # except NoSuchElementException:
-    #     full_address = None
-    #     logger.error("Не удалось найти полный адрес")
+    try:
+        address_element = driver.find_element(By.CLASS_NAME, ORG_ADDRESS_BLOCK)
+        full_address = address_element.text.strip()
+    except NoSuchElementException:
+        full_address = None
+        logger.error("Не удалось найти полный адрес")
 
-    # if org_name:
-    #     restaurant_data = (org_name, org_url, full_address)
-    #     try:
-    #         create_restaurant(data=restaurant_data)
-    #         logger.info("Ресторан успешно добавлен в базу данных.")
-    #     except Exception as e:
-    #         logger.error(f"Ошибка при добавлении ресторана в базу данных: {e}")
-    # else:
-    #     logger.info("Пропускаем ресторан, так как название не найдено.")
+    if org_name:
+        restaurant_data = (org_name, org_url, full_address)
+        try:
+            # create_restaurant(data=restaurant_data)
+            logger.info("ПЕчатаем)))))))))))))))))))))))))))))))))))))")
+            logger.info("Ресторан успешно добавлен в базу данных.")
+        except Exception as e:
+            logger.error(f"Ошибка при добавлении ресторана в базу данных: {e}")
+    else:
+        logger.info("Пропускаем ресторан, так как название не найдено.")
 
     logger.info(f"Переходим на страницу с отзывами: {reviews_url}")
     driver.get(reviews_url)
