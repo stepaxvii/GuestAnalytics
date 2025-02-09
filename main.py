@@ -13,19 +13,21 @@ logging.basicConfig(
 )
 
 
-# Основная функция для запуска Flask и бота
 def main():
     # Запуск Flask сервера в отдельном процессе
     flask_process = Process(target=start_flask)
     flask_process.start()
 
     # Запуск бота в основном потоке с использованием asyncio
-    asyncio.run(start_bot())
+    try:
+        asyncio.run(start_bot())
+    except KeyboardInterrupt:
+        logging.info("Bot stopped by user")
+    finally:
+        # Остановка Flask процесса при завершении бота
+        flask_process.terminate()
+        flask_process.join()
 
-    # Ждем завершения процесса Flask
-    flask_process.join()
 
-
-# Запуск
 if __name__ == "__main__":
     main()
