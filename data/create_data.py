@@ -4,7 +4,7 @@ from os import getenv
 
 from sqlalchemy.exc import IntegrityError
 from dotenv import load_dotenv
-from data_base.data_main import session, Restaurant, YandexReview
+from data.data_main import session, Restaurant, YandexReview
 
 load_dotenv()
 
@@ -19,14 +19,15 @@ def create_restaurant(data):
     """Создание ресторана."""
 
     # Извлекаем данные из собранной о ресторане информации
-    title, yandex_link, address = data
+    id, title, yandex_link, address, tg_channal = data
 
     try:
         restaurant = Restaurant(
+            id=id,
             title=title,
             yandex_link=yandex_link,
             address=address,
-            tg_channal=TG_GROUP
+            tg_channal=tg_channal,
         )
         session.add(restaurant)
         session.commit()

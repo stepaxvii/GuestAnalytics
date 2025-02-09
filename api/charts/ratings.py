@@ -159,5 +159,3 @@ def ratings_trend():
         "data": data,
         "message": "Данные по ratings-trend получены"
     }), 200
-
-# "labels": ["★☆☆☆☆", "★★☆☆☆", "★★★☆☆", "★★★★☆", "★★★★★"]

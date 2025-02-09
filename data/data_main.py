@@ -1,6 +1,6 @@
+
 from sqlalchemy import (
     create_engine,
-    Boolean,
     Column,
     Integer,
     ForeignKey,
@@ -14,46 +14,26 @@ from constants import MAX_LENGTH_STR
 
 
 # Настраиваем базу данных
-DATA_URL = "sqlite:///guestanal_two.db"
+DATA_URL = "sqlite:///guestanalytics.db"
 Base = declarative_base()
 engine = create_engine(DATA_URL)
 Session = sessionmaker(bind=engine)
 
 Session()
-session_two = Session()
+session = Session()
 
 
-class Company(Base):
-    """Модель компании."""
-
-    __tablename__ = "companies"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String(MAX_LENGTH_STR), nullable=False)
-    country = Column(String(MAX_LENGTH_STR), nullable=True)
-    manager_name = Column(String(MAX_LENGTH_STR), nullable=False)
-    manager_contact = Column(Integer, nullable=True)
-    email = Column(String(MAX_LENGTH_STR), nullable=False)
-
-
-class RestaurantTwo(Base):
+class Restaurant(Base):
     """Модель ресторана."""
 
     __tablename__ = "restaurants"
 
     id = Column(Integer, primary_key=True)
-    company_id = Column(Integer, ForeignKey("companies.id"), nullable=True)
     title = Column(String(MAX_LENGTH_STR), nullable=False)
     yandex_link = Column(String(MAX_LENGTH_STR), nullable=False, unique=True)
     twogis_link = Column(String(MAX_LENGTH_STR), nullable=True, unique=True)
     address = Column(Text, nullable=False)
-    subs = Column(Boolean, nullable=True)  # Времено
-    manager_name = Column(String(MAX_LENGTH_STR), nullable=True)  # Времено
-    manager_contact = Column(Integer, nullable=True)  # Времено
-    tg_channal = Column(String(MAX_LENGTH_STR), nullable=True)  # Времено
-    email = Column(String(MAX_LENGTH_STR), nullable=True)  # Времено
-
-    company = relationship("Company", back_populates="restaurants")
+    tg_channal = Column(String(MAX_LENGTH_STR), nullable=True)
 
 
 class YandexReview(Base):
@@ -74,7 +54,7 @@ class YandexReview(Base):
     content = Column(Text, nullable=False)
     semantic = Column(String(MAX_LENGTH_STR), nullable=True)
 
-    restaurant = relationship("RestaurantTwo", back_populates="yandex_reviews")
+    restaurant = relationship("Restaurant", back_populates="yandex_reviews")
 
 
 class TwogisReview(Base):
@@ -95,15 +75,13 @@ class TwogisReview(Base):
     content = Column(Text, nullable=False)
     semantic = Column(String(MAX_LENGTH_STR), nullable=True)
 
-    restaurant = relationship("RestaurantTwo", back_populates="twogis_reviews")
+    restaurant = relationship("Restaurant", back_populates="twogis_reviews")
 
 
 # Обратные связи моделей
-Company.restaurants = relationship(
-    "RestaurantTwo", order_by=RestaurantTwo.id, back_populates="company")
-RestaurantTwo.yandex_reviews = relationship(
+Restaurant.yandex_reviews = relationship(
     "YandexReview", order_by=YandexReview.id, back_populates="restaurant")
-RestaurantTwo.twogis_reviews = relationship(
+Restaurant.twogis_reviews = relationship(
     "TwogisReview", order_by=TwogisReview.id, back_populates="restaurant")
 
 
