@@ -12,7 +12,7 @@ from aiogram.types import (
 )
 from dotenv import load_dotenv
 
-from bot.bot_main import RestaurantEditState
+from bot.states import RestaurantEditState
 from data_base.data_main import session, Restaurant
 from data_base.read_data import read_all_restaurant_data
 from utils.message_text import get_star_rating

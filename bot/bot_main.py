@@ -16,13 +16,6 @@
 # TELEGRAM_TOKEN = getenv('TELEGRAM_TOKEN')
 
 
-# # Модуль с состояниями
-# class RestaurantEditState(StatesGroup):
-#     title_edit = State()
-#     address_edit = State()
-#     tg_channal_edit = State()
-
-
 # async def main():
 #     bot = Bot(
 #         token=TELEGRAM_TOKEN,
@@ -59,7 +52,6 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.fsm.state import State, StatesGroup
 from dotenv import load_dotenv
 from os import getenv
 from bot import handlers, periodically_tasks
@@ -68,13 +60,6 @@ load_dotenv()
 
 # Из окружения извлекаем необходимые токены, ключи и переменные
 TELEGRAM_TOKEN = getenv('TELEGRAM_TOKEN')
-
-
-# Модуль с состояниями
-class RestaurantEditState(StatesGroup):
-    title_edit = State()
-    address_edit = State()
-    tg_channal_edit = State()
 
 
 # Функция для запуска бота
