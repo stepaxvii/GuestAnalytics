@@ -1,26 +1,38 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:latest
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
   flask:
-    build:
-      context: .
-      dockerfile: Dockerfile.flask
+    image: stepaxvii/flask_app:latest
     container_name: flask_app
     ports:
       - "5000:5000"
     env_file:
       - .env
+    depends_on:
+      - db
     restart: unless-stopped
-    volumes:
-      - .:/app  # Монтируем текущую директорию в контейнер
 
   bot:
-    build:
-      context: .
-      dockerfile: Dockerfile.bot
+    image: stepaxvii/bot_app:latest
     container_name: bot_app
     env_file:
       - .env
+    depends_on:
+      - db
     restart: unless-stopped
-    volumes:
-      - .:/app  # Монтируем текущую директорию в контейнер
+
+volumes:
+  postgres_data:
