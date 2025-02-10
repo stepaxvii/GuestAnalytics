@@ -33,7 +33,9 @@ def yandex_prim_coll():
             yandex_link = rest_data['yandex_link']
 
             # Запускаем выполнение функции в отдельном потоке
-            thread = Thread(target=run_yandex_check, args=(yandex_link, restaurant_id))
+            thread = Thread(
+                target=run_yandex_check, args=(yandex_link, restaurant_id)
+            )
             thread.start()
 
             return jsonify(
