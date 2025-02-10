@@ -1,4 +1,4 @@
-
+import os
 from sqlalchemy import (
     create_engine,
     Column,
@@ -6,20 +6,21 @@ from sqlalchemy import (
     ForeignKey,
     SmallInteger,
     String,
-    Text
+    Text,
 )
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 from constants import MAX_LENGTH_STR
 
+# Настройка подключения к PostgreSQL
+DATA_URL = (
+    f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@"
+    f"{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+)
 
-# Настраиваем базу данных
-DATA_URL = "sqlite:///guestanalytics.db"
 Base = declarative_base()
 engine = create_engine(DATA_URL)
 Session = sessionmaker(bind=engine)
-
-Session()
 session = Session()
 
 
@@ -31,9 +32,9 @@ class Restaurant(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String(MAX_LENGTH_STR), nullable=False)
     yandex_link = Column(String(MAX_LENGTH_STR), nullable=False, unique=True)
-    twogis_link = Column(String(MAX_LENGTH_STR), nullable=True, unique=True)
+    twogis_link = Column(String(MAX_LENGTH_STR), unique=True)
     address = Column(Text, nullable=False)
-    tg_channal = Column(String(MAX_LENGTH_STR), nullable=True)
+    tg_channal = Column(String(MAX_LENGTH_STR))
 
 
 class YandexReview(Base):
@@ -43,16 +44,14 @@ class YandexReview(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     restaurant_id = Column(
-        Integer,
-        ForeignKey("restaurants.id"),
-        nullable=False
+        Integer, ForeignKey("restaurants.id"), nullable=False
     )
     created_at = Column(String(MAX_LENGTH_STR), nullable=False)
     author = Column(String(MAX_LENGTH_STR), nullable=False)
-    link = Column(String(MAX_LENGTH_STR), nullable=True)
+    link = Column(String(MAX_LENGTH_STR))
     rating = Column(SmallInteger, nullable=False)
     content = Column(Text, nullable=False)
-    semantic = Column(String(MAX_LENGTH_STR), nullable=True)
+    semantic = Column(String(MAX_LENGTH_STR))
 
     restaurant = relationship("Restaurant", back_populates="yandex_reviews")
 
@@ -64,26 +63,27 @@ class TwogisReview(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     restaurant_id = Column(
-        Integer,
-        ForeignKey("restaurants.id"),
-        nullable=False
+        Integer, ForeignKey("restaurants.id"), nullable=False
     )
     created_at = Column(String(MAX_LENGTH_STR), nullable=False)
     author = Column(String(MAX_LENGTH_STR), nullable=False)
-    link = Column(String(MAX_LENGTH_STR), nullable=True)
+    link = Column(String(MAX_LENGTH_STR))
     rating = Column(SmallInteger, nullable=False)
     content = Column(Text, nullable=False)
-    semantic = Column(String(MAX_LENGTH_STR), nullable=True)
+    semantic = Column(String(MAX_LENGTH_STR))
 
     restaurant = relationship("Restaurant", back_populates="twogis_reviews")
 
 
 # Обратные связи моделей
 Restaurant.yandex_reviews = relationship(
-    "YandexReview", order_by=YandexReview.id, back_populates="restaurant")
+    "YandexReview", order_by=YandexReview.id, back_populates="restaurant"
+)
 Restaurant.twogis_reviews = relationship(
-    "TwogisReview", order_by=TwogisReview.id, back_populates="restaurant")
+    "TwogisReview", order_by=TwogisReview.id, back_populates="restaurant"
+)
 
 
-# Создаём таблицы
-Base.metadata.create_all(engine)
+# Создаём таблицы (если они ещё не созданы)
+if __name__ == "__main__":
+    Base.metadata.create_all(engine)
