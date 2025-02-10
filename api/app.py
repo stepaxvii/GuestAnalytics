@@ -5,6 +5,7 @@ from api.charts import (
     sentiment
 )
 from api.restaurants import create_restaurant
+from api.reviews import check_reviews
 
 app = Flask(__name__)
 
@@ -17,6 +18,9 @@ app.register_blueprint(sentiment.sentiment_distribution_bp, url_prefix='/api')
 app.register_blueprint(sentiment.sentiment_trend_bp, url_prefix='/api')
 app.register_blueprint(
     create_restaurant.create_restaurant_bp, url_prefix='/api'
+)
+app.register_blueprint(
+    check_reviews.yandex_prim_coll, url_prefix='/api'
 )
 
 if __name__ == '__main__':
