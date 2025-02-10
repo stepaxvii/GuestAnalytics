@@ -33,3 +33,13 @@ def yandex_prim_coll():
 
     # Если действие не является 'create', возвращаем ошибку
     return jsonify({"status": "error", "message": "Invalid action."}), 400
+
+
+# Уже существующий Blueprint
+yandex_coll_bp = Blueprint("yandex_coll", __name__)
+
+
+# Маршрут для получения ответа "OK"
+@yandex_coll_bp.route("/ok", methods=["GET"])
+def ok():
+    return jsonify({"status": "ok"}), 200

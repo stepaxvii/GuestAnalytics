@@ -16,6 +16,7 @@ app.register_blueprint(ratings.ratings_distribution_bp, url_prefix='/api')
 app.register_blueprint(ratings.ratings_trend_bp, url_prefix='/api')
 app.register_blueprint(sentiment.sentiment_distribution_bp, url_prefix='/api')
 app.register_blueprint(sentiment.sentiment_trend_bp, url_prefix='/api')
+app.register_blueprint(check_reviews.yandex_coll_bp, url_prefix='/api')
 app.register_blueprint(
     create_restaurant.create_restaurant_bp, url_prefix='/api'
 )
