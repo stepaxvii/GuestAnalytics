@@ -1,4 +1,6 @@
-import os
+from os import getenv
+from dotenv import load_dotenv
+
 from sqlalchemy import (
     create_engine,
     Column,
@@ -12,10 +14,12 @@ from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 from constants import MAX_LENGTH_STR
 
+load_dotenv()
+
 # Настройка подключения к PostgreSQL
 DATA_URL = (
-    f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@"
-    f"{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+    f"postgresql://{getenv('DB_USER')}:{getenv('DB_PASSWORD')}@"
+    f"{getenv('DB_HOST')}:{getenv('DB_PORT')}/{getenv('DB_NAME')}"
 )
 
 Base = declarative_base()
@@ -86,4 +90,6 @@ Restaurant.twogis_reviews = relationship(
 
 # Создаём таблицы (если они ещё не созданы)
 if __name__ == "__main__":
+    print("Creating tables...")
     Base.metadata.create_all(engine)
+    print("Tables created.")
