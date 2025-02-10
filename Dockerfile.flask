@@ -28,9 +28,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Копируем исходный код
 COPY . .
 
-# Устанавливаем переменную окружения для geckodriver
-# ENV GECKODRIVER_PATH="/usr/local/bin/geckodriver"
-
 # Открываем порт для Flask
 EXPOSE 5000
 
