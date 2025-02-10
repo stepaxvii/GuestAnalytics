@@ -69,6 +69,8 @@ def ya_prim_coll(original_url):
 
     options = FirefoxOptions()
     options.add_argument('--headless')
+    options.add_argument('--no-sandbox')  # Для работы с Docker
+    options.add_argument('--disable-dev-shm-usage')  # Для работы с Docker
     service = Service(DRIVER_PATH)
 
     try:

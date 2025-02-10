@@ -39,6 +39,23 @@ def read_some_restaurant_data(org_url):
     }
 
 
+def read_some_id(rest_id):
+    """Получаем информацию о ресторане, учитывая ссылку на сервис."""
+
+    restaurant = session.query(Restaurant).filter(
+        Restaurant.id == rest_id
+    ).first()
+
+    return {
+        "id": restaurant.id,
+        "title": restaurant.title,
+        "yandex_link": restaurant.yandex_link,
+        "twogis_link": restaurant.twogis_link,
+        "address": restaurant.address,
+        "tg_channal": restaurant.tg_channal
+    }
+
+
 def read_rest_ya_reviews(restaurant_id):
     """Получаем отзывы с Яндекса определённого ресторана."""
 

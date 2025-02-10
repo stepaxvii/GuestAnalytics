@@ -16,8 +16,6 @@ from constants import (
     NEW_REVIEWS_SORTED,
     DEFAULT_REVIEWS_SORTED,
     SORTED_BLOCK,
-    ORG_NAME_BLOCK,
-    ORG_ADDRESS_BLOCK,
     AUTHOR_ELEMENT,
     DATE_ELEMENT,
     DATE_FORMAT,
@@ -29,7 +27,6 @@ from constants import (
     MAX_VIEW_REVIEWS
 )
 from data.create_data import create_review
-from data.read_data import read_some_restaurant_data
 from semantic_analysis.simple_semantic import simple_semantic
 from utils.urls import process_url_yandex
 
@@ -64,11 +61,13 @@ def scroll_to_bottom(driver, elem, prev_reviews_count):
     return True  # Возвращаем True, что значит, что новых отзывов нет
 
 
-def ya_prim_coll(original_url):
+def ya_prim_coll(original_url, rest_id):
     logger.info(f"Начинаем сбор данных с URL: {original_url}")
 
     options = FirefoxOptions()
     options.add_argument('--headless')
+    options.add_argument('--no-sandbox')  # Для работы с Docker
+    options.add_argument('--disable-dev-shm-usage')  # Для работы с Docker
     service = Service(DRIVER_PATH)
 
     try:
@@ -84,35 +83,6 @@ def ya_prim_coll(original_url):
     full_org_url = driver.current_url
     logger.info(f"Полный URL компании: {full_org_url}")
     org_url, reviews_url = process_url_yandex(full_org_url)
-
-    logger.info(f"Переходим на страницу компании: {org_url}")
-    driver.get(org_url)
-    sleep(5)
-
-    try:
-        org_name_element = driver.find_element(By.CSS_SELECTOR, ORG_NAME_BLOCK)
-        org_name = org_name_element.text.strip()
-    except NoSuchElementException:
-        org_name = None
-        logger.error("Не удалось найти название организации")
-
-    try:
-        address_element = driver.find_element(By.CLASS_NAME, ORG_ADDRESS_BLOCK)
-        full_address = address_element.text.strip()
-    except NoSuchElementException:
-        full_address = None
-        logger.error("Не удалось найти полный адрес")
-
-    if org_name:
-        restaurant_data = (org_name, org_url, full_address)
-        try:
-            # create_restaurant(data=restaurant_data)
-            logger.info("ПЕчатаем)))))))))))))))))))))))))))))))))))))")
-            logger.info("Ресторан успешно добавлен в базу данных.")
-        except Exception as e:
-            logger.error(f"Ошибка при добавлении ресторана в базу данных: {e}")
-    else:
-        logger.info("Пропускаем ресторан, так как название не найдено.")
 
     logger.info(f"Переходим на страницу с отзывами: {reviews_url}")
     driver.get(reviews_url)
@@ -253,14 +223,10 @@ def ya_prim_coll(original_url):
         key=lambda x: datetime.strptime(x[0], DATE_FORMAT)
     )
 
-    restaurant_data = read_some_restaurant_data(org_url=original_url)
-    restaurant_id = restaurant_data['id']
-    logger.info(f"ID ресторана: {restaurant_id}")
-
     for review in sorted_reviews:
         try:
             review_data = {
-                'restaurant_id': restaurant_id,
+                'restaurant_id': rest_id,
                 'review_date': review[0],
                 'author_name': review[1],
                 'author_link': review[2],
