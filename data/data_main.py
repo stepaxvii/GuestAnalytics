@@ -88,4 +88,7 @@ Restaurant.twogis_reviews = relationship(
 )
 
 # Создаём таблицы
-Base.metadata.create_all(engine)
+if __name__ == "__main__":
+    print("Creating tables...")
+    Base.metadata.create_all(engine)
+    print("Tables created.")
