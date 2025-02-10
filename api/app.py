@@ -1,3 +1,4 @@
+# api/app.py
 from flask import Flask
 from api.charts import (
     ratings,
@@ -6,8 +7,12 @@ from api.charts import (
 )
 from api.restaurants import create_restaurant
 from api.reviews import check_reviews
+from api.db import create_tables  # Импортируем функцию для создания таблиц
 
 app = Flask(__name__)
+
+# Создаем таблицы, если их еще нет
+create_tables()
 
 # Регистрируем Blueprint для каждого API
 app.register_blueprint(reviews.total_reviews_bp, url_prefix='/api')
