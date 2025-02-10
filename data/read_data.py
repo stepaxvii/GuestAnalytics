@@ -1,4 +1,5 @@
-from data.data_main import session, Restaurant, YandexReview
+from api.db import session
+from data.data_main import Restaurant, YandexReview
 
 
 def read_all_restaurant_data():

@@ -4,7 +4,9 @@ from os import getenv
 
 from sqlalchemy.exc import IntegrityError
 from dotenv import load_dotenv
-from data.data_main import session, Restaurant, YandexReview
+
+from api.db import session
+from data.data_main import Restaurant, YandexReview
 
 load_dotenv()
 
