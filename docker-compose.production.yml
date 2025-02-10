@@ -14,6 +14,8 @@ services:
     ports:
       - "5432:5432"
     restart: unless-stopped
+    networks:
+      - backend
 
   flask:
     image: stepaxvii/flask_app:latest
@@ -25,6 +27,8 @@ services:
     depends_on:
       - db
     restart: unless-stopped
+    networks:
+      - backend
 
   bot:
     image: stepaxvii/bot_app:latest
@@ -34,6 +38,12 @@ services:
     depends_on:
       - db
     restart: unless-stopped
+    networks:
+      - backend
 
 volumes:
   postgres_data:
+
+networks:
+  backend:
+    driver: bridge
