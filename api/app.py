@@ -20,7 +20,7 @@ app.register_blueprint(
     create_restaurant.create_restaurant_bp, url_prefix='/api'
 )
 app.register_blueprint(
-    check_reviews.yandex_prim_coll, url_prefix='/api'
+    check_reviews.yandex_prim_coll_bp, url_prefix='/api'
 )
 
 if __name__ == '__main__':
