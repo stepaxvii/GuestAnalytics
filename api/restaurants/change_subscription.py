@@ -1,11 +1,9 @@
 import logging
-
 from flask import Blueprint, request, jsonify
 from api.db import session
 from data.data_main import Restaurant
 
 change_subscription_bp = Blueprint("change_subscription", __name__)
-
 
 @change_subscription_bp.route("/change_subscription", methods=["POST"])
 def change_subscription():
@@ -30,10 +28,11 @@ def change_subscription():
 
             # Преобразуем subscription в булево значение
             if isinstance(subscription, str):
-                # Обрабатываем строки "True", "False", "t", "f" и т.д.
-                subscription = subscription.lower() in (
-                    "true", "t", "yes", "y", "1"
-                )
+                # Проверяем, если строка в списке значений для True
+                if subscription.lower() in ("true", "t", "yes", "y", "1"):
+                    subscription = True
+                else:
+                    subscription = False
             elif isinstance(subscription, bool):
                 pass  # Уже булево значение
             else:
@@ -43,6 +42,11 @@ def change_subscription():
                         "message": "Некорректное значение для subscription."
                     }
                 ), 400
+
+            # Логируем полученное значение для отладки
+            logging.debug(
+                f"Updating subscription for {rest_id}: {subscription}"
+                )
 
             # Обновляем данные о подписке
             restaurant.subscription = subscription
