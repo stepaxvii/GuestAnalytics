@@ -1,3 +1,53 @@
+# version: '3.8'
+
+# services:
+#   db:
+#     image: postgres:latest
+#     container_name: postgres_db
+#     env_file: .env
+#     environment:
+#       POSTGRES_USER: ${DB_USER}
+#       POSTGRES_PASSWORD: ${DB_PASSWORD}
+#       POSTGRES_DB: ${DB_NAME}
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#     ports:
+#       - "5432:5432"
+#     restart: unless-stopped
+#     networks:
+#       - backend
+
+#   flask:
+#     image: stepaxvii/flask_app:latest
+#     container_name: flask_app
+#     ports:
+#       - "5000:5000"
+#     env_file:
+#       - .env
+#     depends_on:
+#       - db
+#     restart: unless-stopped
+#     networks:
+#       - backend
+
+#   bot:
+#     image: stepaxvii/bot_app:latest
+#     container_name: bot_app
+#     env_file:
+#       - .env
+#     depends_on:
+#       - db
+#     restart: unless-stopped
+#     networks:
+#       - backend
+
+# volumes:
+#   postgres_data:
+
+# networks:
+#   backend:
+#     driver: bridge
+
 version: '3.8'
 
 services:
@@ -18,7 +68,9 @@ services:
       - backend
 
   flask:
-    image: stepaxvii/flask_app:latest
+    build:
+      context: ./api
+      dockerfile: Dockerfile
     container_name: flask_app
     ports:
       - "5000:5000"
@@ -31,7 +83,9 @@ services:
       - backend
 
   bot:
-    image: stepaxvii/bot_app:latest
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
     container_name: bot_app
     env_file:
       - .env
