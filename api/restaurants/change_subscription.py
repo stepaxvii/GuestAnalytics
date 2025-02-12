@@ -20,13 +20,27 @@ def change_subscription():
     if action == "update":
         try:
             # Ищем ресторан по ID
-            restaurant = session.query(
-                Restaurant
-            ).filter_by(id=rest_id).first()
+            restaurant = session.query(Restaurant).filter_by(id=rest_id).first()
             if not restaurant:
                 return jsonify(
                     {"status": "error", "message": "Ресторан не найден."}
                 ), 404
+
+            # Преобразуем subscription в булево значение
+            if isinstance(subscription, str):
+                # Обрабатываем строки "True", "False", "t", "f" и т.д.
+                subscription = subscription.lower() in (
+                    "true", "t", "yes", "y", "1"
+                )
+            elif isinstance(subscription, bool):
+                pass  # Уже булево значение
+            else:
+                return jsonify(
+                    {
+                        "status": "error",
+                        "message": "Некорректное значение для subscription."
+                    }
+                ), 400
 
             # Обновляем данные о подписке
             restaurant.subscription = subscription
