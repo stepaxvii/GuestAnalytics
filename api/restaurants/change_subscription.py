@@ -4,18 +4,16 @@ from flask import Blueprint, request, jsonify
 from api.db import session
 from data.data_main import Restaurant
 
-edit_restaurant_bp = Blueprint("edit_restaurant", __name__)
+change_subscription_bp = Blueprint("change_subscription", __name__)
 
 
-@edit_restaurant_bp.route("/edit_restaurant", methods=["POST"])
-def edit_restaurant():
+@change_subscription_bp.route("/change_subscription", methods=["POST"])
+def change_subscription():
     # Получаем данные из запроса
     data = request.get_json(force=True)
 
     rest_id = data.get("restaurant_id")
-    rest_title = data.get("restaurant_name")
-    rest_address = data.get("address")
-    tg_id = data.get("telegram_id")
+    subscription = data.get("subscription")
     action = data.get("action")
 
     # Проверяем, если действие это обновление данных ресторана
@@ -30,19 +28,14 @@ def edit_restaurant():
                     {"status": "error", "message": "Ресторан не найден."}
                 ), 404
 
-            # Обновляем данные ресторана (кроме id и yandex_link)
-            if rest_title:
-                restaurant.title = rest_title
-            if rest_address:
-                restaurant.address = rest_address
-            if tg_id:
-                restaurant.tg_channal = tg_id
+            # Обновляем данные о подписке
+            restaurant.subscription = subscription
 
             # Сохраняем изменения в базе данных
             session.commit()
 
             return jsonify(
-                {"status": "ok", "message": "Данные успешно обновлены."}
+                {"status": "ok", "message": "Данные о подписке изменены."}
             ), 200
         except Exception as e:
             session.rollback()

@@ -1,5 +1,13 @@
 
-from sqlalchemy import Column, Integer, ForeignKey, SmallInteger, String, Text
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Integer,
+    ForeignKey,
+    SmallInteger,
+    String,
+    Text
+)
 from sqlalchemy.orm import relationship
 from api.db import Base
 
@@ -13,6 +21,7 @@ class Restaurant(Base):
     twogis_link = Column(String(255), unique=True)
     address = Column(Text, nullable=False)
     tg_channal = Column(String(255))
+    subscription = Column(Boolean, default=True)
 
 
 class YandexReview(Base):

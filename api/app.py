@@ -5,9 +5,13 @@ from api.charts import (
     reviews,
     sentiment
 )
-from api.restaurants import create_restaurant, edit_restaurant
-from api.reviews import check_reviews
-from api.db import create_tables  # Импортируем функцию для создания таблиц
+from api.restaurants import (
+    change_subscription,
+    create_restaurant,
+    edit_restaurant
+)
+# Импортируем функцию для создания таблиц
+from api.db import create_tables
 
 app = Flask(__name__)
 
@@ -21,6 +25,9 @@ app.register_blueprint(ratings.ratings_distribution_bp, url_prefix='/api')
 app.register_blueprint(ratings.ratings_trend_bp, url_prefix='/api')
 app.register_blueprint(sentiment.sentiment_distribution_bp, url_prefix='/api')
 app.register_blueprint(sentiment.sentiment_trend_bp, url_prefix='/api')
+app.register_blueprint(
+    change_subscription.change_subscription_bp, url_prefix='/api'
+)
 app.register_blueprint(
     create_restaurant.create_restaurant_bp, url_prefix='/api'
 )
