@@ -20,7 +20,9 @@ def change_subscription():
     if action == "update":
         try:
             # Ищем ресторан по ID
-            restaurant = session.query(Restaurant).filter_by(id=rest_id).first()
+            restaurant = session.query(
+                Restaurant
+            ).filter_by(id=rest_id).first()
             if not restaurant:
                 return jsonify(
                     {"status": "error", "message": "Ресторан не найден."}
