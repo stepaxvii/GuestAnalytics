@@ -64,13 +64,22 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
+            set -e
+            echo "Проверка текущей директории"
+            pwd
+            echo "Содержимое директории"
+            ls -al
+            echo "Проверка доступных Docker образов"
+            sudo docker images
             cd app
-            # Выполняет pull образов с Docker Hub
-            sudo docker compose -f docker-compose.production.yml pull
-            # Перезапускает все контейнеры в Docker Compose
-            sudo docker compose -f docker-compose.production.yml down
-            sudo docker compose -f docker-compose.production.yml up -d
-            # Ожидаем 5 секунд, чтобы база данных загрузилась
+            echo "Переход в директорию app"
+            ls -al
+            echo "Запуск pull образов с Docker Hub"
+            sudo docker compose -f docker-compose.production.yml pull || { echo 'Ошибка при pull Docker образов'; exit 1; }
+            echo "Перезапуск контейнеров"
+            sudo docker compose -f docker-compose.production.yml down || { echo 'Ошибка при остановке контейнеров'; exit 1; }
+            sudo docker compose -f docker-compose.production.yml up -d || { echo 'Ошибка при запуске контейнеров'; exit 1; }
+            echo "Ожидание 5 секунд для загрузки базы данных"
             sleep 5
 
   send_message:
