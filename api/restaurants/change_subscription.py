@@ -5,6 +5,7 @@ from data.data_main import Restaurant
 
 change_subscription_bp = Blueprint("change_subscription", __name__)
 
+
 @change_subscription_bp.route("/change_subscription", methods=["POST"])
 def change_subscription():
     # Получаем данные из запроса
