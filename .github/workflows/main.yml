@@ -50,7 +50,7 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY  }}  # Используем SSH-ключ
+          key: ${{ secrets.SSH_KEY  }}  # Используем SSH-ключ
           passphrase: ${{ secrets.SSH_PASSPHRASE }}  # Если ключ защищен паролем
           source: "docker-compose.production.yml"
           target: "app"
@@ -61,7 +61,7 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY  }}  # Используем SSH-ключ
+          key: ${{ secrets.SSH_KEY  }}  # Используем SSH-ключ
           passphrase: ${{ secrets.SSH_PASSPHRASE }}  # Если ключ защищен паролем
           script: |
             set -e
