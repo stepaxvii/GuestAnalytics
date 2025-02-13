@@ -45,7 +45,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Copy docker-compose.yml via ssh
+      - name: Copy docker-compose.production.yml via ssh
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -71,8 +71,9 @@ jobs:
             ls -al
             echo "Проверка доступных Docker образов"
             sudo docker images
-            cd app
-            echo "Переход в директорию app"
+            # Переходим в директорию с проектом
+            cd /home/GuestAnalytics
+            echo "Переход в директорию GuestAnalytics"
             ls -al
             echo "Запуск pull образов с Docker Hub"
             sudo docker compose -f docker-compose.production.yml pull || { echo 'Ошибка при pull Docker образов'; exit 1; }
