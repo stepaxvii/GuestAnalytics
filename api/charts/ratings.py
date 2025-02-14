@@ -283,11 +283,31 @@ def ratings_trend():
         data = {
             "labels": months,
             "datasets": [
-                {"label": "5 звёзд", "data": [ratings_count_by_month[month][5] for month in months], "borderColor": "#2ECC71"},
-                {"label": "4 звезды", "data": [ratings_count_by_month[month][4] for month in months], "borderColor": "#3498DB"},
-                {"label": "3 звезды", "data": [ratings_count_by_month[month][3] for month in months], "borderColor": "#9B59B6"},
-                {"label": "2 звезды", "data": [ratings_count_by_month[month][2] for month in months], "borderColor": "#F1C40F"},
-                {"label": "1 звезда", "data": [ratings_count_by_month[month][1] for month in months], "borderColor": "#E74C3C"}
+                {
+                    "label": "5 звёзд",
+                    "data": [ratings_count_by_month[month][5] for month in months],
+                    "borderColor": "#2ECC71"
+                },
+                {
+                    "label": "4 звезды",
+                    "data": [ratings_count_by_month[month][4] for month in months],
+                    "borderColor": "#3498DB"
+                },
+                {
+                    "label": "3 звезды",
+                    "data": [ratings_count_by_month[month][3] for month in months],
+                    "borderColor": "#9B59B6"
+                },
+                {
+                    "label": "2 звезды",
+                    "data": [ratings_count_by_month[month][2] for month in months],
+                    "borderColor": "#F1C40F"
+                },
+                {
+                    "label": "1 звезда",
+                    "data": [ratings_count_by_month[month][1] for month in months],
+                    "borderColor": "#E74C3C"
+                }
             ]
         }
 

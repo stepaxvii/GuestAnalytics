@@ -1,3 +1,53 @@
+# version: '3.8'
+
+# services:
+#   db:
+#     image: postgres:latest
+#     container_name: postgres_db
+#     env_file: .env
+#     environment:
+#       POSTGRES_USER: ${DB_USER}
+#       POSTGRES_PASSWORD: ${DB_PASSWORD}
+#       POSTGRES_DB: ${DB_NAME}
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#     ports:
+#       - "5432:5432"
+#     restart: unless-stopped
+#     networks:
+#       - backend
+
+#   flask:
+#     image: stepaxvii/flask_app:latest
+#     container_name: flask_app
+#     ports:
+#       - "5000:5000"
+#     env_file:
+#       - .env
+#     depends_on:
+#       - db
+#     restart: unless-stopped
+#     networks:
+#       - backend
+
+#   bot:
+#     image: stepaxvii/bot_app:latest
+#     container_name: bot_app
+#     env_file:
+#       - .env
+#     depends_on:
+#       - db
+#     restart: unless-stopped
+#     networks:
+#       - backend
+
+# volumes:
+#   postgres_data:
+
+# networks:
+#   backend:
+#     driver: bridge
+
 version: '3.8'
 
 services:
@@ -29,6 +79,7 @@ services:
     restart: unless-stopped
     networks:
       - backend
+    command: ["sh", "-c", "until nc -z db 5432; do echo waiting for db; sleep 2; done; flask run --host=0.0.0.0 --port=5000"]
 
   bot:
     image: stepaxvii/bot_app:latest
