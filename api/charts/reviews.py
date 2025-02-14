@@ -87,12 +87,24 @@ total_reviews_bp = Blueprint('total_reviews', __name__)
 
 @total_reviews_bp.route('/total-reviews', methods=['GET'])
 def total_reviews():
-    user_id = int(request.args.get('user_id'))
-    if not user_id:
+    user_id_str = request.args.get('user_id')
+
+    # Проверка, что user_id был передан
+    if not user_id_str:
         return jsonify({
             "success": False,
             "data": None,
             "message": "Не указан user_id"
+        }), 400
+
+    # Проверка, что user_id можно преобразовать в целое число
+    try:
+        user_id = int(user_id_str)
+    except ValueError:
+        return jsonify({
+            "success": False,
+            "data": None,
+            "message": "Некорректный user_id"
         }), 400
 
     # Получаем текущую дату

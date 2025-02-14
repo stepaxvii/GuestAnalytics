@@ -29,7 +29,6 @@ from constants import (
     MAX_VIEW_REVIEWS
 )
 from data.create_data import create_restaurant, create_review
-# from data.read_data import read_some_restaurant_data
 from semantic_analysis.simple_semantic import simple_semantic
 from utils.urls import process_url_yandex
 
@@ -128,7 +127,7 @@ def ya_prim_coll(original_url):
 
     if org_name:
         restaurant_data = (
-            total_count,
+            1,
             org_name,
             org_url,
             full_address,

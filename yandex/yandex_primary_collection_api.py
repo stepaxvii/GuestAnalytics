@@ -31,7 +31,7 @@ from semantic_analysis.simple_semantic import simple_semantic
 from utils.urls import process_url_yandex
 
 # Настройка логирования
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 load_dotenv()
