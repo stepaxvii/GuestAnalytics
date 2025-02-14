@@ -2,7 +2,7 @@ import logging
 
 from os import getenv
 
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, PendingRollbackError
 from dotenv import load_dotenv
 
 from api.db import session
@@ -74,6 +74,10 @@ def create_review(data):
         # Добавляем и коммитим запись в базу данных
         session.add(review)
         session.commit()
+    except PendingRollbackError as e:
+        # Специальная обработка ошибки при наличии неоконченной транзакции
+        session.rollback()
+        logger.error(f"Ошибка с транзакцией: {e}")
     except Exception as e:
         session.rollback()  # Откат транзакции при ошибке
         logger.error(f"Ошибка при добавлении отзыва в базу данных: {e}")
