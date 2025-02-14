@@ -28,8 +28,8 @@ from constants import (
     TEXT_ELEMENT,
     MAX_VIEW_REVIEWS
 )
-from data_base.create_data import create_restaurant, create_review
-from data_base.read_data import read_some_restaurant_data
+from data.create_data import create_restaurant, create_review
+from data.read_data import read_some_restaurant_data
 from semantic_analysis.simple_semantic import simple_semantic
 from utils.urls import process_url_yandex
 

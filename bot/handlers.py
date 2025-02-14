@@ -12,9 +12,10 @@ from aiogram.types import (
 )
 from dotenv import load_dotenv
 
+from api.db import session
 from bot.states import RestaurantEditState
-from data_base.data_main import session, Restaurant
-from data_base.read_data import read_all_restaurant_data
+from data.data_main import Restaurant
+from data.read_data import read_all_restaurant_data
 from utils.message_text import get_star_rating
 from yandex.yandex_primary_collection import ya_prim_coll
 from yandex.yandex_check_new_reviews import matching_reviews

@@ -1,19 +1,15 @@
 import asyncio
 import logging
-from os import getenv
 
 from aiogram import Bot
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
 )
-from dotenv import load_dotenv
 
-from data_base.read_data import read_all_restaurant_data
+from data.read_data import read_all_restaurant_data
 from utils.message_text import get_star_rating
 from yandex.yandex_check_new_reviews import matching_reviews
-
-load_dotenv()
 
 
 async def check_new_reviews_periodically(bot: Bot):

@@ -20,8 +20,8 @@ from constants import (
     RATING_ELEMENT,
     TEXT_ELEMENT
 )
-from data_base.create_data import create_review
-from data_base.read_data import read_some_restaurant_data, read_rest_ya_reviews
+from data.create_data import create_review
+from data.read_data import read_some_restaurant_data, read_rest_ya_reviews
 from semantic_analysis.simple_semantic import simple_semantic
 
 load_dotenv()
