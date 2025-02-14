@@ -4,7 +4,8 @@ from dateutil.relativedelta import relativedelta
 from flask import Blueprint, jsonify, request
 from sqlalchemy import func
 
-from data_base.data_main import YandexReview, session
+from api.db import session
+from data.data_main import YandexReview
 
 ratings_distribution_bp = Blueprint('ratings_distribution', __name__)
 

@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 
 from flask import Blueprint, jsonify, request
 
-from data_base.read_data import read_rest_ya_reviews
+from data.read_data import read_rest_ya_reviews
 from utils.date import month_dict
 
 # Настройка логирования

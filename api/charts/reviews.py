@@ -2,7 +2,8 @@ from flask import Blueprint, jsonify, request
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-from data_base.data_main import YandexReview, session
+from api.db import session
+from data.data_main import YandexReview
 from utils.date import month_dict
 
 trend_reviews_bp = Blueprint('trend_reviews', __name__)
