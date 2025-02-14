@@ -268,7 +268,7 @@ def ya_prim_coll(original_url):
     for review in sorted_reviews:
         try:
             review_data = {
-                'restaurant_id': total_count,
+                'restaurant_id': 1,
                 'review_date': review[0],
                 'author_name': review[1],
                 'author_link': review[2],
