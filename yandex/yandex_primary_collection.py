@@ -40,6 +40,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 DRIVER_PATH = getenv('DRIVER_PATH')
+TG_GROUP = getenv('TG_GROUP')
 
 
 def scroll_to_bottom(driver, elem, prev_reviews_count):
@@ -105,16 +106,6 @@ def ya_prim_coll(original_url):
         full_address = None
         logger.error("Не удалось найти полный адрес")
 
-    if org_name:
-        restaurant_data = (org_name, org_url, full_address)
-        try:
-            create_restaurant(data=restaurant_data)
-            logger.info("Ресторан успешно добавлен в базу данных.")
-        except Exception as e:
-            logger.error(f"Ошибка при добавлении ресторана в базу данных: {e}")
-    else:
-        logger.info("Пропускаем ресторан, так как название не найдено.")
-
     logger.info(f"Переходим на страницу с отзывами: {reviews_url}")
     driver.get(reviews_url)
     sleep(5)
@@ -134,6 +125,22 @@ def ya_prim_coll(original_url):
         driver.quit()
         return
     sleep(2)
+
+    if org_name:
+        restaurant_data = (
+            total_count,
+            org_name,
+            org_url,
+            full_address,
+            TG_GROUP
+        )
+        try:
+            create_restaurant(data=restaurant_data)
+            logger.info("Ресторан успешно добавлен в базу данных.")
+        except Exception as e:
+            logger.error(f"Ошибка при добавлении ресторана в базу данных: {e}")
+    else:
+        logger.info("Пропускаем ресторан, так как название не найдено.")
 
     # Создаём множество для хранения всех отзывов
     all_reviews = set()
