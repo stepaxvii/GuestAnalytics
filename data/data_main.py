@@ -1,4 +1,3 @@
-
 from sqlalchemy import (
     Boolean,
     Column,
@@ -23,13 +22,26 @@ class Restaurant(Base):
     tg_channal = Column(String(255))
     subscription = Column(Boolean, default=True)
 
+    yandex_reviews = relationship(
+        "YandexReview",
+        back_populates="restaurant",
+        cascade="all, delete-orphan"
+    )
+    twogis_reviews = relationship(
+        "TwogisReview",
+        back_populates="restaurant",
+        cascade="all, delete-orphan"
+    )
+
 
 class YandexReview(Base):
     """Модель отзыва Яндекса."""
     __tablename__ = "yandex_reviews"
     id = Column(Integer, primary_key=True, autoincrement=True)
     restaurant_id = Column(
-        Integer, ForeignKey("restaurants.id"), nullable=False
+        Integer,
+        ForeignKey("restaurants.id", ondelete="CASCADE"),
+        nullable=False
     )
     created_at = Column(String(255), nullable=False)
     author = Column(String(255), nullable=False)
@@ -37,6 +49,7 @@ class YandexReview(Base):
     rating = Column(SmallInteger, nullable=False)
     content = Column(Text, nullable=False)
     semantic = Column(String(255))
+
     restaurant = relationship("Restaurant", back_populates="yandex_reviews")
 
 
@@ -45,7 +58,9 @@ class TwogisReview(Base):
     __tablename__ = "twogis_reviews"
     id = Column(Integer, primary_key=True, autoincrement=True)
     restaurant_id = Column(
-        Integer, ForeignKey("restaurants.id"), nullable=False
+        Integer,
+        ForeignKey("restaurants.id", ondelete="CASCADE"),
+        nullable=False
     )
     created_at = Column(String(255), nullable=False)
     author = Column(String(255), nullable=False)
@@ -53,13 +68,5 @@ class TwogisReview(Base):
     rating = Column(SmallInteger, nullable=False)
     content = Column(Text, nullable=False)
     semantic = Column(String(255))
+
     restaurant = relationship("Restaurant", back_populates="twogis_reviews")
-
-
-# Обратные связи моделей
-Restaurant.yandex_reviews = relationship(
-    "YandexReview", order_by=YandexReview.id, back_populates="restaurant"
-)
-Restaurant.twogis_reviews = relationship(
-    "TwogisReview", order_by=TwogisReview.id, back_populates="restaurant"
-)
