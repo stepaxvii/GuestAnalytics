@@ -39,25 +39,68 @@ def create_restaurant(data):
     session.close()
 
 
+# def create_review(data):
+#     """Создание отзыва из словаря."""
+
+#     # Извлекаем данные из словаря
+#     restaurant_id = data.get('restaurant_id')
+#     created_at = data.get('review_date')
+#     author = data.get('author_name')
+#     link = data.get('author_link', None)
+#     rating = data.get('rating_value')
+#     content = data.get('text')
+#     semantic = data.get('semantic', None)
+
+#     # Проверка значений
+#     if not created_at:
+#         raise ValueError("Поле 'review_date' обязательно.")
+#     if not author:
+#         raise ValueError("Поле 'author_name' обязательно.")
+#     if rating is None:
+#         rating = 0  # Используем значение по умолчанию для рейтинга
+
+#     # Создаем экземпляр YandexReview с данными из словаря
+#     review = YandexReview(
+#         restaurant_id=restaurant_id,
+#         created_at=created_at,
+#         author=author,
+#         link=link,
+#         rating=rating,
+#         content=content,
+#         semantic=semantic,
+#     )
+
+#     try:
+#         # Добавляем и коммитим запись в базу данных
+#         session.add(review)
+#         session.commit()
+#     except PendingRollbackError as e:
+#         # Специальная обработка ошибки при наличии неоконченной транзакции
+#         session.rollback()
+#         logger.error(f"Ошибка с транзакцией: {e}")
+#     except Exception as e:
+#         session.rollback()  # Откат транзакции при ошибке
+#         logger.error(f"Ошибка при добавлении отзыва в базу данных: {e}")
+#     finally:
+#         session.close()
+
 def create_review(data):
     """Создание отзыва из словаря."""
 
     # Извлекаем данные из словаря
     restaurant_id = data.get('restaurant_id')
     created_at = data.get('review_date')
-    author = data.get('author_name')
+    author = data.get('author_name', 'Аноним')
     link = data.get('author_link', None)
-    rating = data.get('rating_value')
+    rating = data.get('rating_value', 0)
     content = data.get('text')
     semantic = data.get('semantic', None)
 
-    # Проверка значений
+    # Проверка обязательных полей
     if not created_at:
         raise ValueError("Поле 'review_date' обязательно.")
-    if not author:
-        raise ValueError("Поле 'author_name' обязательно.")
-    if rating is None:
-        rating = 0  # Используем значение по умолчанию для рейтинга
+    if not content:
+        raise ValueError("Поле 'text' обязательно.")
 
     # Создаем экземпляр YandexReview с данными из словаря
     review = YandexReview(

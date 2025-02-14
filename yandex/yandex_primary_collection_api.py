@@ -225,10 +225,17 @@ def ya_prim_coll(original_url, rest_id):
 
     for review in sorted_reviews:
         try:
+            # Проверяем наличие обязательных полей
+            if not review[0] or not review[4]:
+                logger.warning(
+                    f"Пропущен отзыв с отсутствующими данными: {review}"
+                )
+                continue
+
             review_data = {
                 'restaurant_id': rest_id,
                 'review_date': review[0],
-                'author_name': review[1],
+                'author_name': review[1] if review[1] else 'Аноним',
                 'author_link': review[2],
                 'rating_value': review[3],
                 'text': review[4],
