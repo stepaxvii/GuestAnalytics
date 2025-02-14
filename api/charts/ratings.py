@@ -48,7 +48,7 @@ def ratings_distribution():
     # Общее количество отзывов
     total_reviews = sum(ratings_count.values())
 
-    # Если отзывов нет, возвращаем 0% для всех рейтингов
+    # Если отзывов нет, возвращаем 0% для всех
     if total_reviews == 0:
         data = {
             "labels": ["★", "★★", "★★★", "★★★★", "★★★★★"],
