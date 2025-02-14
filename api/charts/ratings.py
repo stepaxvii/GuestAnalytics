@@ -188,7 +188,7 @@ def ratings_distribution():
         # Начинаем транзакцию
         reviews = session.query(YandexReview).filter(
             YandexReview.restaurant_id == user_id,
-            func.to_char('%Y-%m', YandexReview.created_at) == current_month
+            func.to_char(YandexReview.created_at, 'YYYY-MM') == current_month
         ).all()
 
         # Считаем количество отзывов по каждому рейтингу
