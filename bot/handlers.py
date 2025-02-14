@@ -248,13 +248,20 @@ async def edit_restaurant(callback_query: CallbackQuery, state: FSMContext):
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text="Изменить название", callback_data="edit_title"
+                        text="Изменить название",
+                        callback_data="edit_title"
                     ),
                     InlineKeyboardButton(
-                        text="Изменить адрес", callback_data="edit_address"
+                        text="Изменить адрес",
+                        callback_data="edit_address"
                     ),
                     InlineKeyboardButton(
-                        text="Изменить TG", callback_data="edit_tg_channal"
+                        text="Изменить TG",
+                        callback_data="edit_tg_channal"
+                    ),
+                    InlineKeyboardButton(
+                        text="Удалить ресторан",
+                        callback_data="restaurant_delete"
                     )
                 ]
             ]
@@ -381,3 +388,32 @@ async def save_tg_channal(message: Message, state: FSMContext):
         # Завершаем редактирование
         await state.clear()
         await message.answer("Редактирование завершено.")
+
+
+@router.callback_query(lambda c: c.data == "restaurant_delete")
+async def delete_restaurant(callback_query: CallbackQuery, state: FSMContext):
+
+    user_id = callback_query.from_user.id
+    if user_id == ADMIN_ID:
+        data = await state.get_data()
+        restaurant_id = data.get("restaurant_id")
+
+        # Ищем ресторан в базе данных по ID
+        restaurant = session.query(
+            Restaurant
+        ).filter(Restaurant.id == restaurant_id).first()
+
+        if restaurant:
+            # Удаляем ресторан из базы данных
+            session.delete(restaurant)
+            session.commit()
+
+            await callback_query.message.answer(
+                f"Ресторан с ID {restaurant_id} был удалён."
+            )
+        else:
+            await callback_query.message.answer("Ресторан не найден.")
+
+        # Завершаем редактирование
+        await state.clear()
+        await callback_query.message.answer("Редактирование завершено.")
