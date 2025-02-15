@@ -7,7 +7,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-from bot import periodically_tasks, handlers
+from bot import periodically_tasks
 from bot.handlers import start, yandex, data_edit
 
 load_dotenv()
@@ -22,7 +22,6 @@ async def main():
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
     dp = Dispatcher()
-    # dp.include_router(handlers)
     dp.include_routers(
         start.router,
         yandex.router,
