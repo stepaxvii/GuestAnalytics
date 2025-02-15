@@ -36,7 +36,8 @@ def read_some_restaurant_data(org_url):
         "yandex_link": restaurant.yandex_link,
         "twogis_link": restaurant.twogis_link,
         "address": restaurant.address,
-        "tg_channal": restaurant.tg_channal
+        "tg_channal": restaurant.tg_channal,
+        "subscription": restaurant.subscription
     }
 
 
