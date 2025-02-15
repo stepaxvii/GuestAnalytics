@@ -145,7 +145,7 @@ def matching_reviews(org_url):
     """Функция сравнения собранных отзывов с БД."""
 
     # Определяем id ресторана для связи с отзывами
-    restaurant_data = read_restaurant_data(org_url=org_url)
+    restaurant_data = read_restaurant_data(rest_data=org_url)
     restaurant_id = restaurant_data['id']
 
     # Обращаемся в БД к сохранённым отзывам

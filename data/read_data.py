@@ -24,7 +24,7 @@ def read_all_restaurant_data():
     return restaurants_list
 
 
-def read_restaurant_data(identifier):
+def read_restaurant_data(rest_data):
     """
     Получаем информацию о ресторане по id или ссылке.
 
@@ -32,18 +32,18 @@ def read_restaurant_data(identifier):
     :return: Словарь с данными ресторана или None, если ресторан не найден.
     :raises ValueError: Если передан неподходящий тип данных.
     """
-    if not isinstance(identifier, (int, str)):
+    if not isinstance(rest_data, (int, str)):
         raise ValueError("Идентификатор должен быть (int) или (str).")
 
-    if isinstance(identifier, int):
+    if isinstance(rest_data, int):
         # Если передано число, ищем по id
         restaurant = session.query(Restaurant).filter(
-            Restaurant.id == identifier
+            Restaurant.id == rest_data
         ).first()
     else:
         # Иначе ищем по yandex_link
         restaurant = session.query(Restaurant).filter(
-            Restaurant.yandex_link == identifier
+            Restaurant.yandex_link == rest_data
         ).first()
 
     if restaurant:
