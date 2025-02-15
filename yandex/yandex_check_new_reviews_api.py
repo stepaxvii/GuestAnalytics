@@ -56,7 +56,9 @@ def ya_check_reviews(org_url):
         filter_button = WebDriverWait(driver, 30).until(
             EC.element_to_be_clickable((By.CLASS_NAME, SORTED_BLOCK))
         )
+        logging.info("Блок найден.")
         filter_button.click()
+        logging.info("Блок нажат.")
 
         # Ждем, пока появится элемент с опцией "По новизне" и кликаем по нему
         newest_filter = WebDriverWait(driver, 30).until(
