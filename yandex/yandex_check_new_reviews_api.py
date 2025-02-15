@@ -53,13 +53,13 @@ def ya_check_reviews(org_url):
 
     try:
         # Ищем элемент сортировки "По умолчанию" и кликаем по нему
-        filter_button = WebDriverWait(driver, 20).until(
+        filter_button = WebDriverWait(driver, 30).until(
             EC.element_to_be_clickable((By.CLASS_NAME, SORTED_BLOCK))
         )
         filter_button.click()
 
         # Ждем, пока появится элемент с опцией "По новизне" и кликаем по нему
-        newest_filter = WebDriverWait(driver, 20).until(
+        newest_filter = WebDriverWait(driver, 30).until(
             EC.element_to_be_clickable((By.XPATH, NEW_REVIEWS_SORTED))
         )
 

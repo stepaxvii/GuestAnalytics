@@ -114,12 +114,12 @@ def ya_prim_coll(original_url, rest_id):
         attempt_count = 0
         while attempt_count < 3:
             try:
-                filter_button = WebDriverWait(driver, 20).until(
+                filter_button = WebDriverWait(driver, 30).until(
                     EC.element_to_be_clickable((By.CLASS_NAME, SORTED_BLOCK))
                 )
                 filter_button.click()
 
-                sort_filter = WebDriverWait(driver, 20).until(
+                sort_filter = WebDriverWait(driver, 30).until(
                     EC.element_to_be_clickable((By.XPATH, sort_xpath))
                 )
                 driver.execute_script(
