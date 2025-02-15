@@ -260,10 +260,6 @@ def ya_prim_coll(original_url):
         key=lambda x: datetime.strptime(x[0], DATE_FORMAT)
     )
 
-    # restaurant_data = read_some_restaurant_data(org_url=org_url)
-    # restaurant_id = restaurant_data['id']
-    # logger.info(f"ID ресторана: {restaurant_id}")
-
     for review in sorted_reviews:
         try:
             review_data = {
