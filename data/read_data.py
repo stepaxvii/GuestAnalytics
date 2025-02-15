@@ -16,6 +16,7 @@ def read_all_restaurant_data():
             "twogis_link": restaurant.twogis_link,
             "address": restaurant.address,
             "tg_channal": restaurant.tg_channal,
+            "subscription": restaurant.subscription,
         }
         for restaurant in restaurants
     ]
@@ -23,40 +24,40 @@ def read_all_restaurant_data():
     return restaurants_list
 
 
-def read_some_restaurant_data(org_url):
-    """Получаем информацию о ресторане, учитывая ссылку на сервис."""
+def read_restaurant_data(identifier):
+    """
+    Получаем информацию о ресторане по id или ссылке.
 
-    restaurant = session.query(Restaurant).filter(
-        Restaurant.yandex_link == org_url
-    ).first()
+    :param identifier: id (int) или ссылка (str) на ресторан.
+    :return: Словарь с данными ресторана или None, если ресторан не найден.
+    :raises ValueError: Если передан неподходящий тип данных.
+    """
+    if not isinstance(identifier, (int, str)):
+        raise ValueError("Идентификатор должен быть (int) или (str).")
 
-    return {
-        "id": restaurant.id,
-        "title": restaurant.title,
-        "yandex_link": restaurant.yandex_link,
-        "twogis_link": restaurant.twogis_link,
-        "address": restaurant.address,
-        "tg_channal": restaurant.tg_channal,
-        "subscription": restaurant.subscription
-    }
+    if isinstance(identifier, int):
+        # Если передано число, ищем по id
+        restaurant = session.query(Restaurant).filter(
+            Restaurant.id == identifier
+        ).first()
+    else:
+        # Иначе ищем по yandex_link
+        restaurant = session.query(Restaurant).filter(
+            Restaurant.yandex_link == identifier
+        ).first()
 
-
-def read_some_id(rest_id):
-    """Получаем информацию о ресторане, учитывая id."""
-
-    restaurant = session.query(Restaurant).filter(
-        Restaurant.id == rest_id
-    ).first()
-
-    return {
-        "id": restaurant.id,
-        "title": restaurant.title,
-        "yandex_link": restaurant.yandex_link,
-        "twogis_link": restaurant.twogis_link,
-        "address": restaurant.address,
-        "tg_channal": restaurant.tg_channal,
-        "subscription": restaurant.subscription
-    }
+    if restaurant:
+        return {
+            "id": restaurant.id,
+            "title": restaurant.title,
+            "yandex_link": restaurant.yandex_link,
+            "twogis_link": restaurant.twogis_link,
+            "address": restaurant.address,
+            "tg_channal": restaurant.tg_channal,
+            "subscription": restaurant.subscription
+        }
+    else:
+        return None  # Если ресторан не найден
 
 
 def read_rest_ya_reviews(restaurant_id):
