@@ -41,7 +41,7 @@ def read_some_restaurant_data(org_url):
 
 
 def read_some_id(rest_id):
-    """Получаем информацию о ресторане, учитывая ссылку на сервис."""
+    """Получаем информацию о ресторане, учитывая id."""
 
     restaurant = session.query(Restaurant).filter(
         Restaurant.id == rest_id

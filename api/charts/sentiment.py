@@ -55,11 +55,14 @@ def sentiment_distribution():
         }
 
         for review in current_month_reviews:
-            if review.semantic == "П":  # Положительные отзывы
+            # Приводим к верхнему регистру и
+            # проверяем наличие нужной оценки в строке
+            semantic = review.semantic.upper()
+            if "П" in semantic:
                 sentiment_counts["positive"] += 1
-            elif review.semantic == "Н":  # Нейтральные отзывы
+            elif "Н" in semantic:
                 sentiment_counts["neutral"] += 1
-            elif review.semantic == "О":  # Отрицательные отзывы
+            elif "О" in semantic:
                 sentiment_counts["negative"] += 1
 
         # Формируем данные для графика
