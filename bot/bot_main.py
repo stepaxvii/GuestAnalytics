@@ -7,7 +7,8 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-from bot import handlers, periodically_tasks
+from bot import periodically_tasks
+from bot.handlers import start_router, yandex_router, data_edit_router
 
 load_dotenv()
 
@@ -21,7 +22,11 @@ async def main():
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
     dp = Dispatcher()
-    dp.include_router(handlers.router)
+    dp.include_routers(
+        data_edit_router,
+        start_router,
+        yandex_router
+    )
 
     # Запуск фоновой задачи для проверки новых отзывов
     periodic_task = asyncio.create_task(
