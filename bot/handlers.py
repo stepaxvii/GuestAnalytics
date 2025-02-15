@@ -66,7 +66,6 @@ async def get_yandex_link(callback_query: CallbackQuery):
 @router.callback_query(lambda c: c.data == 'check_new')
 async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
     """Обрабатываем запрос проверки новых отзывов"""
-
     user_id = callback_query.from_user.id
     if user_id == ADMIN_ID:
         await callback_query.message.answer(
@@ -81,9 +80,19 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
             rest_link = restaurant['yandex_link']
             rest_address = restaurant['address']
             rest_tg_channal = restaurant['tg_channal']
+            rest_subscription = restaurant['subscription']
             rest_reviews_link = rest_link + 'reviews'
 
-            # Получаем новые отзывы
+            # Проверяем активность подписки
+            if rest_subscription == 'f':
+                # Если подписка неактивна, отправляем сообщение продлении
+                await callback_query.message.answer(
+                    f"Подписка для ресторана {rest_title} неактивна. "
+                    "Необходимо продлить подписку для проверки отзывов."
+                )
+                continue  # Пропускаем проверку отзывов для этого ресторана
+
+            # Если подписка активна, продолжаем проверку отзывов
             new_reviews = matching_reviews(rest_link)
 
             # Проверяем, есть ли новые отзывы
