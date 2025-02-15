@@ -40,14 +40,6 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
             rest_reviews_link = rest_link + 'reviews'
 
             # # Проверяем активность подписки
-            # if rest_subscription is False:
-            #     # Если подписка неактивна, отправляем сообщение о продлении
-            #     await callback_query.message.answer(
-            #         f"Подписка для ресторана {rest_title} неактивна. "
-            #         "Необходимо продлить подписку для проверки отзывов."
-            #     )
-            #     continue  # Пропускаем проверку отзывов для этого ресторана
-            # Проверяем активность подписки
             if rest_subscription is False:
                 # Если подписка неактивна, отправляем сообщение в канал
                 await bot.send_message(

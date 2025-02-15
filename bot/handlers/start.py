@@ -24,6 +24,12 @@ async def command_start_handler(message: Message):
                         text='проверить новые отзывы',
                         callback_data='check_new'
                     )
+                ],
+                [
+                    InlineKeyboardButton(
+                        text='редактировать ресторан',
+                        callback_data='data_edit'
+                    )
                 ]
             ]
         )

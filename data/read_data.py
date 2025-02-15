@@ -28,12 +28,12 @@ def read_restaurant_data(rest_data):
     """
     Получаем информацию о ресторане по id или ссылке.
 
-    :param identifier: id (int) или ссылка (str) на ресторан.
+    :param rest_data: id (int) или ссылка (str) на ресторан.
     :return: Словарь с данными ресторана или None, если ресторан не найден.
     :raises ValueError: Если передан неподходящий тип данных.
     """
     if not isinstance(rest_data, (int, str)):
-        raise ValueError("Идентификатор должен быть (int) или (str).")
+        raise ValueError("Данные должны быть (int) или (str).")
 
     if isinstance(rest_data, int):
         # Если передано число, ищем по id

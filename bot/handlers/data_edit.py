@@ -36,7 +36,7 @@ async def handle_data_edit(message: Message):
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text=restaurant['title'],
+                        text=f"{restaurant['title']} {restaurant['address']}",
                         callback_data=f"data_edit_rest_{restaurant['id']}"
                     )
                 ] for restaurant in restaurants_list
@@ -63,19 +63,25 @@ async def edit_restaurant(callback_query: CallbackQuery, state: FSMContext):
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text="Изменить название",
+                        text="название",
                         callback_data="edit_title"
-                    ),
+                    )
+                ],
+                [
                     InlineKeyboardButton(
-                        text="Изменить адрес",
+                        text="адрес",
                         callback_data="edit_address"
-                    ),
+                    )
+                ],
+                [
                     InlineKeyboardButton(
-                        text="Изменить TG",
+                        text="TG-канал",
                         callback_data="edit_tg_channal"
-                    ),
+                    )
+                ],
+                [
                     InlineKeyboardButton(
-                        text="Удалить ресторан",
+                        text="удалить ресторан",
                         callback_data="restaurant_delete"
                     )
                 ]
