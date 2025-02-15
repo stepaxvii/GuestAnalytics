@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 router = Router()
 
-ADMIN_ID = getenv('ADMIN_ID')
+ADMIN_ID = int(getenv('ADMIN_ID'))
 
 
 @router.message(CommandStart())

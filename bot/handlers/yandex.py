@@ -16,7 +16,7 @@ load_dotenv()
 
 router = Router()
 
-ADMIN_ID = getenv('ADMIN_ID')
+ADMIN_ID = int(getenv('ADMIN_ID'))
 
 
 # @router.callback_query(lambda c: c.data == 'check_new')

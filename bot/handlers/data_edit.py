@@ -16,7 +16,7 @@ from data.read_data import read_all_restaurant_data
 load_dotenv()
 router = Router()
 
-ADMIN_ID = getenv('ADMIN_ID')
+ADMIN_ID = int(getenv('ADMIN_ID'))
 
 
 @router.message(Command('data_edit'))
