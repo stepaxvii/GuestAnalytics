@@ -19,15 +19,15 @@ ADMIN_ID = int(getenv('ADMIN_ID'))
 
 
 @router.callback_query(lambda c: c.data == 'data_edit')
-async def handle_data_edit(message: Message):
-    user_id = message.from_user.id
+async def handle_data_edit(callback_query: Message):
+    user_id = callback_query.from_user.id
     if user_id == ADMIN_ID:
         # Получаем все рестораны с помощью вашей функции
         restaurants_list = read_all_restaurant_data()
 
         # Проверяем, есть ли рестораны
         if not restaurants_list:
-            await message.answer("Нет доступных ресторанов для изменения.")
+            await callback_query.answer("Нет доступных ресторанов.")
             return
 
         # Генерируем клавиатуру с кнопками для каждого ресторана
@@ -43,7 +43,7 @@ async def handle_data_edit(message: Message):
         )
 
         # Отправляем сообщение с клавиатурой
-        await message.answer(
+        await callback_query.message.answer(
             "Выберите ресторан для редактирования:", reply_markup=keyboard
         )
 
