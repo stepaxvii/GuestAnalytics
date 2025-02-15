@@ -23,8 +23,8 @@ async def main():
     )
     dp = Dispatcher()
     dp.include_routers(
-        data_edit_router,
         start_router,
+        data_edit_router,
         yandex_router
     )
 
