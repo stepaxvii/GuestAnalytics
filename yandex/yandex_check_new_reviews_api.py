@@ -23,6 +23,7 @@ from constants import (
 from data.create_data import create_review
 from data.read_data import read_restaurant_data, read_rest_ya_reviews
 from semantic_analysis.simple_semantic import simple_semantic
+from utils.urls import process_url_yandex
 
 load_dotenv()
 
@@ -45,10 +46,14 @@ def ya_check_reviews(org_url):
     service = Service(DRIVER_PATH)
     driver = Firefox(service=service, options=options)
 
-    review_url = org_url + 'reviews'
+    driver.get(org_url)
+    sleep(2)
+    full_org_url = driver.current_url
+    logger.info(f"Полный URL компании: {full_org_url}")
+    org_url, reviews_url = process_url_yandex(full_org_url)
 
     # Переходим на страницу с отзывами
-    driver.get(review_url)
+    driver.get(reviews_url)
     sleep(4)
 
     try:
@@ -56,9 +61,7 @@ def ya_check_reviews(org_url):
         filter_button = WebDriverWait(driver, 30).until(
             EC.element_to_be_clickable((By.CLASS_NAME, SORTED_BLOCK))
         )
-        logging.info("Блок найден.")
         filter_button.click()
-        logging.info("Блок нажат.")
 
         # Ждем, пока появится элемент с опцией "По новизне" и кликаем по нему
         newest_filter = WebDriverWait(driver, 30).until(

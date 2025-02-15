@@ -5,7 +5,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import (
     Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 )
-from aiogram.filters import Command
 from dotenv import load_dotenv
 
 from api.db import session
@@ -19,7 +18,7 @@ router = Router()
 ADMIN_ID = int(getenv('ADMIN_ID'))
 
 
-@router.message(Command('data_edit'))
+@router.callback_query(lambda c: c.data == 'data_edit')
 async def handle_data_edit(message: Message):
     user_id = message.from_user.id
     if user_id == ADMIN_ID:
