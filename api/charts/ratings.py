@@ -12,12 +12,12 @@ ratings_distribution_bp = Blueprint('ratings_distribution', __name__)
 
 @ratings_distribution_bp.route('/ratings-distribution', methods=['GET'])
 def ratings_distribution():
-    user_id = request.args.get('user_id')
+    user_id = request.args.get('restaurant_id')
     if not user_id:
         return jsonify({
             "success": False,
             "data": None,
-            "message": "Не указан user_id"
+            "message": "Не указан restaurant_id"
         }), 400
 
     # Получаем текущую дату
