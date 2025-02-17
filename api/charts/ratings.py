@@ -12,8 +12,8 @@ ratings_distribution_bp = Blueprint('ratings_distribution', __name__)
 
 @ratings_distribution_bp.route('/ratings-distribution', methods=['GET'])
 def ratings_distribution():
-    user_id = request.args.get('restaurant_id')
-    if not user_id:
+    restaurant_id = request.args.get('restaurant_id')
+    if not restaurant_id:
         return jsonify({
             "success": False,
             "data": None,
@@ -27,7 +27,7 @@ def ratings_distribution():
     try:
         # Используем SQL-функцию to_date для преобразования строки в дату
         reviews = session.query(YandexReview).filter(
-            YandexReview.restaurant_id == user_id,
+            YandexReview.restaurant_id == restaurant_id,
             func.to_char(
                 func.to_date(YandexReview.created_at, 'YYYY-MM-DD'), 'YYYY-MM'
             ) == current_month
@@ -83,12 +83,12 @@ ratings_trend_bp = Blueprint('ratings_trend', __name__)
 
 @ratings_trend_bp.route('/ratings-trend', methods=['GET'])
 def ratings_trend():
-    user_id = request.args.get('user_id')
-    if not user_id:
+    restaurant_id = request.args.get('restaurant_id')
+    if not restaurant_id:
         return jsonify({
             "success": False,
             "data": None,
-            "message": "Не указан user_id"
+            "message": "Не указан restaurant_id"
         }), 400
 
     # Получаем текущую дату
@@ -107,9 +107,9 @@ def ratings_trend():
     }
 
     try:
-        # Пример запроса для получения отзывов по restaurant_id (user_id)
+        # Пример запроса для получения отзывов по restaurant_id
         reviews = session.query(YandexReview).filter(
-            YandexReview.restaurant_id == user_id
+            YandexReview.restaurant_id == restaurant_id
         ).all()
 
         # Перебираем все отзывы и считаем количество по месяцам

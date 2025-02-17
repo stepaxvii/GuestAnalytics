@@ -11,18 +11,18 @@ trend_reviews_bp = Blueprint('trend_reviews', __name__)
 
 @trend_reviews_bp.route('/trend-reviews', methods=['GET'])
 def trend_reviews():
-    # Получаем user_id, который совпадает с restaurant_id
-    user_id = request.args.get('user_id')
-    if not user_id:
+    # Получаем restaurant_id
+    restaurant_id = request.args.get('restaurant_id')
+    if not restaurant_id:
         return jsonify({
             "success": False,
             "data": None,
-            "message": "Не указан user_id"
+            "message": "Не указан restaurant_id"
         }), 400
 
-    # Пример запроса, чтобы получить отзывы по restaurant_id (user_id)
+    # Пример запроса, чтобы получить отзывы по restaurant_id
     reviews = session.query(YandexReview).filter(
-        YandexReview.restaurant_id == user_id
+        YandexReview.restaurant_id == restaurant_id
     ).all()
 
     # Если нет отзывов, возвращаем пустой ответ
@@ -87,14 +87,14 @@ total_reviews_bp = Blueprint('total_reviews', __name__)
 
 @total_reviews_bp.route('/total-reviews', methods=['GET'])
 def total_reviews():
-    user_id = request.args.get('user_id')
+    restaurant_id = request.args.get('restaurant_id')
 
-    # Проверка, что user_id был передан
-    if not user_id:
+    # Проверка, что restaurant_id был передан
+    if not restaurant_id:
         return jsonify({
             "success": False,
             "data": None,
-            "message": "Не указан user_id"
+            "message": "Не указан restaurant_id"
         }), 400
 
     # Получаем текущую дату
@@ -107,9 +107,9 @@ def total_reviews():
     prev_month_date = current_date - relativedelta(months=1)
     prev_month = prev_month_date.strftime("%Y-%m")
 
-    # Пример запроса, чтобы получить отзывы по restaurant_id (user_id)
+    # Пример запроса, чтобы получить отзывы по restaurant_id
     reviews = session.query(YandexReview).filter(
-        YandexReview.restaurant_id == user_id
+        YandexReview.restaurant_id == restaurant_id
     ).all()
 
     # Если нет отзывов, возвращаем пустой ответ
@@ -122,13 +122,13 @@ def total_reviews():
 
     # Подсчитываем количество отзывов для текущего месяца
     total_reviews_this_month = session.query(YandexReview).filter(
-        YandexReview.restaurant_id == user_id,
+        YandexReview.restaurant_id == restaurant_id,
         YandexReview.created_at.like(f"{current_month}%")
     ).count()
 
     # Подсчитываем количество отзывов для предыдущего месяца
     total_reviews_prev_month = session.query(YandexReview).filter(
-        YandexReview.restaurant_id == user_id,
+        YandexReview.restaurant_id == restaurant_id,
         YandexReview.created_at.like(f"{prev_month}%")
     ).count()
 

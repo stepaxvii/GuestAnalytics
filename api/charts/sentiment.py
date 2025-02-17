@@ -14,22 +14,24 @@ sentiment_distribution_bp = Blueprint('sentiment_distribution', __name__)
 
 @sentiment_distribution_bp.route('/sentiment-distribution', methods=['GET'])
 def sentiment_distribution():
-    user_id = request.args.get('user_id')
-    if not user_id:
-        logging.error('Не указан user_id')
+    restaurant_id = request.args.get('restaurant_id')
+    if not restaurant_id:
+        logging.error('Не указан restaurant_id')
         return jsonify({
             "success": False,
             "data": None,
-            "message": "Не указан user_id"
+            "message": "Не указан restaurant_id"
         }), 400
 
     try:
         # Получаем все отзывы для данного ресторана
-        reviews = read_rest_ya_reviews(restaurant_id=user_id)
+        reviews = read_rest_ya_reviews(restaurant_id=restaurant_id)
 
         # Если нет отзывов, возвращаем пустой ответ
         if not reviews:
-            logging.warning(f"Отзывы не найдены для user_id {user_id}")
+            logging.warning(
+                f"Отзывы не найдены для restaurant_id {restaurant_id}"
+            )
             return jsonify({
                 "success": False,
                 "data": None,
@@ -75,7 +77,7 @@ def sentiment_distribution():
             ]
         }
 
-        logging.info(f"Данные для user_id {user_id} получены")
+        logging.info(f"Данные для restaurant_id {restaurant_id} получены")
         return jsonify({
             "success": True,
             "data": data,
@@ -95,22 +97,24 @@ sentiment_trend_bp = Blueprint('sentiment_trend', __name__)
 
 @sentiment_trend_bp.route('/sentiment-trend', methods=['GET'])
 def sentiment_trend():
-    user_id = request.args.get('user_id')
-    if not user_id:
-        logging.error('Не указан user_id')
+    restaurant_id = request.args.get('restaurant_id')
+    if not restaurant_id:
+        logging.error('Не указан restaurant_id')
         return jsonify({
             "success": False,
             "data": None,
-            "message": "Не указан user_id"
+            "message": "Не указан restaurant_id"
         }), 400
 
     try:
-        # Пример запроса, чтобы получить отзывы по restaurant_id (user_id)
-        reviews = read_rest_ya_reviews(restaurant_id=user_id)
+        # Пример запроса, чтобы получить отзывы по restaurant_id
+        reviews = read_rest_ya_reviews(restaurant_id=restaurant_id)
 
         # Если нет отзывов, возвращаем пустой ответ
         if not reviews:
-            logging.warning(f"Отзывы не найдены для user_id {user_id}")
+            logging.warning(
+                f"Отзывы не найдены для restaurant_id {restaurant_id}"
+            )
             return jsonify({
                 "success": False,
                 "data": None,
@@ -182,7 +186,7 @@ def sentiment_trend():
             ]
         }
 
-        logging.info(f"Данные для user_id {user_id} получены")
+        logging.info(f"Данные для restaurant_id {restaurant_id} получены")
         return jsonify({
             "success": True,
             "data": data,
