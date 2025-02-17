@@ -61,8 +61,8 @@ def scroll_to_bottom(driver, elem, prev_reviews_count):
     return True  # Возвращаем True, что значит, что новых отзывов нет
 
 
-def ya_prim_coll(original_url, rest_id):
-    logger.info(f"Начинаем сбор данных с URL: {original_url}")
+def ya_prim_coll(reviews_url, rest_id):
+    logger.info(f"Начинаем сбор отзывов с URL: {reviews_url}")
 
     options = FirefoxOptions()
     options.add_argument('--headless')
@@ -78,13 +78,6 @@ def ya_prim_coll(original_url, rest_id):
         logger.error(f"Ошибка при запуске WebDriver: {e}")
         return
 
-    driver.get(original_url)
-    sleep(2)
-    full_org_url = driver.current_url
-    logger.info(f"Полный URL компании: {full_org_url}")
-    org_url, reviews_url = process_url_yandex(full_org_url)
-
-    logger.info(f"Переходим на страницу с отзывами: {reviews_url}")
     driver.get(reviews_url)
     sleep(5)
 

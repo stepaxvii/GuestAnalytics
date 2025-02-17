@@ -91,9 +91,9 @@ def process_restaurant_creation(restaurant_data):
     tg_id = restaurant_data["telegram_id"]
 
     # Приводим yandex_link к необходимому виду
-    if check_full_url_yandex(rest_link):
-        org_url, reviews_url = process_url_yandex(rest_link)
-        rest_link = org_url  # Сохраняем только оригинальную ссылку
+    rest_link = check_full_url_yandex(rest_link)
+    org_url, reviews_url = process_url_yandex(rest_link)
+    rest_link = org_url
 
     # Создаем новый ресторан в базе данных
     try:
@@ -109,7 +109,7 @@ def process_restaurant_creation(restaurant_data):
         session.commit()
 
         # Запускаем функцию в отдельном потоке для работы с yandex_link
-        thread = Thread(target=run_yandex_check, args=(rest_link, rest_id))
+        thread = Thread(target=run_yandex_check, args=(reviews_url, rest_id))
         thread.start()
 
     except IntegrityError as e:
@@ -121,9 +121,9 @@ def process_restaurant_creation(restaurant_data):
 
 
 # Функция для выполнения долгой задачи в фоне
-def run_yandex_check(yandex_link, restaurant_id):
+def run_yandex_check(reviews_url, restaurant_id):
     try:
-        ya_prim_coll(original_url=yandex_link, rest_id=restaurant_id)
+        ya_prim_coll(reviews_url=reviews_url, rest_id=restaurant_id)
     except Exception as e:
         logging.error(f"Error occurred while calling ya_prim_coll: {e}")
 
