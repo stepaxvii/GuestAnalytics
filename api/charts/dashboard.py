@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.DEBUG)
 dashboard_bp = Blueprint('dashboard', __name__)
 
 
-@dashboard_bp.route('/dashboard', method='GET')
+@dashboard_bp.route('/dashboard', methods='GET')
 def dashboard():
     restaurant_id = request.args.get('restaurant_id')
     if not restaurant_id:
