@@ -2,6 +2,7 @@ import logging
 
 from flask import Flask
 from api.charts import (
+    dashboard,
     ratings,
     reviews,
     sentiment
@@ -23,6 +24,7 @@ app = Flask(__name__)
 create_tables()
 
 # Регистрируем Blueprint для каждого API
+app.register_blueprint(dashboard.dashboard_bp, url_prifix='/api')
 app.register_blueprint(reviews.total_reviews_bp, url_prefix='/api')
 app.register_blueprint(reviews.trend_reviews_bp, url_prefix='/api')
 app.register_blueprint(ratings.ratings_distribution_bp, url_prefix='/api')

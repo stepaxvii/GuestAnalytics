@@ -110,9 +110,11 @@ def calculate_satisfaction_level(restaurant_id):
 
 
 def calculate_satisfaction_level_for_month(restaurant_id, year, month):
-    """Рассчитываем уровень удовлетворенности для ресторана за конкретный месяц."""
+    """Рассчитываем уровень удовлетворенности для ресторана за месяц."""
     start_date = datetime(year, month, 1)
-    end_date = datetime(year, month + 1, 1) if month < 12 else datetime(year + 1, 1, 1)
+    end_date = datetime(
+        year, month + 1, 1
+    ) if month < 12 else datetime(year + 1, 1, 1)
 
     total_reviews = session.query(YandexReview).filter(
         YandexReview.restaurant_id == restaurant_id,

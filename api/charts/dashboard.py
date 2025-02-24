@@ -15,7 +15,6 @@ from utils.dashboard import (
     calculate_satisfaction_level_for_month,
     count_rest_ya_reviews
 )
-from utils.date import month_dict
 
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
