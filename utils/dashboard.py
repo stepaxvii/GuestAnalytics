@@ -2,7 +2,6 @@ from datetime import datetime
 from sqlalchemy import func
 from api.db import session
 from data.data_main import YandexReview
-from dateutil.relativedelta import relativedelta
 
 
 def count_rest_ya_reviews(restaurant_id):
@@ -51,15 +50,14 @@ def calculate_nps(restaurant_id):
 def calculate_nps_for_month(restaurant_id, year, month):
     """Рассчитываем NPS для ресторана за конкретный месяц."""
     start_date = datetime(year, month, 1)
-    # Для обработки месяца с учетом дней в месяце
     end_date = datetime(
         year, month + 1, 1
     ) if month < 12 else datetime(year + 1, 1, 1)
 
     total_reviews = session.query(YandexReview).filter(
         YandexReview.restaurant_id == restaurant_id,
-        func.cast(YandexReview.created_at, func.TIMESTAMP) >= start_date,
-        func.cast(YandexReview.created_at, func.TIMESTAMP) < end_date
+        func.str_to_date(YandexReview.created_at, '%Y-%m-%d') >= start_date,
+        func.str_to_date(YandexReview.created_at, '%Y-%m-%d') < end_date
     ).count()
 
     if total_reviews == 0:
@@ -69,16 +67,16 @@ def calculate_nps_for_month(restaurant_id, year, month):
     promoters_count = session.query(YandexReview).filter(
         YandexReview.restaurant_id == restaurant_id,
         YandexReview.rating == 5,
-        func.cast(YandexReview.created_at, func.TIMESTAMP) >= start_date,
-        func.cast(YandexReview.created_at, func.TIMESTAMP) < end_date
+        func.str_to_date(YandexReview.created_at, '%Y-%m-%d') >= start_date,
+        func.str_to_date(YandexReview.created_at, '%Y-%m-%d') < end_date
     ).count()
 
     # Количество Detractors (1, 2, или 3 звезды)
     detractors_count = session.query(YandexReview).filter(
         YandexReview.restaurant_id == restaurant_id,
         YandexReview.rating.in_([1, 2, 3]),
-        func.cast(YandexReview.created_at, func.TIMESTAMP) >= start_date,
-        func.cast(YandexReview.created_at, func.TIMESTAMP) < end_date
+        func.str_to_date(YandexReview.created_at, '%Y-%m-%d') >= start_date,
+        func.str_to_date(YandexReview.created_at, '%Y-%m-%d') < end_date
     ).count()
 
     # Рассчитываем проценты
@@ -117,8 +115,8 @@ def calculate_satisfaction_level_for_month(restaurant_id, year, month):
 
     total_reviews = session.query(YandexReview).filter(
         YandexReview.restaurant_id == restaurant_id,
-        func.cast(YandexReview.created_at, func.TIMESTAMP) >= start_date,
-        func.cast(YandexReview.created_at, func.TIMESTAMP) < end_date
+        func.str_to_date(YandexReview.created_at, '%Y-%m-%d') >= start_date,
+        func.str_to_date(YandexReview.created_at, '%Y-%m-%d') < end_date
     ).count()
 
     if total_reviews == 0:
@@ -127,8 +125,8 @@ def calculate_satisfaction_level_for_month(restaurant_id, year, month):
     positive_reviews_count = session.query(YandexReview).filter(
         YandexReview.restaurant_id == restaurant_id,
         YandexReview.semantic.ilike("п"),
-        func.cast(YandexReview.created_at, func.TIMESTAMP) >= start_date,
-        func.cast(YandexReview.created_at, func.TIMESTAMP) < end_date
+        func.str_to_date(YandexReview.created_at, '%Y-%m-%d') >= start_date,
+        func.str_to_date(YandexReview.created_at, '%Y-%m-%d') < end_date
     ).count()
 
     # Рассчитываем процент положительных отзывов
