@@ -6,7 +6,6 @@ from sqlalchemy.ext.declarative import declarative_base
 
 load_dotenv()
 
-# Строка подключения
 DATA_URL = (
     f"postgresql://{getenv('DB_USER')}:{getenv('DB_PASSWORD')}@"
     f"{getenv('DB_HOST')}:{getenv('DB_PORT')}/{getenv('DB_NAME')}"
