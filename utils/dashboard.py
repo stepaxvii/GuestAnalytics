@@ -12,7 +12,7 @@ def count_rest_ya_reviews(restaurant_id):
             YandexReview.restaurant_id == restaurant_id
         ).count()
     except Exception as e:
-        session.rollback()  # Откат при ошибке
+        session.rollback()
         raise e
 
 
@@ -23,7 +23,7 @@ def avg_rest_ya_rating(restaurant_id):
             YandexReview.restaurant_id == restaurant_id
         ).scalar()
     except Exception as e:
-        session.rollback()  # Откат при ошибке
+        session.rollback()
         raise e
 
 
@@ -39,7 +39,8 @@ def calculate_nps(restaurant_id):
 
         # Количество Promoters (5 звезд)
         promoters_count = session.query(YandexReview).filter(
-            YandexReview.restaurant_id == restaurant_id, YandexReview.rating == 5
+            YandexReview.restaurant_id == restaurant_id,
+            YandexReview.rating == 5
         ).count()
 
         # Количество Detractors (1, 2, или 3 звезды)
@@ -56,7 +57,7 @@ def calculate_nps(restaurant_id):
         nps = promoters_percent - detractors_percent
         return nps
     except Exception as e:
-        session.rollback()  # Откат при ошибке
+        session.rollback()
         raise e
 
 
@@ -64,7 +65,9 @@ def calculate_nps_for_month(restaurant_id, year, month):
     """Рассчитываем NPS для ресторана за конкретный месяц."""
     try:
         start_date = datetime(year, month, 1)
-        end_date = datetime(year, month + 1, 1) if month < 12 else datetime(year + 1, 1, 1)
+        end_date = datetime(
+            year, month + 1, 1
+        ) if month < 12 else datetime(year + 1, 1, 1)
 
         total_reviews = session.query(YandexReview).filter(
             YandexReview.restaurant_id == restaurant_id,
@@ -99,7 +102,7 @@ def calculate_nps_for_month(restaurant_id, year, month):
         nps = promoters_percent - detractors_percent
         return nps
     except Exception as e:
-        session.rollback()  # Откат при ошибке
+        session.rollback()
         raise e
 
 
@@ -121,7 +124,7 @@ def calculate_satisfaction_level(restaurant_id):
         satisfaction_level = (positive_reviews_count / total_reviews) * 100
         return satisfaction_level
     except Exception as e:
-        session.rollback()  # Откат при ошибке
+        session.rollback()
         raise e
 
 
@@ -129,7 +132,9 @@ def calculate_satisfaction_level_for_month(restaurant_id, year, month):
     """Рассчитываем уровень удовлетворенности для ресторана за месяц."""
     try:
         start_date = datetime(year, month, 1)
-        end_date = datetime(year, month + 1, 1) if month < 12 else datetime(year + 1, 1, 1)
+        end_date = datetime(
+            year, month + 1, 1
+        ) if month < 12 else datetime(year + 1, 1, 1)
 
         total_reviews = session.query(YandexReview).filter(
             YandexReview.restaurant_id == restaurant_id,
@@ -151,5 +156,5 @@ def calculate_satisfaction_level_for_month(restaurant_id, year, month):
         satisfaction_level = (positive_reviews_count / total_reviews) * 100
         return satisfaction_level
     except Exception as e:
-        session.rollback()  # Откат при ошибке
+        session.rollback()
         raise e

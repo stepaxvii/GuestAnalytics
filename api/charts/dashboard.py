@@ -16,12 +16,12 @@ from utils.dashboard import (
     calculate_satisfaction_level_for_month,
     count_rest_ya_reviews
 )
+from utils.date import month_dict
 
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
 
 dashboard_bp = Blueprint('dashboard', __name__)
-
 
 
 @dashboard_bp.route('/dashboard', methods=['GET'])
@@ -78,41 +78,48 @@ def dashboard():
         today = datetime.today()
         for i in range(12):  # За последние 12 месяцев
             month_start = today - relativedelta(months=i)
-            labels.append(month_start.strftime("%b %Y"))
 
-            # Получаем количество отзывов за месяц с учетом приведения строки в дату
+            # Используем словарь для перевода месяца в русский формат
+            month_str = month_start.strftime("%m")
+            labels.insert(0, f"{month_dict[month_str]} {month_start.year}")
+
+            # Получаем количество отзывов за месяц
             reviews_in_month = session.query(YandexReview).filter(
                 YandexReview.restaurant_id == restaurant_id,
-                func.cast(YandexReview.created_at, DATE) >= month_start.replace(day=1),
+                func.cast(
+                    YandexReview.created_at, DATE
+                ) >= month_start.replace(day=1),
                 func.cast(YandexReview.created_at, DATE) < (
                     month_start + relativedelta(months=1)
                 ).replace(day=1)
             ).count()
-            trend_reviews_data.append(reviews_in_month)
+            trend_reviews_data.insert(0, reviews_in_month)
 
             # Средний рейтинг за месяц
             avg_rating_month = session.query(
-                func.avg(YandexReview.rating)
+                func.round(func.avg(YandexReview.rating), 1)
             ).filter(
                 YandexReview.restaurant_id == restaurant_id,
-                func.cast(YandexReview.created_at, DATE) >= month_start.replace(day=1),
+                func.cast(
+                    YandexReview.created_at, DATE
+                ) >= month_start.replace(day=1),
                 func.cast(YandexReview.created_at, DATE) < (
                     month_start + relativedelta(months=1)
                 ).replace(day=1)
             ).scalar() or 0
-            trend_rating_data.append(avg_rating_month)
+            trend_rating_data.insert(0, avg_rating_month)
 
             # NPS за месяц
             nps_month = calculate_nps_for_month(
                 restaurant_id, month_start.year, month_start.month
             )
-            trend_nps_data.append(nps_month)
+            trend_nps_data.insert(0, nps_month)
 
             # Уровень удовлетворенности за месяц
             satisfaction_month = calculate_satisfaction_level_for_month(
                 restaurant_id, month_start.year, month_start.month
             )
-            trend_sentiment_data.append(satisfaction_month)
+            trend_sentiment_data.insert(0, satisfaction_month)
 
         return jsonify({
             "success": True,
