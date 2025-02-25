@@ -4,6 +4,7 @@ from dateutil.relativedelta import relativedelta
 
 from flask import Blueprint, jsonify, request
 from sqlalchemy import func
+from sqlalchemy.types import Date as DATE
 from api.db import session
 from data.data_main import YandexReview
 from data.read_data import read_rest_ya_reviews
@@ -20,6 +21,7 @@ from utils.dashboard import (
 logging.basicConfig(level=logging.DEBUG)
 
 dashboard_bp = Blueprint('dashboard', __name__)
+
 
 
 @dashboard_bp.route('/dashboard', methods=['GET'])
@@ -78,11 +80,11 @@ def dashboard():
             month_start = today - relativedelta(months=i)
             labels.append(month_start.strftime("%b %Y"))
 
-            # Получаем количество отзывов за месяц
+            # Получаем количество отзывов за месяц с учетом приведения строки в дату
             reviews_in_month = session.query(YandexReview).filter(
                 YandexReview.restaurant_id == restaurant_id,
-                YandexReview.created_at >= month_start.replace(day=1),
-                YandexReview.created_at < (
+                func.cast(YandexReview.created_at, DATE) >= month_start.replace(day=1),
+                func.cast(YandexReview.created_at, DATE) < (
                     month_start + relativedelta(months=1)
                 ).replace(day=1)
             ).count()
@@ -93,8 +95,8 @@ def dashboard():
                 func.avg(YandexReview.rating)
             ).filter(
                 YandexReview.restaurant_id == restaurant_id,
-                YandexReview.created_at >= month_start.replace(day=1),
-                YandexReview.created_at < (
+                func.cast(YandexReview.created_at, DATE) >= month_start.replace(day=1),
+                func.cast(YandexReview.created_at, DATE) < (
                     month_start + relativedelta(months=1)
                 ).replace(day=1)
             ).scalar() or 0
@@ -143,6 +145,7 @@ def dashboard():
 
     except Exception as e:
         logging.error(f"Ошибка при обработке запроса: {e}")
+        session.rollback()
         return jsonify({
             "success": False,
             "data": None,
