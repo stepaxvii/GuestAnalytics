@@ -54,7 +54,7 @@ def calculate_nps(restaurant_id):
         detractors_percent = (detractors_count / total_reviews) * 100
 
         # NPS = Promoters - Detractors
-        nps = promoters_percent - detractors_percent
+        nps = round(promoters_percent - detractors_percent, 1)
         return nps
     except Exception as e:
         session.rollback()
@@ -95,11 +95,11 @@ def calculate_nps_for_month(restaurant_id, year, month):
         ).count()
 
         # Рассчитываем проценты
-        promoters_percent = (promoters_count / total_reviews) * 100
-        detractors_percent = (detractors_count / total_reviews) * 100
+        promoters_percent = round((promoters_count / total_reviews) * 100, 1)
+        detractors_percent = round((detractors_count / total_reviews) * 100, 1)
 
         # NPS = Promoters - Detractors
-        nps = promoters_percent - detractors_percent
+        nps = round(promoters_percent - detractors_percent, 1)
         return nps
     except Exception as e:
         session.rollback()
@@ -153,7 +153,9 @@ def calculate_satisfaction_level_for_month(restaurant_id, year, month):
         ).count()
 
         # Рассчитываем процент положительных отзывов
-        satisfaction_level = (positive_reviews_count / total_reviews) * 100
+        satisfaction_level = round(
+            (positive_reviews_count / total_reviews) * 100, 1
+        )
         return satisfaction_level
     except Exception as e:
         session.rollback()
