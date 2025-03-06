@@ -127,7 +127,7 @@ def ya_prim_coll(original_url):
 
     if org_name:
         restaurant_data = (
-            1,
+            2,
             org_name,
             org_url,
             full_address,
