@@ -13,17 +13,6 @@ services:
       timeout: 5s
       retries: 5
 
-  migrations:
-    image: stepaxvii/flask_app:latest
-    container_name: flask_migrations
-    env_file:
-      - .env
-    depends_on:
-      - db
-    command: alembic upgrade head
-    networks:
-      - backend
-
   flask:
     image: stepaxvii/flask_app:latest
     container_name: flask_app
@@ -32,7 +21,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - migrations
+      - db
     restart: unless-stopped
     networks:
       - backend
@@ -43,13 +32,13 @@ services:
     env_file:
       - .env
     depends_on:
-      - migrations
+      - db
     restart: unless-stopped
     networks:
       - backend
 
 volumes:
-  pg_data:
+  postgres_data:
 
 networks:
   backend:
