@@ -28,6 +28,11 @@ async def test_insigth(callback_query: CallbackQuery, bot: Bot):
         # Формируем список текстов отзывов
         reviews = [review.content for review in reviews_data]
 
-        await callback_query.message.answer(
-            text='\n'.join(reviews)
-        )
+        if reviews:  # Проверяем, что список не пуст
+            await callback_query.message.answer(
+                text='\n'.join(reviews)
+            )
+        else:
+            await callback_query.message.answer(
+                text='Отзывов за указанный период не найдено.'
+            )
