@@ -57,7 +57,7 @@ def read_restaurant_data(rest_data):
             "subscription": restaurant.subscription
         }
     else:
-        return None  # Если ресторан не найден
+        return None
 
 
 def read_rest_ya_reviews(restaurant_id):
@@ -65,4 +65,12 @@ def read_rest_ya_reviews(restaurant_id):
 
     return session.query(YandexReview).filter(
         YandexReview.restaurant_id == restaurant_id
+    ).all()
+
+
+def read_rest_ya_reviews_date(restaurant_id, date_filter):
+    """Получаем отзывы с Яндекса определённого ресторана, фильтруя по дате."""
+    return session.query(YandexReview).filter(
+        YandexReview.restaurant_id == restaurant_id,
+        YandexReview.created_at.startswith(date_filter)
     ).all()

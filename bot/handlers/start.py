@@ -30,6 +30,12 @@ async def command_start_handler(message: Message):
                         text='редактировать ресторан',
                         callback_data='data_edit'
                     )
+                ],
+                [
+                    InlineKeyboardButton(
+                        text='test insitgh',
+                        callback_data='test_insigth'
+                    )
                 ]
             ]
         )

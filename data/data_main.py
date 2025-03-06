@@ -32,6 +32,11 @@ class Restaurant(Base):
         back_populates="restaurant",
         cascade="all, delete-orphan"
     )
+    insights = relationship(
+        "RestaurantInsight",
+        back_populates="restaurant",
+        cascade="all, delete-orphan"
+    )
 
 
 class YandexReview(Base):
@@ -70,3 +75,18 @@ class TwogisReview(Base):
     semantic = Column(String(255))
 
     restaurant = relationship("Restaurant", back_populates="twogis_reviews")
+
+
+class RestaurantInsight(Base):
+    """Модель инсайта ресторана."""
+    __tablename__ = "restaurant_insights"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    restaurant_id = Column(
+        Integer,
+        ForeignKey("restaurants.id", ondelete="CASCADE"),
+        nullable=False
+    )
+    period = Column(String(7), nullable=False)
+    insight = Column(Text, nullable=False)
+
+    restaurant = relationship("Restaurant", back_populates="insights")

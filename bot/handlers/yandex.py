@@ -22,6 +22,7 @@ ADMIN_ID = int(getenv('ADMIN_ID'))
 @router.callback_query(lambda c: c.data == 'check_new')
 async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
     """Обрабатываем запрос проверки новых отзывов"""
+
     user_id = callback_query.from_user.id
     if user_id == ADMIN_ID:
         await callback_query.message.answer(
@@ -164,5 +165,5 @@ async def validate_link(message: Message):
         # Если анализ прошел успешно
         await message.answer(
             'Анализ завершён.\n'
-            f'Проанализировано отзывов: {total_count}. '
+            f'Проанализировано отзывов: {total_count}.'
         )
