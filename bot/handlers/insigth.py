@@ -1,16 +1,10 @@
-import asyncio
 from os import getenv
 
 from aiogram import Router, Bot
-from aiogram.types import (
-    CallbackQuery, Message, InlineKeyboardMarkup, InlineKeyboardButton
-)
+from aiogram.types import CallbackQuery
 from dotenv import load_dotenv
 
 from data.read_data import read_rest_ya_reviews_date
-from utils.message_text import get_star_rating
-from yandex.yandex_primary_collection import ya_prim_coll
-from yandex.yandex_check_new_reviews_api import matching_reviews
 
 load_dotenv()
 

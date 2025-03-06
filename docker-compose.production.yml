@@ -14,10 +14,12 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -h $DB_HOST -U $DB_USER -d $DB_NAME" ]
+      test: [ "CMD-SHELL", "pg_isready -U stepa -d GA" ]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - backend
 
   flask:
     image: stepaxvii/flask_app:latest
@@ -27,7 +29,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - backend
@@ -38,7 +41,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - backend

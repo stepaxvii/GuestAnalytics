@@ -8,7 +8,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from bot import periodically_tasks
-from bot.handlers import start, yandex, data_edit
+from bot.handlers import start, yandex, data_edit, insigth
 
 load_dotenv()
 
@@ -25,7 +25,8 @@ async def main():
     dp.include_routers(
         start.router,
         yandex.router,
-        data_edit.router
+        data_edit.router,
+        insigth.router
     )
 
     # Запуск фоновой задачи для проверки новых отзывов
