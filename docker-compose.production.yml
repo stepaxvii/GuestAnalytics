@@ -9,6 +9,8 @@ services:
       POSTGRES_USER: stepa
       POSTGRES_PASSWORD: stepaxvii
       POSTGRES_DB: GA
+    ports:
+      - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
