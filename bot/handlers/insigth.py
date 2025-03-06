@@ -22,7 +22,8 @@ async def test_insigth(callback_query: CallbackQuery, bot: Bot):
         await callback_query.message.answer(
             text='Тесирую месячный инсайт для ресторана с id 1.'
         )
-        period = '2025-02'
+        period = '2022'
+        print(period)
         # Извлекаем отзывы за прошедший месяц
         reviews_data = read_rest_ya_reviews_date(1, period)
         print(reviews_data)
