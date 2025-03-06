@@ -35,7 +35,7 @@ def month_insight(reviews_block):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=300,
+        max_tokens=1000,
         temperature=0.7
     )
 

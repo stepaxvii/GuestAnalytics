@@ -83,7 +83,7 @@ def create_review(data):
         session.close()
 
 
-def create_insitgh(data):
+def create_insight(data):
     """Создание ежемесячного инсайта."""
 
     resturant_id, period, insigth = data
