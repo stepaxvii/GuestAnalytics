@@ -1,4 +1,3 @@
-import logging
 from os import getenv
 
 from aiogram import Router, Bot
@@ -24,11 +23,10 @@ async def test_insigth(callback_query: CallbackQuery, bot: Bot):
         await callback_query.message.answer(
             text='Тесирую месячный инсайт для ресторана с id 1.'
         )
+
         period = '2022'
-        print(period)
         # Извлекаем отзывы за прошедший месяц
         reviews_data = read_rest_ya_reviews_date(1, period)
-        print(reviews_data)
         # Формируем список текстов отзывов
         reviews = [review.content for review in reviews_data]
 
@@ -41,8 +39,6 @@ async def test_insigth(callback_query: CallbackQuery, bot: Bot):
                 text='Отзывов за указанный период не найдено.'
             )
         insigth = month_insight(reviews_block=reviews)
-        print(insigth)
-        logging.info(insigth)
         await callback_query.message.answer(
             text=insigth
         )
