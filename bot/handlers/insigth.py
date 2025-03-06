@@ -29,5 +29,5 @@ async def test_insigth(callback_query: CallbackQuery, bot: Bot):
         reviews = [review.content for review in reviews_data]
 
         await callback_query.message.answer(
-            text=reviews
+            text='\n'.join(reviews)
         )
