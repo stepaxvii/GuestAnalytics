@@ -5,6 +5,7 @@ from aiogram.types import CallbackQuery
 from dotenv import load_dotenv
 
 from data.read_data import read_rest_ya_reviews_date
+from semantic_analysis.month_insight import month_insight
 
 load_dotenv()
 
@@ -38,3 +39,8 @@ async def test_insigth(callback_query: CallbackQuery, bot: Bot):
             await callback_query.message.answer(
                 text='Отзывов за указанный период не найдено.'
             )
+        insigth = month_insight(reviews_block=reviews)
+        print(insigth)
+        await callback_query.message.answer(
+            text=insigth
+        )
