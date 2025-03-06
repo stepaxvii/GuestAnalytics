@@ -1,3 +1,4 @@
+import logging
 from os import getenv
 
 from aiogram import Router, Bot
@@ -41,6 +42,7 @@ async def test_insigth(callback_query: CallbackQuery, bot: Bot):
             )
         insigth = month_insight(reviews_block=reviews)
         print(insigth)
+        logging.info(insigth)
         await callback_query.message.answer(
             text=insigth
         )
