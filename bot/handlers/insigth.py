@@ -25,6 +25,7 @@ async def test_insigth(callback_query: CallbackQuery, bot: Bot):
         period = '2025-02'
         # Извлекаем отзывы за прошедший месяц
         reviews_data = read_rest_ya_reviews_date(1, period)
+        print(reviews_data)
         # Формируем список текстов отзывов
         reviews = [review.content for review in reviews_data]
 
