@@ -22,7 +22,7 @@ async def test_insigth(callback_query: CallbackQuery, bot: Bot):
     user_id = callback_query.from_user.id
     if user_id == ADMIN_ID:
         await callback_query.message.answer(
-            text='Тесирую месячный инсайт для ресторана с id 1.'
+            text='Тесирую месячный инсайт для ресторана с id 2.'
         )
 
         period = '2025-02'
@@ -30,10 +30,12 @@ async def test_insigth(callback_query: CallbackQuery, bot: Bot):
         reviews_data = read_rest_ya_reviews_date(2, period)
         # Формируем список текстов отзывов
         reviews = [review.content for review in reviews_data]
+        count_reviews = len(reviews)
 
-        if reviews:  # Проверяем, что список не пуст
+        if reviews:
             await callback_query.message.answer(
-                text='\n'.join(reviews)
+                text="Отправляю на анализ для выявления инсайтов отзывы.\n"
+                f"Всего отзывов {count_reviews}"
             )
         else:
             await callback_query.message.answer(
