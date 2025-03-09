@@ -119,7 +119,7 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
 
 
 @router.message(
-        lambda message: message.text.startswith('https://yandex.ru/maps/')
+    lambda message: message.text and message.text.startswith('https://yandex.ru/maps/')
 )
 async def validate_link(message: Message):
     """Проверка ссылки на валидность и возврат готовой ссылки."""
@@ -147,12 +147,12 @@ async def validate_link(message: Message):
             )
             # Повторная отправка кнопки для новой ссылки
             keyboard = InlineKeyboardMarkup(
-                inline_keyboard=[
-                    [InlineKeyboardButton(
+                inline_keyboard=[[
+                    InlineKeyboardButton(
                         text='Попробовать снова',
                         url='https://yandex.ru/maps/org'
-                    )]
-                ]
+                    )
+                ]]
             )
             await message.answer(
                 text='Пожалуйста, отправьте корректную ссылку.\n'
