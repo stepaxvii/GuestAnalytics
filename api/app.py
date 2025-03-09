@@ -1,7 +1,5 @@
 import logging
-from datetime import datetime
 
-from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 from api.charts import (
     dashboard,
@@ -16,10 +14,6 @@ from api.restaurants import (
 )
 # Импортируем функцию для создания таблиц
 from api.db import create_tables
-# Импорт тестовых функций планировщика
-from bot.periodically_tasks import (
-    send_result_day_task, send_result_hour_task, send_result_month_task
-)
 
 # Настройка логирования
 logging.basicConfig(level=logging.WARNING)
@@ -46,52 +40,6 @@ app.register_blueprint(
 app.register_blueprint(
     edit_restaurant.edit_restaurant_bp, url_prefix='/api'
 )
-
-
-def monthly_task_insigth():
-    """Ежемесячный запрос инсайтов."""
-
-    today = datetime.today()
-    if today.day == 10:
-        logging.info("Запускаем анализ инсайтов.")
-
-    else:
-        logging.info(f"Сегодня {today.day}.")
-
-
-schelduler = BackgroundScheduler()
-
-# Ежечасная задача
-schelduler.add_job(
-    func=send_result_hour_task,
-    trigger='interval',
-    hours=1
-)
-
-
-# Ежедневная задача
-schelduler.add_job(
-    func=send_result_day_task,
-    trigger='interval',
-    day=1
-)
-
-# Ежемесячная задача
-schelduler.add_job(
-    func=send_result_month_task,
-    trigger='cron',
-    day=10,
-    hour=0,
-    minute=0
-)
-
-schelduler.start()
-
-
-@app.teardown_appcontext
-def shutdown_schelduler(exception=None):
-    if schelduler.running:
-        schelduler.shutdown()
 
 
 if __name__ == '__main__':

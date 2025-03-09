@@ -1,19 +1,70 @@
 import asyncio
 import logging
 import sys
+from datetime import datetime
 from os import getenv
-from dotenv import load_dotenv
+
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from apscheduler.schedulers.background import BackgroundScheduler
+from dotenv import load_dotenv
 
 from bot import periodically_tasks
 from bot.handlers import start, yandex, data_edit, insigth
+from bot.periodically_tasks import (
+    send_result_day_task, send_result_hour_task, send_result_month_task
+)
 
 load_dotenv()
 
 # Из окружения извлекаем необходимые токены, ключи и переменные
 TELEGRAM_TOKEN = getenv('TELEGRAM_TOKEN')
+
+
+def monthly_task_insigth():
+    """Ежемесячный запрос инсайтов."""
+    today = datetime.today()
+    if today.day == 10:
+        logging.info("Запускаем анализ инсайтов.")
+    else:
+        logging.info(f"Сегодня {today.day}.")
+
+
+# Настройка планировщика
+scheduler = BackgroundScheduler()
+
+# Ежечасная задача
+scheduler.add_job(
+    func=send_result_hour_task,
+    trigger='interval',
+    hours=1
+)
+
+# Ежедневная задача
+scheduler.add_job(
+    func=send_result_day_task,
+    trigger='interval',
+    days=1
+)
+
+# Ежемесячная задача
+scheduler.add_job(
+    func=send_result_month_task,
+    trigger='cron',
+    day=10,
+    hour=0,
+    minute=0
+)
+
+# Запуск планировщика
+scheduler.start()
+
+
+# Завершение работы планировщика при выходе
+async def shutdown_scheduler():
+    if scheduler.running:
+        scheduler.shutdown()
 
 
 async def main():
@@ -38,10 +89,11 @@ async def main():
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot)
         # Дожидаемся завершения фоновой задачи
-        # (если она не завершится по ошибке)
         await periodic_task
     except Exception as error:
         logging.error(f"Произошла ошибка: {error}")
+    finally:
+        await shutdown_scheduler()
 
 
 if __name__ == "__main__":
