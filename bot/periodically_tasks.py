@@ -1,20 +1,13 @@
 import asyncio
 import logging
-import os
-import time
-import threading
-from datetime import  datetime
 
 from aiogram import Bot
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
 )
-import schedule
 
-from data.create_data import create_insight
-from data.read_data import read_all_restaurant_data, read_rest_ya_reviews_date
-from semantic_analysis.month_insight import month_insight
+from data.read_data import read_all_restaurant_data
 from utils.message_text import get_star_rating
 from yandex.yandex_check_new_reviews import matching_reviews
 
