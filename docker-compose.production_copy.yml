@@ -22,7 +22,9 @@ services:
       - backend
 
   flask:
-    image: stepaxvii/flask_app:latest
+    build:
+      context: .
+      target: flask
     container_name: flask_app
     ports:
       - "5000:5000"
@@ -36,7 +38,9 @@ services:
       - backend
 
   bot:
-    image: stepaxvii/bot_app:latest
+    build:
+      context: .
+      target: bot
     container_name: bot_app
     env_file:
       - .env

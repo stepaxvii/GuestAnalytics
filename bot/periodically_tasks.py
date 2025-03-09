@@ -1,13 +1,20 @@
 import asyncio
 import logging
+import os
+import time
+import threading
+from datetime import  datetime
 
 from aiogram import Bot
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
 )
+import schedule
 
-from data.read_data import read_all_restaurant_data
+from data.create_data import create_insight
+from data.read_data import read_all_restaurant_data, read_rest_ya_reviews_date
+from semantic_analysis.month_insight import month_insight
 from utils.message_text import get_star_rating
 from yandex.yandex_check_new_reviews import matching_reviews
 
@@ -18,7 +25,7 @@ async def check_new_reviews_periodically(bot: Bot):
         try:
             # Пауза между проверками 1 час
             await asyncio.sleep(3600)
-            logging.info("Функция для проверки новых отзывов")
+            logging.info("Функция для проверки новых отзывов.")
 
             # Получаем данные о ресторанах
             restaurants = read_all_restaurant_data()
@@ -99,3 +106,27 @@ async def check_new_reviews_periodically(bot: Bot):
 
         except Exception as e:
             logging.error(f"Ошибка в периодической задаче: {e}")
+
+
+async def send_result_hour_task(bot: Bot):
+    """Тест-функция работы почасового планировщика задач."""
+
+    await bot.send_message(
+        text="Почасовой планировщик)"
+    )
+
+
+async def send_result_day_task(bot: Bot):
+    """Тест-функция работы ежедневного планировщика задач."""
+
+    await bot.send_message(
+        text="Ежедневный планировщик)"
+    )
+
+
+async def send_result_month_task(bot: Bot):
+    """Тест-функция работы ежедневного планировщика задач."""
+
+    await bot.send_message(
+        text="ЕЖЕМЕСЯЧНЫЙ планировщик)"
+    )
