@@ -1,7 +1,8 @@
 import asyncio
+from datetime import datetime
+from functools import partial
 import logging
 import sys
-from datetime import datetime
 from os import getenv
 
 from aiogram import Bot, Dispatcher
@@ -31,42 +32,7 @@ def monthly_task_insigth():
         logging.info(f"Сегодня {today.day}.")
 
 
-# Настройка планировщика
-scheduler = BackgroundScheduler()
-
-# Ежечасная задача
-scheduler.add_job(
-    func=send_result_hour_task,
-    trigger='interval',
-    hours=1
-)
-
-# Ежедневная задача
-scheduler.add_job(
-    func=send_result_day_task,
-    trigger='interval',
-    days=1
-)
-
-# Ежемесячная задача
-scheduler.add_job(
-    func=send_result_month_task,
-    trigger='cron',
-    day=10,
-    hour=0,
-    minute=0
-)
-
-# Запуск планировщика
-scheduler.start()
-
-
-# Завершение работы планировщика при выходе
-async def shutdown_scheduler():
-    if scheduler.running:
-        scheduler.shutdown()
-
-
+# Запуск планировщика внутри функции main
 async def main():
     bot = Bot(
         token=TELEGRAM_TOKEN,
@@ -79,6 +45,35 @@ async def main():
         data_edit.router,
         insigth.router
     )
+
+    # Настройка планировщика
+    scheduler = BackgroundScheduler()
+
+    # Ежечасная задача
+    scheduler.add_job(
+        func=partial(send_result_hour_task, bot),
+        trigger='interval',
+        hours=1
+    )
+
+    # Ежедневная задача
+    scheduler.add_job(
+        func=partial(send_result_day_task, bot),
+        trigger='interval',
+        days=1
+    )
+
+    # Ежемесячная задача
+    scheduler.add_job(
+        func=partial(send_result_month_task, bot),
+        trigger='cron',
+        day=10,
+        hour=0,
+        minute=0
+    )
+
+    # Запуск планировщика
+    scheduler.start()
 
     # Запуск фоновой задачи для проверки новых отзывов
     periodic_task = asyncio.create_task(
@@ -93,7 +88,8 @@ async def main():
     except Exception as error:
         logging.error(f"Произошла ошибка: {error}")
     finally:
-        await shutdown_scheduler()
+        if scheduler.running:
+            scheduler.shutdown()
 
 
 if __name__ == "__main__":
