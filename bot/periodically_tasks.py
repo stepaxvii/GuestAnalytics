@@ -1,15 +1,21 @@
 import asyncio
 import logging
-
+from os import getenv
 from aiogram import Bot
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
 )
+from dotenv import load_dotenv
 
 from data.read_data import read_all_restaurant_data
 from utils.message_text import get_star_rating
 from yandex.yandex_check_new_reviews import matching_reviews
+
+
+load_dotenv()
+
+ADMIN_ID = getenv("ADMIN_ID")
 
 
 async def check_new_reviews_periodically(bot: Bot):
@@ -105,6 +111,7 @@ async def send_result_hour_task(bot: Bot):
     """Тест-функция работы почасового планировщика задач."""
 
     await bot.send_message(
+        chat_id=ADMIN_ID,
         text="Почасовой планировщик)"
     )
 
@@ -113,6 +120,7 @@ async def send_result_day_task(bot: Bot):
     """Тест-функция работы ежедневного планировщика задач."""
 
     await bot.send_message(
+        chat_id=ADMIN_ID,
         text="Ежедневный планировщик)"
     )
 
@@ -121,5 +129,6 @@ async def send_result_month_task(bot: Bot):
     """Тест-функция работы ежедневного планировщика задач."""
 
     await bot.send_message(
+        chat_id=ADMIN_ID,
         text="ЕЖЕМЕСЯЧНЫЙ планировщик)"
     )

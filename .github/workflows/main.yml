@@ -83,6 +83,10 @@ jobs:
             echo "Ожидание 5 секунд для загрузки базы данных"
             sleep 5
 
+            # Очистка неиспользуемых Docker образов
+            echo "Очистка неиспользуемых Docker образов"
+            sudo docker image prune -af || { echo 'Ошибка при очистке неиспользуемых Docker образов'; exit 1; }
+
   send_message:
     runs-on: ubuntu-latest
     needs: deploy
