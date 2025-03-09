@@ -51,21 +51,21 @@ async def main():
 
     # Ежечасная задача
     scheduler.add_job(
-        func=partial(send_result_hour_task, bot),
+        func=partial(send_result_hour_task_wrapper, bot),
         trigger='interval',
         hours=1
     )
 
     # Ежедневная задача
     scheduler.add_job(
-        func=partial(send_result_day_task, bot),
+        func=partial(send_result_day_task_wrapper, bot),
         trigger='interval',
         days=1
     )
 
     # Ежемесячная задача
     scheduler.add_job(
-        func=partial(send_result_month_task, bot),
+        func=partial(send_result_month_task_wrapper, bot),
         trigger='cron',
         day=10,
         hour=0,
@@ -90,6 +90,18 @@ async def main():
     finally:
         if scheduler.running:
             scheduler.shutdown()
+
+
+async def send_result_hour_task_wrapper(bot: Bot):
+    await send_result_hour_task(bot)
+
+
+async def send_result_day_task_wrapper(bot: Bot):
+    await send_result_day_task(bot)
+
+
+async def send_result_month_task_wrapper(bot: Bot):
+    await send_result_month_task(bot)
 
 
 if __name__ == "__main__":
