@@ -23,15 +23,6 @@ load_dotenv()
 TELEGRAM_TOKEN = getenv('TELEGRAM_TOKEN')
 
 
-def monthly_task_insigth():
-    """Ежемесячный запрос инсайтов."""
-    today = datetime.today()
-    if today.day == 10:
-        logging.info("Запускаем анализ инсайтов.")
-    else:
-        logging.info(f"Сегодня {today.day}.")
-
-
 # Запуск планировщика внутри функции main
 async def main():
     bot = Bot(
@@ -51,21 +42,21 @@ async def main():
 
     # Ежечасная задача
     scheduler.add_job(
-        func=partial(send_result_hour_task_wrapper, bot),
+        func=asyncio.ensure_future(send_result_hour_task(bot)),
         trigger='interval',
         hours=1
     )
 
     # Ежедневная задача
     scheduler.add_job(
-        func=partial(send_result_day_task_wrapper, bot),
+        func=asyncio.ensure_future(send_result_day_task(bot)),
         trigger='interval',
         days=1
     )
 
     # Ежемесячная задача
     scheduler.add_job(
-        func=partial(send_result_month_task_wrapper, bot),
+        func=asyncio.ensure_future(send_result_month_task(bot)),
         trigger='cron',
         day=10,
         hour=0,
@@ -90,18 +81,6 @@ async def main():
     finally:
         if scheduler.running:
             scheduler.shutdown()
-
-
-async def send_result_hour_task_wrapper(bot: Bot):
-    await send_result_hour_task(bot)
-
-
-async def send_result_day_task_wrapper(bot: Bot):
-    await send_result_day_task(bot)
-
-
-async def send_result_month_task_wrapper(bot: Bot):
-    await send_result_month_task(bot)
 
 
 if __name__ == "__main__":
