@@ -119,7 +119,8 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
 
 
 @router.message(
-    lambda message: message.text and message.text.startswith('https://yandex.ru/maps/')
+    lambda message: message.text
+    and message.text.startswith('https://yandex.ru/maps/')
 )
 async def validate_link(message: Message):
     """Проверка ссылки на валидность и возврат готовой ссылки."""

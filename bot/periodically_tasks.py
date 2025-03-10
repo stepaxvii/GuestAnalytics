@@ -105,30 +105,3 @@ async def check_new_reviews_periodically(bot: Bot):
 
         except Exception as e:
             logging.error(f"Ошибка в периодической задаче: {e}")
-
-
-async def send_result_hour_task(bot: Bot):
-    """Тест-функция работы почасового планировщика задач."""
-
-    await bot.send_message(
-        chat_id=ADMIN_ID,
-        text="Почасовой планировщик)"
-    )
-
-
-async def send_result_day_task(bot: Bot):
-    """Тест-функция работы ежедневного планировщика задач."""
-
-    await bot.send_message(
-        chat_id=ADMIN_ID,
-        text="Ежедневный планировщик)"
-    )
-
-
-async def send_result_month_task(bot: Bot):
-    """Тест-функция работы ежедневного планировщика задач."""
-
-    await bot.send_message(
-        chat_id=ADMIN_ID,
-        text="ЕЖЕМЕСЯЧНЫЙ планировщик)"
-    )
