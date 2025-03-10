@@ -139,7 +139,8 @@ async def check_new_insigth_periodically(bot: Bot):
                     )
 
                     # Получаем текущий месяц для анализа
-                    current_month = datetime.now().strftime('%Y-%m')  # Текущий месяц в формате "YYYY-MM"
+                    current_month = datetime.now().strftime('%Y-%m')
+                    # НУЖНО ПОПРАВИТЬ ЛОГИКУ ИНСАЙТОВ
 
                     # Извлекаем отзывы за текущий месяц
                     reviews_data = read_rest_ya_reviews_date(
@@ -162,7 +163,7 @@ async def check_new_insigth_periodically(bot: Bot):
                         )
 
                     # Выполнение анализа инсайтов
-                    insigth = month_insight(reviews_block=reviews)
+                    insigth = "ИНСАЙТ"
                     await bot.send_message(
                         chat_id=ADMIN_ID,
                         text=insigth
@@ -186,7 +187,7 @@ async def check_new_insigth_periodically(bot: Bot):
                         # Извлекаем отзывы за текущий месяц
                         reviews_data = read_rest_ya_reviews_date(
                             restaurant_id=rest_id,
-                            date_filter=current_month
+                            date_filter=last_month
                         )
                         reviews = [review.content for review in reviews_data]
                         count_reviews = len(reviews)
@@ -204,7 +205,7 @@ async def check_new_insigth_periodically(bot: Bot):
                             )
 
                         # Выполнение анализа инсайтов
-                        insigth = month_insight(reviews_block=reviews)
+                        insigth = "ИНСАЙТ"
                         await bot.send_message(
                             chat_id=ADMIN_ID,
                             text=insigth
