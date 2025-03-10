@@ -1,6 +1,8 @@
 import asyncio
+from datetime import datetime
 import logging
 from os import getenv
+
 from aiogram import Bot
 from aiogram.types import (
     InlineKeyboardButton,
@@ -114,7 +116,7 @@ async def check_new_reviews_periodically(bot: Bot):
 
 
 async def check_new_insigth_periodically(bot: Bot):
-    """Функция переодической проверки новых инсайтов."""
+    """Функция для переодической проверки новых инсайтов."""
     while True:
         try:
             # Пауза между проверками 30 минут
@@ -136,13 +138,13 @@ async def check_new_insigth_periodically(bot: Bot):
                         text="Записи инсайта нет. Проводится анализ отзывов."
                     )
 
-                    # Для отсутствующего инсайта вычисляем последний месяц
-                    last_month = check_month(None)[1]
+                    # Получаем текущий месяц для анализа
+                    current_month = datetime.now().strftime('%Y-%m')  # Текущий месяц в формате "YYYY-MM"
 
-                    # Извлекаем отзывы за прошедший месяц
+                    # Извлекаем отзывы за текущий месяц
                     reviews_data = read_rest_ya_reviews_date(
                         restaurant_id=rest_id,
-                        date_filter=last_month
+                        date_filter=current_month
                     )
                     reviews = [review.content for review in reviews_data]
                     count_reviews = len(reviews)
@@ -170,7 +172,7 @@ async def check_new_insigth_periodically(bot: Bot):
                     # Если инсайт существует, проверяем его актуальность
                     last_month_insigth, last_month = check_month(insigth.period)
                     if last_month_insigth:
-                        logging("-------WE HAVE A ACTUAL INSIGHT!-------")
+                        logging.info("-------WE HAVE A ACTUAL INSIGHT!-------")
                     else:
                         # Если инсайт устарел, нужно провести повторный анализ
                         await bot.send_message(
@@ -178,8 +180,14 @@ async def check_new_insigth_periodically(bot: Bot):
                             text="Инсайт устарел. Проводится повторный анализ отзывов."
                         )
 
-                        # Извлекаем отзывы за прошедший месяц
-                        reviews_data = read_rest_ya_reviews_date(restaurant_id=rest_id, date_filter=last_month)
+                        # Получаем текущий месяц для анализа
+                        current_month = datetime.now().strftime('%Y-%m')
+
+                        # Извлекаем отзывы за текущий месяц
+                        reviews_data = read_rest_ya_reviews_date(
+                            restaurant_id=rest_id,
+                            date_filter=current_month
+                        )
                         reviews = [review.content for review in reviews_data]
                         count_reviews = len(reviews)
 
@@ -187,7 +195,7 @@ async def check_new_insigth_periodically(bot: Bot):
                             await bot.send_message(
                                 chat_id=ADMIN_ID,
                                 text="Отправляю для выявления инсайтов.\n"
-                                f"Всего отзывов {count_reviews}"
+                                     f"Всего отзывов {count_reviews}"
                             )
                         else:
                             await bot.send_message(
