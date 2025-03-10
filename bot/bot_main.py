@@ -59,7 +59,7 @@ async def main():
         func=asyncio.ensure_future(send_result_month_task(bot)),
         trigger='cron',
         day=10,
-        hour=0,
+        hour=5,
         minute=0
     )
 
