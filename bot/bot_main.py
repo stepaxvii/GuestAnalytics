@@ -35,12 +35,16 @@ async def main():
     periodic_task = asyncio.create_task(
         periodically_tasks.check_new_reviews_periodically(bot)
     )
+    another_periodic_task = asyncio.create_task(
+        periodically_tasks.check_new_insigth_periodically(bot)
+    )
 
     try:
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot)
-        # Дожидаемся завершения фоновой задачи
+        # Дожидаемся завершения фоновых задач
         await periodic_task
+        await another_periodic_task
     except Exception as error:
         logging.error(f"Произошла ошибка: {error}")
 

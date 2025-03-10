@@ -8,7 +8,13 @@ from aiogram.types import (
 )
 from dotenv import load_dotenv
 
-from data.read_data import read_all_restaurant_data
+from data.read_data import (
+    read_all_restaurant_data,
+    read_rest_month_insight,
+    read_rest_ya_reviews_date
+)
+from semantic_analysis.month_insight import month_insight
+from utils.date import check_month
 from utils.message_text import get_star_rating
 from yandex.yandex_check_new_reviews import matching_reviews
 
@@ -104,4 +110,64 @@ async def check_new_reviews_periodically(bot: Bot):
             logging.info("Проверка новых отзывов завершена.")
 
         except Exception as e:
-            logging.error(f"Ошибка в периодической задаче: {e}")
+            logging.error(f"Ошибка в периодической задаче отзывов: {e}")
+
+
+async def check_new_insigth_periodically(bot: Bot):
+    """Функция переодической проверки новых инсайтов."""
+
+    while True:
+        try:
+            # Пауза между проверками 30 минут
+            await asyncio.sleep(1800)
+            logging.info("Функция для запуска анализов новых инсайтов.")
+
+            # Получаем данные о ресторанах
+            restaurants = read_all_restaurant_data()
+
+            for restaurant in restaurants:
+                rest_id = restaurant['id']
+
+                # Проверяем наличие инсайтов в БД
+                insigth = read_rest_month_insight(restaurant_id=rest_id)
+                if insigth:
+                    last_month_insigth, last_month = check_month(
+                        insigth.period
+                    )
+                    if last_month_insigth:
+                        logging("-------WE HAVE A ACTUALLITY INSIGTH!-------")
+                    else:
+                        # Извлекаем отзывы за прошедший месяц
+                        reviews_data = read_rest_ya_reviews_date(
+                            restaurant_id=rest_id, date_filter=last_month
+                        )
+                        # Формируем список текстов отзывов
+                        reviews = [review.content for review in reviews_data]
+                        count_reviews = len(reviews)
+
+                        if reviews:
+                            await bot.send_message(
+                                chat_id=ADMIN_ID,
+                                text="Отправляю для выявления инсайтов.\n"
+                                f"Всего отзывов {count_reviews}"
+                            )
+                        else:
+                            await bot.send_message(
+                                chat_id=ADMIN_ID,
+                                text='Отзывов за указанный период не найдено.'
+                            )
+                        insigth = month_insight(reviews_block=reviews)
+                        await bot.send_message(
+                            chat_id=ADMIN_ID,
+                            text=insigth
+                        )
+                else:
+                    await bot.send_message(
+                        chat_id=ADMIN_ID,
+                        text="Анализ инсайтов не требуется!"
+                    )
+
+            logging.info("Проверка новых отзывов завершена.")
+
+        except Exception as e:
+            logging.error(f"Ошибка в периодической задаче с инсайтами: {e}")

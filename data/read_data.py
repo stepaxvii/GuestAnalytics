@@ -1,5 +1,5 @@
 from api.db import session
-from data.data_main import Restaurant, YandexReview
+from data.data_main import Restaurant, RestaurantInsight, YandexReview
 
 
 def read_all_restaurant_data():
@@ -74,3 +74,10 @@ def read_rest_ya_reviews_date(restaurant_id, date_filter):
         YandexReview.restaurant_id == restaurant_id,
         YandexReview.created_at.startswith(date_filter)
     ).all()
+
+
+def read_rest_month_insight(restaurant_id):
+    """Получаем инсайты ресторана за прошедший месяц."""
+    return session.query(RestaurantInsight).filter(
+        RestaurantInsight.restaurant_id == restaurant_id
+    ).first()

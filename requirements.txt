@@ -11,4 +11,3 @@ gunicorn==23.0.0
 pydantic_core==2.23.4
 python-dateutil
 psycopg2-binary
-APScheduler==3.11.0

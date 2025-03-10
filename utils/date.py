@@ -63,3 +63,28 @@ month_dict = {
     "11": "ноябрь",
     "12": "декабрь"
 }
+
+
+def check_month(date):
+    """Функция проверки необходимого месяца и даты для инсайтов."""
+
+    current_date = datetime.now()
+
+    # Если сегодня подходящая дата
+    if current_date.day == 11:
+        if current_date.month == 1:
+            last_month = current_date.replace(
+                year=current_date.year - 1, month=12
+            )
+        else:
+            last_month = current_date.replace(
+                month=current_date.month - 1
+            )
+
+        # Приводим к формату строки "гггг-мм"
+        last_month = last_month.strftime('%Y-%m')
+
+        # Возвращаем True, если значения совпадают.
+        return date == last_month, date
+
+    return False, date
