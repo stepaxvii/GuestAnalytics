@@ -1,6 +1,4 @@
 import asyncio
-from datetime import datetime
-from functools import partial
 import logging
 import sys
 from os import getenv
@@ -21,6 +19,11 @@ load_dotenv()
 
 # Из окружения извлекаем необходимые токены, ключи и переменные
 TELEGRAM_TOKEN = getenv('TELEGRAM_TOKEN')
+
+
+# Функции для логирования запусков планировщиков
+def log_job_start(job_name: str):
+    logging.info(f"Запуск задачи: {job_name}")
 
 
 # Запуск планировщика внутри функции main
@@ -44,24 +47,39 @@ async def main():
     scheduler.add_job(
         func=asyncio.ensure_future(send_result_hour_task(bot)),
         trigger='interval',
-        hours=1
+        hours=1,
+        id='hourly_task',  # Уникальный идентификатор задачи
+        next_run_time=None,
+        misfire_grace_time=3600,  # Ожидание ошибки выполнения
+        coalesce=True  # Пропуск не выполненных задач за период
     )
+    log_job_start("Ежечасная задача (send_result_hour_task)")
 
     # Ежедневная задача
     scheduler.add_job(
         func=asyncio.ensure_future(send_result_day_task(bot)),
         trigger='interval',
-        days=1
+        days=1,
+        id='daily_task',
+        next_run_time=None,
+        misfire_grace_time=86400,
+        coalesce=True
     )
+    log_job_start("Ежедневная задача (send_result_day_task)")
 
     # Ежемесячная задача
     scheduler.add_job(
         func=asyncio.ensure_future(send_result_month_task(bot)),
         trigger='cron',
         day=10,
-        hour=5,
-        minute=0
+        hour=15,
+        minute=0,
+        id='monthly_task',
+        next_run_time=None,
+        misfire_grace_time=2592000,
+        coalesce=True
     )
+    log_job_start("Ежемесячная задача (send_result_month_task)")
 
     # Запуск планировщика
     scheduler.start()
