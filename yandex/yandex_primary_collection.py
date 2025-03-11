@@ -29,6 +29,7 @@ from constants import (
     MAX_VIEW_REVIEWS
 )
 from data.create_data import create_restaurant, create_review
+from data.read_data import read_restaurant_data
 from semantic_analysis.simple_semantic import simple_semantic
 from utils.urls import process_url_yandex
 
@@ -127,7 +128,6 @@ def ya_prim_coll(original_url):
 
     if org_name:
         restaurant_data = (
-            1,
             org_name,
             org_url,
             full_address,
@@ -259,11 +259,12 @@ def ya_prim_coll(original_url):
         new_reviews_to_save,
         key=lambda x: datetime.strptime(x[0], DATE_FORMAT)
     )
+    restaurant_id = read_restaurant_data(rest_data=org_url)
 
     for review in sorted_reviews:
         try:
             review_data = {
-                'restaurant_id': 1,
+                'restaurant_id': restaurant_id,
                 'review_date': review[0],
                 'author_name': review[1],
                 'author_link': review[2],

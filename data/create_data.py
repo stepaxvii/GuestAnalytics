@@ -21,11 +21,10 @@ def create_restaurant(data):
     """Создание ресторана."""
 
     # Извлекаем данные из собранной о ресторане информации
-    id, title, yandex_link, address, tg_channal = data
+    title, yandex_link, address, tg_channal = data
 
     try:
         restaurant = Restaurant(
-            id=id,
             title=title,
             yandex_link=yandex_link,
             address=address,
