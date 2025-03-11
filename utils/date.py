@@ -65,26 +65,39 @@ month_dict = {
 }
 
 
-def check_month(date):
+def check_month(date: datetime):
     """Функция проверки необходимого месяца и даты для инсайтов."""
 
     current_date = datetime.now()
 
-    # Если сегодня подходящая дата
-    if current_date.day == 11:
-        if current_date.month == 1:
-            last_month = current_date.replace(
-                year=current_date.year - 1, month=12
-            )
-        else:
-            last_month = current_date.replace(
-                month=current_date.month - 1
-            )
+    if current_date.month == 1:
+        last_month = current_date.replace(
+            year=current_date.year - 1, month=12
+        )
+    else:
+        last_month = current_date.replace(
+            month=current_date.month - 1
+        )
 
-        # Приводим к формату строки "гггг-мм"
-        last_month = last_month.strftime('%Y-%m')
+    # Приводим к формату строки "гггг-мм"
+    last_month = last_month.strftime('%Y-%m')
 
-        # Возвращаем True, если значения совпадают.
-        return date == last_month, date
+    # Возвращаем True, если значения совпадают.
+    return date.strftime('%Y-%m') == last_month, last_month
 
-    return False, date
+
+def make_last_month(current_date: datetime):
+    """Функция выявления предыдущего месяца."""
+
+    if current_date.month == 1:
+        last_month = current_date.replace(
+            year=current_date.year - 1, month=12
+        )
+    else:
+        last_month = current_date.replace(
+            month=current_date.month - 1
+        )
+
+    last_month = last_month.strftime('%Y-%m')
+
+    return last_month
