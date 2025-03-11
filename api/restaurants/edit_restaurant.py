@@ -12,7 +12,7 @@ def edit_restaurant():
     # Получаем данные из запроса
     data = request.get_json(force=True)
 
-    rest_id = data.get("restaurant_id")
+    wp_id = data.get("restaurant_id")
     rest_title = data.get("restaurant_name")
     rest_address = data.get("address")
     tg_id = data.get("telegram_id")
@@ -24,7 +24,7 @@ def edit_restaurant():
             # Ищем ресторан по ID
             restaurant = session.query(
                 Restaurant
-            ).filter_by(id=rest_id).first()
+            ).filter_by(wp_id=wp_id).first()
             if not restaurant:
                 return jsonify(
                     {"status": "error", "message": "Ресторан не найден."}

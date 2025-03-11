@@ -61,6 +61,28 @@ def read_restaurant_data(rest_data):
         return None
 
 
+def read_restaurant_by_wp(wp_id):
+    """Получения данных ресторана по wp_id."""
+
+    restaurant = session.query(Restaurant).filter(
+        Restaurant.wp_id == wp_id
+    ).first()
+
+    if restaurant:
+        return {
+            "id": restaurant.id,
+            "wp_id": restaurant.wp_id,
+            "title": restaurant.title,
+            "yandex_link": restaurant.yandex_link,
+            "twogis_link": restaurant.twogis_link,
+            "address": restaurant.address,
+            "tg_channal": restaurant.tg_channal,
+            "subscription": restaurant.subscription
+        }
+    else:
+        return None
+
+
 def read_rest_ya_reviews(restaurant_id):
     """Получаем отзывы с Яндекса определённого ресторана."""
 

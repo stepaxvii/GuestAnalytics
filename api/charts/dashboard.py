@@ -7,7 +7,11 @@ from sqlalchemy import func
 from sqlalchemy.types import Date as DATE
 from api.db import session
 from data.data_main import YandexReview
-from data.read_data import read_rest_ya_reviews, read_rest_month_insight
+from data.read_data import (
+    read_rest_ya_reviews,
+    read_rest_month_insight,
+    read_restaurant_by_wp
+)
 from utils.dashboard import (
     avg_rest_ya_rating,
     calculate_nps,
@@ -26,23 +30,25 @@ dashboard_bp = Blueprint('dashboard', __name__)
 
 @dashboard_bp.route('/dashboard', methods=['GET'])
 def dashboard():
-    restaurant_id = request.args.get('restaurant_id')
-    if not restaurant_id:
-        logging.error('Не указан restaurant_id')
+    wp_id = request.args.get('restaurant_id')
+    if not wp_id:
+        logging.error('Не указан wp_id')
         return jsonify({
             "success": False,
             "data": None,
-            "message": "Не указан restaurant_id"
+            "message": "Не указан wp_id"
         }), 400
 
     try:
         # Запрашиваем все отзывы для определённого ресторана
+        rest_data = read_restaurant_by_wp(wp_id=wp_id)
+        restaurant_id = rest_data['id']
         reviews = read_rest_ya_reviews(restaurant_id=restaurant_id)
 
         # Если нет отзывов, возвращаем пустой ответ
         if not reviews:
             logging.warning(
-                f"Отзывы для ресторана id: {restaurant_id} не найдены"
+                f"Отзывы для ресторана id: {wp_id} не найдены"
             )
             return jsonify({
                 "success": False,

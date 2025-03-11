@@ -11,7 +11,7 @@ def change_subscription():
     # Получаем данные из запроса
     data = request.get_json(force=True)
 
-    rest_id = data.get("restaurant_id")
+    wp_id = data.get("restaurant_id")
     subscription = data.get("subscription")
     action = data.get("action")
 
@@ -21,7 +21,7 @@ def change_subscription():
             # Ищем ресторан по ID
             restaurant = session.query(
                 Restaurant
-            ).filter_by(id=rest_id).first()
+            ).filter_by(wp_id=wp_id).first()
             if not restaurant:
                 return jsonify(
                     {"status": "error", "message": "Ресторан не найден."}
@@ -46,7 +46,7 @@ def change_subscription():
 
             # Логируем полученное значение для отладки
             logging.debug(
-                f"Updating subscription for {rest_id}: {subscription}"
+                f"Updating subscription for {wp_id}: {subscription}"
                 )
 
             # Обновляем данные о подписке
