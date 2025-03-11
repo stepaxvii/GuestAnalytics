@@ -9,7 +9,7 @@ from api.db import session
 from data.data_main import YandexReview
 from data.read_data import (
     read_rest_ya_reviews,
-    read_rest_month_insight,
+    read_rest_month_insight_list,
     read_restaurant_by_wp
 )
 from utils.dashboard import (
@@ -68,7 +68,7 @@ def dashboard():
         )
 
         # Сгенерируем фиктивные "AI Insights"
-        ai_insights = read_rest_month_insight(restaurant_id=restaurant_id)
+        ai_insights = read_rest_month_insight_list(restaurant_id=restaurant_id)
 
         # Тренды за последние 12 месяцев
         labels = []

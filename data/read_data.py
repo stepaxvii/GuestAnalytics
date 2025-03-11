@@ -100,7 +100,16 @@ def read_rest_ya_reviews_date(restaurant_id, date_filter):
 
 
 def read_rest_month_insight(restaurant_id):
-    """Получаем инсайты ресторана за прошедший месяц."""
+    """Получаем инсайт ресторана за прошедший месяц."""
+    insight = session.query(RestaurantInsight).filter(
+        RestaurantInsight.restaurant_id == restaurant_id
+    ).first()
+
+    return insight
+
+
+def read_rest_month_insight_list(restaurant_id):
+    """Получаем инсайты списком за прошедший месяц."""
     insight = session.query(RestaurantInsight).filter(
         RestaurantInsight.restaurant_id == restaurant_id
     ).first()
