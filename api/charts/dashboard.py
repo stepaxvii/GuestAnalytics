@@ -7,7 +7,7 @@ from sqlalchemy import func
 from sqlalchemy.types import Date as DATE
 from api.db import session
 from data.data_main import YandexReview
-from data.read_data import read_rest_ya_reviews
+from data.read_data import read_rest_ya_reviews, read_rest_month_insight
 from utils.dashboard import (
     avg_rest_ya_rating,
     calculate_nps,
@@ -62,10 +62,9 @@ def dashboard():
         )
 
         # Сгенерируем фиктивные "AI Insights"
+        ai_insights_data = read_rest_month_insight(restaurant_id=restaurant_id)
         ai_insights = [
-            "Инсайт 1: Это может помочь улучшить обслуживание.",
-            "Инсайт 2: Возможно, стоит улучшить качество еды.",
-            "Инсайт 3: Проверьте отзывы с низким рейтингом для улучшений.",
+            ai_insights_data
         ]
 
         # Тренды за последние 12 месяцев
