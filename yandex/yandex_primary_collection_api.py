@@ -28,7 +28,6 @@ from constants import (
 )
 from data.create_data import create_review
 from semantic_analysis.simple_semantic import simple_semantic
-# from utils.urls import process_url_yandex
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)

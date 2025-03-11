@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 from api.db import session
 from data.data_main import Restaurant
+from data.read_data import read_restaurant_data
 from utils.urls import check_full_url_yandex, process_url_yandex
 from yandex.yandex_primary_collection_api import ya_prim_coll
 
@@ -14,7 +15,7 @@ create_restaurant_bp = Blueprint("create_restaurant", __name__)
 
 # Функция для обработки yandex_link и создания ресторана в БД
 def process_restaurant_creation(restaurant_data):
-    rest_id = restaurant_data["restaurant_id"]
+    wp_id = restaurant_data["restaurant_id"]
     rest_title = restaurant_data["restaurant_name"]
     rest_link = restaurant_data["yandex_link"]
     rest_address = restaurant_data["address"]
@@ -28,7 +29,7 @@ def process_restaurant_creation(restaurant_data):
     # Создаем новый ресторан в базе данных
     try:
         restaurant = Restaurant(
-            id=rest_id,
+            wp_id=wp_id,
             title=rest_title,
             yandex_link=rest_link,  # Сохраняем org_url
             address=rest_address,
@@ -39,6 +40,7 @@ def process_restaurant_creation(restaurant_data):
         session.commit()
 
         # Запускаем функцию в отдельном потоке для работы с yandex_link
+        rest_id = read_restaurant_data(rest_data=rest_link)
         thread = Thread(target=run_yandex_check, args=(reviews_url, rest_id))
         thread.start()
 
