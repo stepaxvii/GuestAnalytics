@@ -9,7 +9,7 @@ from aiogram.enums import ParseMode
 from dotenv import load_dotenv
 
 from bot import periodically_tasks
-from bot.handlers import start, yandex, data_edit, insigth
+from bot.handlers import insight, start, yandex, data_edit
 
 load_dotenv()
 
@@ -28,7 +28,7 @@ async def main():
         start.router,
         yandex.router,
         data_edit.router,
-        insigth.router
+        insight.router
     )
 
     # Запуск фоновой задачи для проверки новых отзывов
@@ -36,7 +36,7 @@ async def main():
         periodically_tasks.check_new_reviews_periodically(bot)
     )
     another_periodic_task = asyncio.create_task(
-        periodically_tasks.check_new_insigth_periodically(bot)
+        periodically_tasks.check_new_insight_periodically(bot)
     )
 
     try:

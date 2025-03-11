@@ -116,7 +116,7 @@ async def check_new_reviews_periodically(bot: Bot):
             logging.error(f"Ошибка в периодической задаче отзывов: {e}")
 
 
-async def check_new_insigth_periodically(bot: Bot):
+async def check_new_insight_periodically(bot: Bot):
     """Функция для переодической проверки новых инсайтов."""
     while True:
         try:
