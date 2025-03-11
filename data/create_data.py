@@ -86,12 +86,12 @@ def create_review(data):
 def create_insight(data):
     """Создание ежемесячного инсайта."""
 
-    restaurant_id, period, insigth = data
+    restaurant_id, period, insight = data
 
     month_insight = RestaurantInsight(
         restaurant_id=restaurant_id,
         period=period,
-        insigth=insigth
+        insight=insight
     )
 
     try:
