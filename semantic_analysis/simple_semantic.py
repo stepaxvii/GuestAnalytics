@@ -1,6 +1,9 @@
-import openai
+import time
 from os import getenv
+
 from dotenv import load_dotenv
+import openai
+import openai.error
 
 load_dotenv()
 
@@ -28,11 +31,16 @@ def simple_semantic(review_text):
         "{review_text}" """
     )
 
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=10,
-        temperature=0.7
-    )
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=10,
+            temperature=0.7
+        )
+        return response['choices'][0]['message']['content']
 
-    return response['choices'][0]['message']['content']
+    except openai.error.APIError as e:
+        print(f"OpenAI API Error: {e}")
+        time.sleep(5)
+        return simple_semantic(review_text)
