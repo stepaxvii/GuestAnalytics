@@ -33,8 +33,8 @@ async def command_start_handler(message: Message):
                 ],
                 [
                     InlineKeyboardButton(
-                        text='test insitgh',
-                        callback_data='test_insigth'
+                        text='Тестовый инсайт',
+                        callback_data='test_insight'
                     )
                 ]
             ]
