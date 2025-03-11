@@ -120,13 +120,13 @@ async def check_new_insigth_periodically(bot: Bot):
     """Функция для переодической проверки новых инсайтов."""
     while True:
         try:
-            # Пауза между проверками 30 минут
-            await asyncio.sleep(300)
+            # Пауза между проверками 12 часов
+            await asyncio.sleep(43200)
             logging.info("Функция для запуска анализов новых инсайтов.")
 
             # Получаем текущий месяц для анализа
             current_date = datetime.now()
-            if current_date.day == 1:
+            if current_date.day == 3:
 
                 # Получаем данные о ресторанах
                 restaurants = read_all_restaurant_data()
