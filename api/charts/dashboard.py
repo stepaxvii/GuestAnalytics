@@ -40,7 +40,7 @@ def dashboard():
         }), 400
 
     try:
-        # Запрашиваем все отзывы для определённого ресторана
+        # Запрашиваем отзывы для определённого ресторана
         rest_data = read_restaurant_by_wp(wp_id=wp_id)
         restaurant_id = rest_data['id']
         reviews = read_rest_ya_reviews(restaurant_id=restaurant_id)
