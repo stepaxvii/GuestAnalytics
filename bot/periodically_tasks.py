@@ -124,75 +124,28 @@ async def check_new_insigth_periodically(bot: Bot):
             await asyncio.sleep(300)
             logging.info("Функция для запуска анализов новых инсайтов.")
 
-            # Получаем данные о ресторанах
-            restaurants = read_all_restaurant_data()
+            # Получаем текущий месяц для анализа
+            current_date = datetime.now()
+            if current_date.day == 1:
 
-            for restaurant in restaurants:
-                rest_id = restaurant['id']
-                rest_name = restaurant['title']
+                # Получаем данные о ресторанах
+                restaurants = read_all_restaurant_data()
 
-                # Проверяем наличие инсайтов в БД
-                insight = read_rest_month_insight(restaurant_id=rest_id)
-                if not insight:
-                    # Если записи инсайта нет, то нужно выполнить анализ
-                    await bot.send_message(
-                        chat_id=ADMIN_ID,
-                        text=f"Записей инсайтов для ресторана {rest_name} нет."
-                    )
-                    asyncio.sleep(1)
+                for restaurant in restaurants:
+                    rest_id = restaurant['id']
+                    rest_name = restaurant['title']
 
-                    # Получаем текущий месяц для анализа
-                    current_date = datetime.now()
-                    last_month = make_last_month(current_date=current_date)
-
-                    # Извлекаем отзывы за текущий месяц
-                    reviews_data = read_rest_ya_reviews_date(
-                        restaurant_id=rest_id,
-                        date_filter=last_month
-                    )
-                    reviews = [review.content for review in reviews_data]
-                    count_reviews = len(reviews)
-
-                    if reviews:
+                    # Проверяем наличие инсайтов в БД
+                    insight = read_rest_month_insight(restaurant_id=rest_id)
+                    if not insight:
+                        # Если записи инсайта нет, то нужно выполнить анализ
                         await bot.send_message(
                             chat_id=ADMIN_ID,
-                            text="Отправляю для выявления инсайтов.\n"
-                            f"Всего отзывов {count_reviews}"
+                            text=f"Инсайтов для '{rest_name}' в БД нет."
                         )
-                    else:
-                        await bot.send_message(
-                            chat_id=ADMIN_ID,
-                            text='Отзывов за указанный период не найдено.'
-                        )
+                        asyncio.sleep(1)
 
-                    # Выполнение анализа инсайтов
-                    insight = month_insight(reviews_block=reviews)
-                    insight_data = (rest_id, last_month, insight)
-                    create_insight(data=insight_data)
-
-                    await bot.send_message(
-                        chat_id=ADMIN_ID,
-                        text=insight
-                    )
-
-                else:
-                    # Если инсайт существует, проверяем его актуальность
-                    last_month_insight, last_month = check_month(
-                        insight.period
-                    )
-                    if last_month_insight:
-                        logging.info("-------WE HAVE A ACTUAL INSIGHT!-------")
-                        await bot.send_message(
-                            chat_id=ADMIN_ID,
-                            text="В БД содержится актуальный инсайт.\n"
-                            f"{last_month} - {insight.insight}"
-                        )
-                    else:
-                        # Если инсайт устарел, нужно провести новый анализ
-                        await bot.send_message(
-                            chat_id=ADMIN_ID,
-                            text=f"Нет свежего инсайта за {last_month}"
-                        )
+                        last_month = make_last_month(current_date=current_date)
 
                         # Извлекаем отзывы за текущий месяц
                         reviews_data = read_rest_ya_reviews_date(
@@ -206,24 +159,80 @@ async def check_new_insigth_periodically(bot: Bot):
                             await bot.send_message(
                                 chat_id=ADMIN_ID,
                                 text="Отправляю для выявления инсайтов.\n"
-                                     f"Всего отзывов {count_reviews}"
+                                f"Всего отзывов {count_reviews}"
                             )
-                            # Выполнение анализа инсайтов
-                            insight = month_insight(reviews_block=reviews)
-                            insight_data = (rest_id, last_month, insight)
-                            create_insight(data=insight_data)
-
-                            await bot.send_message(
-                                chat_id=ADMIN_ID,
-                                text=insight
-                            )
-
                         else:
                             await bot.send_message(
                                 chat_id=ADMIN_ID,
                                 text='Отзывов за указанный период не найдено.'
                             )
 
+                        # Выполнение анализа инсайтов
+                        insight = month_insight(reviews_block=reviews)
+                        insight_data = (rest_id, last_month, insight)
+                        create_insight(data=insight_data)
+
+                        await bot.send_message(
+                            chat_id=ADMIN_ID,
+                            text=insight
+                        )
+
+                    else:
+                        # Если инсайт существует, проверяем его актуальность
+                        last_month_insight, last_month = check_month(
+                            insight.period
+                        )
+                        if last_month_insight:
+                            logging.info("-----WE HAVE A ACTUAL INSIGHT!-----")
+                            await bot.send_message(
+                                chat_id=ADMIN_ID,
+                                text="В БД содержится актуальный инсайт.\n"
+                                f"{last_month} - {insight.insight}"
+                            )
+                        else:
+                            # Если инсайт устарел, нужно провести новый анализ
+                            await bot.send_message(
+                                chat_id=ADMIN_ID,
+                                text=f"Нет свежего инсайта за {last_month}"
+                            )
+
+                            # Извлекаем отзывы за текущий месяц
+                            reviews_data = read_rest_ya_reviews_date(
+                                restaurant_id=rest_id,
+                                date_filter=last_month
+                            )
+                            reviews = [
+                                review.content for review in reviews_data
+                            ]
+                            count_reviews = len(reviews)
+
+                            if reviews:
+                                await bot.send_message(
+                                    chat_id=ADMIN_ID,
+                                    text="Выявляю инсайты.\n"
+                                    f"Всего отзывов {count_reviews}"
+                                )
+                                # Выполнение анализа инсайтов
+                                insight = month_insight(reviews_block=reviews)
+                                insight_data = (rest_id, last_month, insight)
+                                create_insight(data=insight_data)
+
+                                await bot.send_message(
+                                    chat_id=ADMIN_ID,
+                                    text=insight
+                                )
+
+                            else:
+                                await bot.send_message(
+                                    chat_id=ADMIN_ID,
+                                    text='Отзывов за период не найдено.'
+                                )
+
+            else:
+                await bot.send_message(
+                    chat_id=ADMIN_ID,
+                    text="Ещё рано запрашивать инсайты за прошлый месяц."
+                )
             logging.info("Проверка новых инсайтов завершена.")
 
         except Exception as e:
