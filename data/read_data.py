@@ -49,6 +49,7 @@ def read_restaurant_data(rest_data):
     if restaurant:
         return {
             "id": restaurant.id,
+            "wp_id": restaurant.wp_id,
             "title": restaurant.title,
             "yandex_link": restaurant.yandex_link,
             "twogis_link": restaurant.twogis_link,

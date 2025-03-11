@@ -259,7 +259,7 @@ def ya_prim_coll(original_url):
         new_reviews_to_save,
         key=lambda x: datetime.strptime(x[0], DATE_FORMAT)
     )
-    restaurant_id = read_restaurant_data(rest_data=org_url)
+    restaurant_id = read_restaurant_data(rest_data=org_url)['id']
 
     for review in sorted_reviews:
         try:

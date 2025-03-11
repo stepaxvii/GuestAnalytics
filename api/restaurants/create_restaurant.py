@@ -40,7 +40,7 @@ def process_restaurant_creation(restaurant_data):
         session.commit()
 
         # Запускаем функцию в отдельном потоке для работы с yandex_link
-        rest_id = read_restaurant_data(rest_data=rest_link)
+        rest_id = read_restaurant_data(rest_data=rest_link)['id']
         thread = Thread(target=run_yandex_check, args=(reviews_url, rest_id))
         thread.start()
 
