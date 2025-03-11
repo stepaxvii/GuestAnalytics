@@ -65,7 +65,7 @@ month_dict = {
 }
 
 
-def check_month(date: datetime):
+def check_month(date: str):
     """Функция проверки необходимого месяца и даты для инсайтов."""
 
     current_date = datetime.now()
@@ -83,7 +83,7 @@ def check_month(date: datetime):
     last_month = last_month.strftime('%Y-%m')
 
     # Возвращаем True, если значения совпадают.
-    return date.strftime('%Y-%m') == last_month, last_month
+    return date == last_month, last_month
 
 
 def make_last_month(current_date: datetime):
