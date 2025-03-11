@@ -79,6 +79,18 @@ def read_rest_ya_reviews_date(restaurant_id, date_filter):
 
 def read_rest_month_insight(restaurant_id):
     """Получаем инсайты ресторана за прошедший месяц."""
-    return session.query(RestaurantInsight).filter(
+    insight = session.query(RestaurantInsight).filter(
         RestaurantInsight.restaurant_id == restaurant_id
     ).first()
+
+    # Если инсайт найден
+    if insight and insight.insight:
+        # Разбиваем текст инсайта по точке и убираем лишние пробелы
+        insights = [
+            insight_part.strip() for insight_part
+            in insight.insight.split('.') if insight_part.strip()
+        ]
+        return insights
+
+    # Если инсайт не найден, возвращаем пустой список
+    return []

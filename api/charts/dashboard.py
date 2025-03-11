@@ -62,10 +62,7 @@ def dashboard():
         )
 
         # Сгенерируем фиктивные "AI Insights"
-        ai_insights_data = read_rest_month_insight(restaurant_id=restaurant_id)
-        ai_insights = [
-            ai_insights_data
-        ]
+        ai_insights = read_rest_month_insight(restaurant_id=restaurant_id)
 
         # Тренды за последние 12 месяцев
         labels = []
