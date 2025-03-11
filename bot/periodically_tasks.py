@@ -121,7 +121,7 @@ async def check_new_insigth_periodically(bot: Bot):
     while True:
         try:
             # Пауза между проверками 30 минут
-            await asyncio.sleep(1800)
+            await asyncio.sleep(300)
             logging.info("Функция для запуска анализов новых инсайтов.")
 
             # Получаем данные о ресторанах
