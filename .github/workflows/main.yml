@@ -87,6 +87,10 @@ jobs:
             echo "Очистка неиспользуемых Docker образов"
             sudo docker image prune -af || { echo 'Ошибка при очистке неиспользуемых Docker образов'; exit 1; }
 
+            # Выполнение миграций Alembic
+            echo "Запуск миграций базы данных с помощью Alembic"
+            sudo docker exec flask_app alembic upgrade head || { echo 'Ошибка при выполнении миграций Alembic'; exit 1; }
+
   send_message:
     runs-on: ubuntu-latest
     needs: deploy

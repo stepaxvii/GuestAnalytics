@@ -14,7 +14,8 @@ from api.db import Base
 class Restaurant(Base):
     """Модель ресторана."""
     __tablename__ = "restaurants"
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    wp_id = Column(Integer, nullable=True, unique=True)
     title = Column(String(255), nullable=False)
     yandex_link = Column(String(255), nullable=False, unique=True)
     twogis_link = Column(String(255), unique=True)
