@@ -16,7 +16,7 @@ from api.restaurants import (
 from api.db import create_tables
 
 # Настройка логирования
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
