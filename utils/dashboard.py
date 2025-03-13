@@ -19,9 +19,9 @@ def count_rest_ya_reviews(restaurant_id):
 def avg_rest_ya_rating(restaurant_id):
     """Получаем среднее значение рейтинга отзывов с Яндекса для ресторана."""
     try:
-        return session.query(func.avg(YandexReview.rating)).filter(
+        return round(session.query(func.avg(YandexReview.rating)).filter(
             YandexReview.restaurant_id == restaurant_id
-        ).scalar()
+        ).scalar(), 1)
     except Exception as e:
         session.rollback()
         raise e
@@ -121,7 +121,9 @@ def calculate_satisfaction_level(restaurant_id):
         ).count()
 
         # Рассчитываем процент положительных отзывов
-        satisfaction_level = (positive_reviews_count / total_reviews) * 100
+        satisfaction_level = round((
+            positive_reviews_count / total_reviews
+        ) * 100, 1)
         return satisfaction_level
     except Exception as e:
         session.rollback()
