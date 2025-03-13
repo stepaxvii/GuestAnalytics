@@ -22,16 +22,15 @@ def process_restaurant_creation(restaurant_data):
     tg_id = restaurant_data["telegram_id"]
 
     # Приводим yandex_link к необходимому виду
-    rest_link = check_full_url_yandex(rest_link)
-    org_url, reviews_url = process_url_yandex(rest_link)
-    rest_link = org_url
+    user_link = check_full_url_yandex(user_url=rest_link)
+    org_url, reviews_url = process_url_yandex(user_link)
 
     # Создаем новый ресторан в базе данных
     try:
         restaurant = Restaurant(
             wp_id=wp_id,
             title=rest_title,
-            yandex_link=rest_link,  # Сохраняем org_url
+            yandex_link=org_url,
             address=rest_address,
             tg_channal=tg_id,
         )
@@ -40,14 +39,14 @@ def process_restaurant_creation(restaurant_data):
         session.commit()
 
         # Запускаем функцию в отдельном потоке для работы с yandex_link
-        rest_id = read_restaurant_data(rest_data=rest_link)['id']
+        rest_id = read_restaurant_data(rest_data=org_url)['id']
         thread = Thread(target=run_yandex_check, args=(reviews_url, rest_id))
         thread.start()
 
     except IntegrityError as e:
         session.rollback()
         logging.info(f"Ошибка уникальности: {e}")
-        raise ValueError("Restaurant already exists.")
+        raise ValueError("Ресторан уже зарегистрирован.")
     finally:
         session.close()
 
@@ -57,7 +56,7 @@ def run_yandex_check(reviews_url, restaurant_id):
     try:
         ya_prim_coll(reviews_url=reviews_url, rest_id=restaurant_id)
     except Exception as e:
-        logging.error(f"Error occurred while calling ya_prim_coll: {e}")
+        logging.error(f"Ошибка при вызове ya_prim_coll: {e}")
 
 
 @create_restaurant_bp.route("/create_restaurant", methods=["POST"])
