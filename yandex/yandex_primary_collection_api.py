@@ -28,9 +28,10 @@ from constants import (
 )
 from data.create_data import create_review
 from semantic_analysis.simple_semantic import simple_semantic
+from yandex.ya_prim_coll_month_insight_api import primary_month_insight
 
 # Настройка логирования
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 load_dotenv()
@@ -239,5 +240,8 @@ def ya_prim_coll(reviews_url, rest_id):
 
     logger.info("Закрываем браузер.")
     driver.quit()
+    # Начинаем сбор инсайтов для ресторана
+    logger.info(f"Приступаем к анализу инсайтов для id: {rest_id}.")
+    primary_month_insight(rest_id=rest_id)
 
     return len(sorted_reviews)
