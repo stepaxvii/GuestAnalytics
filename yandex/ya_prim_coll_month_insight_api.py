@@ -1,9 +1,9 @@
 import logging
 
-from api.db import session
 from data.create_data import create_insight
-from data.read_data import get_unique_sorted_dates, read_rest_ya_reviews_date
+from data.read_data import read_rest_ya_reviews_date
 from semantic_analysis.month_insight import month_insight
+from utils.date import month_for_prim_coll
 
 
 # Настройка логирования
@@ -18,7 +18,7 @@ def primary_month_insight(rest_id: int):
         f"Запускаем первичный анализ инсайтов для ресторана {rest_id}."
     )
     try:
-        date_list = get_unique_sorted_dates(session=session, rest_id=rest_id)
+        date_list = month_for_prim_coll()
         logger.info(
             f"Найдено {len(date_list)} уникальных дат для ресторана {rest_id}."
         )

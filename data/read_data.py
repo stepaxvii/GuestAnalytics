@@ -1,5 +1,3 @@
-from sqlalchemy import func
-
 from api.db import session
 from data.data_main import Restaurant, RestaurantInsight, YandexReview
 
@@ -127,21 +125,3 @@ def read_rest_month_insight_list(restaurant_id):
 
     # Если инсайт не найден, возвращаем пустой список
     return []
-
-
-def get_unique_sorted_dates(session, rest_id):
-    """Функция для получения отсортированных дат в формате YYYY-MM."""
-    unique_dates = (
-        # выбираем первые 7 символов (YYYY-MM)
-        # выбираем только уникальные даты
-        # сортируем по году и месяцу
-        session.query(func.substr(YandexReview.created_at, 1, 7))
-        .filter(YandexReview.restaurant_id == rest_id)
-        .distinct()
-        .order_by(func.substr(YandexReview.created_at, 1, 7).asc())
-        .all()
-    )
-
-    # Преобразуем результат в список строк
-    date_list = [date[0] for date in unique_dates]
-    return date_list

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from constants import DATE_FORMAT
+from constants import DATE_FORMAT, DATE_FORMAT_FOR_MONTH_INSIGHT
 
 
 def handle_date(date_str, actual_date):
@@ -86,18 +86,32 @@ def check_month(date: str):
     return date == last_month, last_month
 
 
-def make_last_month(current_date: datetime):
-    """Функция выявления предыдущего месяца."""
+def make_last_months(current_date: datetime):
+    """Функция выявления предыдущего и позапрошлого месяцев."""
 
     if current_date.month == 1:
-        last_month = current_date.replace(
+        last_month = current_date.replace(year=current_date.year - 1, month=12)
+        month_bef_last = last_month.replace(month=11)
+    elif current_date.month == 2:
+        last_month = current_date.replace(month=1)
+        month_bef_last = current_date.replace(
             year=current_date.year - 1, month=12
         )
     else:
-        last_month = current_date.replace(
-            month=current_date.month - 1
-        )
+        last_month = current_date.replace(month=current_date.month - 1)
+        month_bef_last = current_date.replace(month=current_date.month - 2)
 
-    last_month = last_month.strftime('%Y-%m')
+    last_month = last_month.strftime(DATE_FORMAT_FOR_MONTH_INSIGHT)
+    month_bef_last = month_bef_last.strftime(DATE_FORMAT_FOR_MONTH_INSIGHT)
 
-    return last_month
+    return last_month, month_bef_last
+
+
+def month_for_prim_coll():
+    """Функция выявления двух последних месяцев для первичных инсайтов."""
+
+    # Выявляем текущую дату
+    current_date = datetime.now()
+    last_month, month_bef_last = make_last_months(current_date=current_date)
+
+    return last_month, month_bef_last
