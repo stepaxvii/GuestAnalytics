@@ -17,7 +17,7 @@ from data.read_data import (
     read_rest_ya_reviews_date
 )
 from semantic_analysis.month_insight import month_insight
-from utils.date import check_month, make_last_month
+from utils.date import check_month, make_last_months
 from utils.message_text import get_star_rating
 from yandex.yandex_check_new_reviews import matching_reviews
 
@@ -123,6 +123,10 @@ async def check_new_insight_periodically(bot: Bot):
             # Пауза между проверками 12 часов
             await asyncio.sleep(43200)
             logging.info("Функция для запуска анализов новых инсайтов.")
+            await bot.send_message(
+                chat_id=ADMIN_ID,
+                text="Запуск периодической задачи инсайтов."
+            )
 
             # Получаем текущий месяц для анализа
             current_date = datetime.now()
@@ -145,7 +149,9 @@ async def check_new_insight_periodically(bot: Bot):
                         )
                         asyncio.sleep(1)
 
-                        last_month = make_last_month(current_date=current_date)
+                        last_month = make_last_months(
+                            current_date=current_date
+                        )[0]
 
                         # Извлекаем отзывы за текущий месяц
                         reviews_data = read_rest_ya_reviews_date(

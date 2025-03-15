@@ -53,7 +53,7 @@ def dashboard():
             return jsonify({
                 "success": False,
                 "data": None,
-                "message": "Отзывы не найдены"
+                "message": "В данный момент мы трудимся над анализом озывов."
             }), 404
 
         # Общее количество отзывов за всё время
@@ -158,5 +158,6 @@ def dashboard():
         return jsonify({
             "success": False,
             "data": None,
-            "message": "Произошла ошибка при обработке запроса"
+            "message": "Произошла ошибка при обработке запроса.\n"
+            "Обратитель в поддержку."
         }), 500
