@@ -14,7 +14,7 @@ from data.read_data import (
     read_rest_ya_reviews_date
 )
 from semantic_analysis.month_insight import month_insight
-from utils.date import check_month, make_last_month
+from utils.date import check_month, make_last_months
 
 load_dotenv()
 
@@ -55,7 +55,7 @@ async def test_insight(callback_query: CallbackQuery, bot: Bot):
                 )
                 asyncio.sleep(1)
 
-                last_month = make_last_month(current_date=current_date)
+                last_month = make_last_months(current_date=current_date)[0]
 
                 # Извлекаем отзывы за текущий месяц
                 reviews_data = read_rest_ya_reviews_date(
