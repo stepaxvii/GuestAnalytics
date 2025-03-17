@@ -123,5 +123,5 @@ def read_rest_month_insight_list(restaurant_id):
         ]
         return insights
 
-    # Если инсайт не найден, возвращаем пустой список
-    return []
+    # Если инсайт не найден
+    return ['Анализ ещё не завершён.']

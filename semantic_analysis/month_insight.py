@@ -1,5 +1,7 @@
 import openai
 from os import getenv
+import time
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -7,7 +9,7 @@ load_dotenv()
 OPENAI_API_KEY = getenv('OPENAI_API_KEY')
 
 if not OPENAI_API_KEY:
-    raise ValueError("API Key is missing!")
+    raise ValueError("API Key не инициализирован!")
 
 
 def month_insight(reviews_block):
@@ -33,11 +35,16 @@ def month_insight(reviews_block):
         "{reviews_block}" """
     )
 
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=1000,
-        temperature=0.7
-    )
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=1000,
+            temperature=0.7
+        )
+        return response['choices'][0]['message']['content']
 
-    return response['choices'][0]['message']['content']
+    except openai.error.APIError as e:
+        print(f"OpenAI API ошибка: {e}")
+        time.sleep(5)
+        return month_insight(reviews_block)

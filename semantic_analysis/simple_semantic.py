@@ -10,7 +10,7 @@ load_dotenv()
 OPENAI_API_KEY = getenv('OPENAI_API_KEY')
 
 if not OPENAI_API_KEY:
-    raise ValueError("API Key is missing!")
+    raise ValueError("API Key не инициализирован!")
 
 
 def simple_semantic(review_text):
@@ -41,6 +41,6 @@ def simple_semantic(review_text):
         return response['choices'][0]['message']['content']
 
     except openai.error.APIError as e:
-        print(f"OpenAI API Error: {e}")
+        print(f"OpenAI API ошибка: {e}")
         time.sleep(5)
         return simple_semantic(review_text)
