@@ -20,7 +20,7 @@ from utils.dashboard import (
     calculate_satisfaction_level_for_month,
     count_rest_ya_reviews
 )
-from utils.date import month_dict
+from utils.dashboard import month_dict
 
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
@@ -83,7 +83,9 @@ def dashboard():
 
             # Используем словарь для перевода месяца в русский формат
             month_str = month_start.strftime("%m")
-            labels.insert(0, f"{month_dict[month_str]} {month_start.year}")
+            labels.insert(
+                0, f"{month_dict[month_str]} {month_start.strftime('%y')}"
+            )
 
             # Получаем количество отзывов за месяц
             reviews_in_month = session.query(YandexReview).filter(

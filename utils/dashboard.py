@@ -4,6 +4,22 @@ from sqlalchemy.types import Date as DATE
 from api.db import session
 from data.data_main import YandexReview
 
+# Словарь для нужного формата дат в dashboard
+month_dict = {
+    "01": "янв",
+    "02": "фев",
+    "03": "мар",
+    "04": "апр",
+    "05": "май",
+    "06": "июн",
+    "07": "июл",
+    "08": "авг",
+    "09": "сен",
+    "10": "окт",
+    "11": "ноя",
+    "12": "дек"
+}
+
 
 def count_rest_ya_reviews(restaurant_id):
     """Получаем количество отзывов с Яндекса определённого ресторана."""
