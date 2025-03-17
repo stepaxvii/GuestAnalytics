@@ -335,13 +335,13 @@ async def generate_edit_keyboard() -> InlineKeyboardMarkup:
             [
                 InlineKeyboardButton(
                     text="TG-канал",
-                    callback_data="edit_tg_channal"
+                    callback_data="edit_tg"
                 )
             ],
             [
                 InlineKeyboardButton(
                     text="wordpress ID",
-                    callback_data="edit_wp_id"
+                    callback_data="edit_wp"
                 )
             ],
             [
@@ -393,7 +393,7 @@ async def edit_restaurant(callback_query: CallbackQuery, state: FSMContext):
 
 @router.callback_query(
         lambda c: c.data in [
-            "edit_title", "edit_address", "edit_tg_channal", "edit_wp_id"
+            "edit_title", "edit_address", "edit_tg", "edit_wp"
         ]
 )
 async def edit_field(callback_query: CallbackQuery, state: FSMContext):
