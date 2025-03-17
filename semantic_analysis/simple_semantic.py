@@ -33,7 +33,7 @@ def simple_semantic(review_text):
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=10,
             temperature=0.7
