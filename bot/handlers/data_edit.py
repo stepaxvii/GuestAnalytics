@@ -54,8 +54,7 @@ async def handle_data_edit(callback_query: Message):
 
 @router.callback_query(lambda c: c.data.startswith('data_edit_rest_'))
 async def edit_restaurant(callback_query: CallbackQuery, state: FSMContext):
-    user_id = callback_query.from_user.id
-    if user_id == ADMIN_ID:
+    if await check_admin(callback_query.from_user.id):
         restaurant_id = int(callback_query.data.split('_')[-1])
 
         # Сохраняем id ресторана в состоянии
@@ -105,8 +104,7 @@ async def edit_restaurant(callback_query: CallbackQuery, state: FSMContext):
 
 @router.callback_query(lambda c: c.data == "edit_title")
 async def edit_title(callback_query: CallbackQuery, state: FSMContext):
-    user_id = callback_query.from_user.id
-    if user_id == ADMIN_ID:
+    if await check_admin(callback_query.from_user.id):
         # Переходим к состоянию редактирования названия
         await state.set_state(RestaurantEditState.title_edit)
 
@@ -115,8 +113,7 @@ async def edit_title(callback_query: CallbackQuery, state: FSMContext):
 
 @router.callback_query(lambda c: c.data == "edit_address")
 async def edit_address(callback_query: CallbackQuery, state: FSMContext):
-    user_id = callback_query.from_user.id
-    if user_id == ADMIN_ID:
+    if await check_admin(callback_query.from_user.id):
         # Переходим к состоянию редактирования адреса
         await state.set_state(RestaurantEditState.address_edit)
 
@@ -125,8 +122,7 @@ async def edit_address(callback_query: CallbackQuery, state: FSMContext):
 
 @router.callback_query(lambda c: c.data == "edit_tg_channal")
 async def edit_tg_channal(callback_query: CallbackQuery, state: FSMContext):
-    user_id = callback_query.from_user.id
-    if user_id == ADMIN_ID:
+    if await check_admin(callback_query.from_user.id):
         # Переходим к состоянию редактирования tg_channal
         await state.set_state(RestaurantEditState.tg_channal_edit)
 
@@ -135,8 +131,7 @@ async def edit_tg_channal(callback_query: CallbackQuery, state: FSMContext):
 
 @router.callback_query(lambda c: c.data == "edit_wp_id")
 async def edit_wp_id(callback_query: CallbackQuery, state: FSMContext):
-    user_id = callback_query.from_user.id
-    if user_id == ADMIN_ID:
+    if await check_admin(callback_query.from_user.id):
         # Переходим к состоянию редактирования wp_id_edit
         await state.set_state(RestaurantEditState.wp_id_edit)
 
@@ -145,8 +140,7 @@ async def edit_wp_id(callback_query: CallbackQuery, state: FSMContext):
 
 @router.message(RestaurantEditState.title_edit)
 async def save_title(message: Message, state: FSMContext):
-    user_id = message.from_user.id
-    if user_id == ADMIN_ID:
+    if await check_admin(message.from_user.id):
         new_title = message.text.strip()
 
         if new_title:
@@ -172,8 +166,7 @@ async def save_title(message: Message, state: FSMContext):
 
 @router.message(RestaurantEditState.address_edit)
 async def save_address(message: Message, state: FSMContext):
-    user_id = message.from_user.id
-    if user_id == ADMIN_ID:
+    if await check_admin(message.from_user.id):
         new_address = message.text.strip()
 
         if new_address:
@@ -199,8 +192,7 @@ async def save_address(message: Message, state: FSMContext):
 
 @router.message(RestaurantEditState.tg_channal_edit)
 async def save_tg_channal(message: Message, state: FSMContext):
-    user_id = message.from_user.id
-    if user_id == ADMIN_ID:
+    if await check_admin(message.from_user.id):
         new_tg_channal = message.text.strip()
 
         if new_tg_channal:
@@ -226,8 +218,7 @@ async def save_tg_channal(message: Message, state: FSMContext):
 
 @router.message(RestaurantEditState.wp_id_edit)
 async def save_wp_id(message: Message, state: FSMContext):
-    user_id = message.from_user.id
-    if user_id == ADMIN_ID:
+    if await check_admin(message.from_user.id):
         new_wp_id = message.text.strip()
 
         if new_wp_id:
@@ -253,8 +244,7 @@ async def save_wp_id(message: Message, state: FSMContext):
 
 @router.callback_query(lambda c: c.data == "restaurant_delete")
 async def delete_restaurant(callback_query: CallbackQuery, state: FSMContext):
-    user_id = callback_query.from_user.id
-    if user_id == ADMIN_ID:
+    if await check_admin(callback_query.from_user.id):
         data = await state.get_data()
         restaurant_id = data.get("restaurant_id")
 
@@ -277,171 +267,3 @@ async def delete_restaurant(callback_query: CallbackQuery, state: FSMContext):
         # Завершаем редактирование
         await state.clear()
         await callback_query.message.answer("Редактирование завершено.")
-
-
-# from os import getenv
-
-# from aiogram import Router
-# from aiogram.fsm.context import FSMContext
-# from aiogram.types import (
-#     InlineKeyboardButton,
-#     InlineKeyboardMarkup,
-#     CallbackQuery,
-#     Message
-# )
-# from dotenv import load_dotenv
-
-# from api.db import session
-# from bot.states import RestaurantEditState
-# from data.data_main import Restaurant
-# from data.read_data import read_all_restaurant_data
-
-# load_dotenv()
-# router = Router()
-# ADMIN_ID = int(getenv('ADMIN_ID'))
-
-
-# async def check_admin(user_id: int) -> bool:
-#     """Проверка, является ли пользователь администратором."""
-#     return user_id == ADMIN_ID
-
-
-# async def generate_restaurant_keyboard(
-#         restaurants_list: list
-# ) -> InlineKeyboardMarkup:
-#     """Генерация клавиатуры для выбора ресторана."""
-#     return InlineKeyboardMarkup(
-#         inline_keyboard=[
-#             [InlineKeyboardButton(
-#                 text=f"{restaurant['title']} {restaurant['address']}",
-#                 callback_data=f"data_edit_rest_{restaurant['id']}"
-#             )] for restaurant in restaurants_list
-#         ]
-#     )
-
-
-# async def generate_edit_keyboard() -> InlineKeyboardMarkup:
-#     """Генерация клавиатуры для выбора действия редактирования."""
-#     return InlineKeyboardMarkup(
-#         inline_keyboard=[
-#             [
-#                 InlineKeyboardButton(
-#                     text="название",
-#                     callback_data="edit_title"
-#                 )
-#             ],
-#             [
-#                 InlineKeyboardButton(
-#                     text="адрес",
-#                     callback_data="edit_address"
-#                 )
-#             ],
-#             [
-#                 InlineKeyboardButton(
-#                     text="TG-канал",
-#                     callback_data="edit_tg"
-#                 )
-#             ],
-#             [
-#                 InlineKeyboardButton(
-#                     text="wordpress ID",
-#                     callback_data="edit_wp"
-#                 )
-#             ],
-#             [
-#                 InlineKeyboardButton(
-#                     text="удалить ресторан",
-#                     callback_data="restaurant_delete"
-#                 )
-#             ]
-#         ]
-#     )
-
-
-# async def update_restaurant_field(
-#         restaurant_id: int, field: str, new_value: str, message: Message
-# ):
-#     """Обновление поля ресторана в базе данных."""
-#     restaurant = session.query(
-#         Restaurant
-#     ).filter(Restaurant.id == restaurant_id).first()
-#     if restaurant:
-#         setattr(restaurant, field, new_value)
-#         session.commit()
-#         await message.answer(f"{field.capitalize()} обновлено на {new_value}.")
-#     else:
-#         await message.answer("Ошибка при изменении данных.")
-
-
-# @router.callback_query(lambda c: c.data == 'data_edit')
-# async def handle_data_edit(callback_query: CallbackQuery):
-#     if await check_admin(callback_query.from_user.id):
-#         restaurants_list = read_all_restaurant_data()
-#         if not restaurants_list:
-#             await callback_query.answer("Нет доступных ресторанов.")
-#             return
-#         keyboard = await generate_restaurant_keyboard(restaurants_list)
-#         await callback_query.message.answer(
-#             "Выберите ресторан для редактирования:", reply_markup=keyboard
-#         )
-
-
-# @router.callback_query(lambda c: c.data.startswith('data_edit_rest_'))
-# async def edit_restaurant(callback_query: CallbackQuery, state: FSMContext):
-#     if await check_admin(callback_query.from_user.id):
-#         restaurant_id = int(callback_query.data.split('_')[-1])
-#         await state.update_data(restaurant_id=restaurant_id)
-#         keyboard = await generate_edit_keyboard()
-#         await callback_query.message.answer("Изменить:", reply_markup=keyboard)
-
-
-# @router.callback_query(
-#         lambda c: c.data in [
-#             "edit_title", "edit_address", "edit_tg", "edit_wp"
-#         ]
-# )
-# async def edit_field(callback_query: CallbackQuery, state: FSMContext):
-#     if await check_admin(callback_query.from_user.id):
-#         field = callback_query.data.split('_')[-1]
-#         await state.set_state(getattr(RestaurantEditState, f"{field}_edit"))
-#         await callback_query.message.answer(f"Введите новое значение {field}:")
-
-
-# @router.message(
-#         RestaurantEditState.title_edit,
-#         RestaurantEditState.address_edit,
-#         RestaurantEditState.tg_channal_edit,
-#         RestaurantEditState.wp_id_edit
-# )
-# async def save_field(message: Message, state: FSMContext):
-#     if await check_admin(message.from_user.id):
-#         data = await state.get_data()
-#         restaurant_id = data.get("restaurant_id")
-#         field = (await state.get_state()).split('.')[-1].replace('_edit', '')
-#         new_value = message.text.strip()
-#         if new_value:
-#             await update_restaurant_field(
-#                 restaurant_id, field, new_value, message
-#             )
-#         await state.clear()
-#         await message.answer("Редактирование завершено.")
-
-
-# @router.callback_query(lambda c: c.data == "restaurant_delete")
-# async def delete_restaurant(callback_query: CallbackQuery, state: FSMContext):
-#     if await check_admin(callback_query.from_user.id):
-#         data = await state.get_data()
-#         restaurant_id = data.get("restaurant_id")
-#         restaurant = session.query(
-#             Restaurant
-#         ).filter(Restaurant.id == restaurant_id).first()
-#         if restaurant:
-#             session.delete(restaurant)
-#             session.commit()
-#             await callback_query.message.answer(
-#                 f"Ресторан с ID {restaurant_id} был удалён."
-#             )
-#         else:
-#             await callback_query.message.answer("Ресторан не найден.")
-#         await state.clear()
-#         await callback_query.message.answer("Редактирование завершено.")

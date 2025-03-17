@@ -23,12 +23,16 @@ router = Router()
 ADMIN_ID = int(getenv('ADMIN_ID'))
 
 
+async def check_admin(user_id: int) -> bool:
+    """Проверка, является ли пользователь администратором."""
+    return user_id == ADMIN_ID
+
+
 @router.callback_query(lambda c: c.data == 'test_insight')
 async def test_insight(callback_query: CallbackQuery, bot: Bot):
     """Обрабатываем запрос проверки инсайтов за прошедший месяц."""
 
-    user_id = callback_query.from_user.id
-    if user_id == ADMIN_ID:
+    if await check_admin(callback_query.from_user.id):
         await callback_query.message.answer(
             text='Тесирую месячный инсайт для ресторанов.'
         )

@@ -19,12 +19,16 @@ router = Router()
 ADMIN_ID = int(getenv('ADMIN_ID'))
 
 
+async def check_admin(user_id: int) -> bool:
+    """Проверка, является ли пользователь администратором."""
+    return user_id == ADMIN_ID
+
+
 @router.callback_query(lambda c: c.data == 'check_new')
 async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
     """Обрабатываем запрос проверки новых отзывов"""
 
-    user_id = callback_query.from_user.id
-    if user_id == ADMIN_ID:
+    if await check_admin(callback_query.from_user.id):
         await callback_query.message.answer(
             text='Проверяю наличие новых отзывов для ресторанов партнёров.'
         )
@@ -124,8 +128,7 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
 )
 async def validate_link(message: Message):
     """Проверка ссылки на валидность и возврат готовой ссылки."""
-    user_id = message.from_user.id
-    if user_id == ADMIN_ID:
+    if await check_admin(message.from_user.id):
         user_link = message.text
 
         await asyncio.sleep(1)
