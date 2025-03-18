@@ -4,6 +4,7 @@ from data.create_data import create_insight
 from data.read_data import read_rest_ya_reviews_date
 from semantic_analysis.month_insight import month_insight
 from utils.date import month_for_prim_coll
+from utils.semantic import make_count_insights
 
 
 # Настройка логирования
@@ -34,10 +35,13 @@ def primary_month_insight(rest_id: int):
             )
 
             # Запрашиваем инсайты от openAI
+            count_insights = make_count_insights(review_block=reviews_data)
             logger.info(
                 f"Отправляю на анализ {len(reviews_data)} отзывов за {date}."
             )
-            insight = month_insight(reviews_block=reviews_data)
+            insight = month_insight(
+                reviews_block=reviews_data, count_insights=count_insights
+            )
 
             # Сохраняем инсайты в БД
             if insight:

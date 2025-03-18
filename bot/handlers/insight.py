@@ -15,6 +15,7 @@ from data.read_data import (
 )
 from semantic_analysis.month_insight import month_insight
 from utils.date import check_month, make_last_months
+from utils.semantic import make_count_insights
 
 load_dotenv()
 
@@ -82,7 +83,10 @@ async def test_insight(callback_query: CallbackQuery, bot: Bot):
                     )
 
                 # Выполнение анализа инсайтов
-                insight = month_insight(reviews_block=reviews)
+                count_insights = make_count_insights(review_block=reviews)
+                insight = month_insight(
+                    reviews_block=reviews, count_insights=count_insights
+                )
                 insight_data = (rest_id, last_month, insight)
                 create_insight(data=insight_data)
 
