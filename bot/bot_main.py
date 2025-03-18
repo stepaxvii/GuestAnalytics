@@ -74,12 +74,6 @@ load_dotenv()
 # Из окружения извлекаем необходимые токены, ключи и переменные
 TELEGRAM_TOKEN = getenv('TELEGRAM_TOKEN')
 
-# Настройка логирования
-logging.basicConfig(
-    level=logging.INFO,  # Устанавливаем уровень логирования INFO
-    stream=sys.stdout,    # Выводим логи в стандартный вывод
-)
-
 
 # Запуск планировщика внутри функции main
 async def main():
@@ -113,6 +107,9 @@ async def main():
         logging.error(f"Произошла ошибка: {error}")
 
 if __name__ == "__main__":
-    # Логирование в main, если нужно вывести дополнительные логи
-    logging.info('Запуск Telegram-бота...')
+    # Настройка логирования
+    logging.basicConfig(
+        level=logging.INFO,
+        stream=sys.stdout,
+    )
     asyncio.run(main())

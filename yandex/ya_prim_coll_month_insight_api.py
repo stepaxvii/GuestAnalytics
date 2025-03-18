@@ -1,4 +1,5 @@
 import logging
+import sys
 
 from data.create_data import create_insight
 from data.read_data import read_rest_ya_reviews_date
@@ -8,7 +9,7 @@ from utils.semantic import make_count_insights
 
 
 # Настройка логирования
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 logger = logging.getLogger(__name__)
 
 

@@ -1,3 +1,4 @@
+import sys
 import logging
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver import Firefox, FirefoxOptions
@@ -31,7 +32,7 @@ from semantic_analysis.simple_semantic import simple_semantic
 from yandex.ya_prim_coll_month_insight_api import primary_month_insight
 
 # Настройка логирования
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 logger = logging.getLogger(__name__)
 
 load_dotenv()
