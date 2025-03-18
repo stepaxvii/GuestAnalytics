@@ -18,13 +18,17 @@ from api.db import create_tables
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+logger = logging.getLogger(__name__)
 
+# Инициализация приложения Flask
 app = Flask(__name__)
 
-# Создаем таблицы, если их еще нет
+# Логируем запуск процесса создания таблиц
+logger.info("Пытаемся создать таблицы в базе данных...")
 create_tables()
+logger.info("Таблицы успешно созданы или уже существуют.")
 
-# Регистрируем Blueprint для каждого API
+# Регистрируем Blueprint для каждого API (без логирования)
 app.register_blueprint(dashboard.dashboard_bp, url_prefix='/api')
 app.register_blueprint(reviews.total_reviews_bp, url_prefix='/api')
 app.register_blueprint(reviews.trend_reviews_bp, url_prefix='/api')
@@ -42,6 +46,7 @@ app.register_blueprint(
     edit_restaurant.edit_restaurant_bp, url_prefix='/api'
 )
 
-
+# Запуск приложения
 if __name__ == '__main__':
+    logger.info("Запуск Flask приложения на порту 5000...")
     app.run(host='0.0.0.0', port=5000, debug=True)
