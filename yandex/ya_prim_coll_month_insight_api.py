@@ -34,14 +34,15 @@ def primary_month_insight(rest_id: int):
             reviews_data = read_rest_ya_reviews_date(
                 restaurant_id=rest_id, date_filter=date
             )
+            reviews = [review.content for review in reviews_data]
 
             # Запрашиваем инсайты от openAI
-            count_insights = make_count_insights(review_block=reviews_data)
+            count_insights = make_count_insights(review_block=reviews)
             logger.info(
-                f"Отправляю на анализ {len(reviews_data)} отзывов за {date}."
+                f"Отправляю на анализ {len(reviews)} отзывов за {date}."
             )
             insight = month_insight(
-                reviews_block=reviews_data, count_insights=count_insights
+                reviews_block=reviews, count_insights=count_insights
             )
 
             # Сохраняем инсайты в БД
