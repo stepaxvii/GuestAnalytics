@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     container_name: postgres_db
@@ -20,6 +18,11 @@ services:
       retries: 5
     networks:
       - backend
+    logging:
+      driver: "json-file"  # Логирование в json
+      options:
+        max-size: "10m"  # Максимальный размер лог-файла
+        max-file: "3"    # Максимальное количество лог-файлов
 
   flask:
     image: stepaxvii/flask_app:latest
@@ -34,6 +37,11 @@ services:
     restart: unless-stopped
     networks:
       - backend
+    logging:
+      driver: "json-file"  # Логирование в json
+      options:
+        max-size: "10m"  # Максимальный размер лог-файла
+        max-file: "3"    # Максимальное количество лог-файлов
 
   bot:
     image: stepaxvii/bot_app:latest
@@ -46,6 +54,11 @@ services:
     restart: unless-stopped
     networks:
       - backend
+    logging:
+      driver: "json-file"  # Логирование в json
+      options:
+        max-size: "10m"  # Максимальный размер лог-файла
+        max-file: "3"    # Максимальное количество лог-файлов
 
 volumes:
   pg_data:
