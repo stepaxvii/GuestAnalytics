@@ -12,10 +12,10 @@ from os import getenv
 from dotenv import load_dotenv
 
 from constants import (
-    # POZITIVE_REVIEWS_SORTED,
+    POZITIVE_REVIEWS_SORTED,
     NEGATIVE_REVIEWS_SORTED,
     NEW_REVIEWS_SORTED,
-    # DEFAULT_REVIEWS_SORTED,
+    DEFAULT_REVIEWS_SORTED,
     SORTED_BLOCK,
     AUTHOR_ELEMENT,
     DATE_ELEMENT,
@@ -43,7 +43,7 @@ DRIVER_PATH = getenv('DRIVER_PATH')
 def scroll_to_bottom(driver, elem, prev_reviews_count):
     """Функция для скроллинга до последнего отзыва."""
     driver.execute_script("arguments[0].scrollIntoView();", elem)
-    sleep(3)
+    sleep(1)
     reviews = driver.find_elements(By.CLASS_NAME, CARD_REVIEWS_BLOCK)
 
     # Проверяем изменение количества отзывов за три попытки
@@ -121,7 +121,7 @@ def ya_prim_coll(reviews_url, rest_id):
                 )
                 sort_filter.click()
                 logger.info(f"Сортировка {sort_xpath} выбрана.")
-                sleep(5)
+                sleep(3)
                 break
             except Exception as e:
                 logger.error(f"Ошибка при выборе сортировки: {e}")
@@ -192,16 +192,20 @@ def ya_prim_coll(reviews_url, rest_id):
                 except Exception as e:
                     logger.error(f"Ошибка при получении данных отзыва: {e}")
 
-            sleep(7)
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_all_elements_located(
+                    (By.CLASS_NAME, CARD_REVIEWS_BLOCK)
+                )
+            )
 
         all_reviews.update(unique_reviews)
 
     collect_reviews(NEW_REVIEWS_SORTED)
 
     if total_count > MAX_VIEW_REVIEWS:
-        # collect_reviews(POZITIVE_REVIEWS_SORTED)
+        collect_reviews(POZITIVE_REVIEWS_SORTED)
         collect_reviews(NEGATIVE_REVIEWS_SORTED)
-        # collect_reviews(DEFAULT_REVIEWS_SORTED)
+        collect_reviews(DEFAULT_REVIEWS_SORTED)
 
     logger.info(f"Общее количество уникальных отзывов: {len(all_reviews)}")
 

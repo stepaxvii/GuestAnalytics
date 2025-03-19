@@ -19,7 +19,6 @@ from utils.dashboard import (
     calculate_satisfaction_level,
     calculate_satisfaction_level_for_month,
     count_reviews_last_year
-    # count_rest_ya_reviews
 )
 from utils.dashboard import month_dict
 
@@ -54,8 +53,8 @@ def dashboard():
             return jsonify({
                 "success": False,
                 "data": None,
-                "message": "Мы трудимся над анализом отзывов."
-                "Это занимает от 10 до 60 минут."
+                "message": "Мы трудимся над анализом отзывов. "
+                "Обычно это занимает от 10 до 60 минут."
             }), 404
 
         # Общее количество отзывов за всё время
