@@ -35,23 +35,24 @@ def count_rest_ya_reviews(restaurant_id):
 def count_reviews_last_year(restaurant_id):
     """
     Получаем количество отзывов за последний год
-    для определённого ресторана.
+    с Яндекса для определённого ресторана.
     """
     try:
         # Текущая дата
         current_date = datetime.now()
 
-        # Начало года (год назад от текущей даты)
-        start_date = current_date.replace(year=current_date.year - 1)
+        # Дата год назад (месяц назад)
+        start_date = current_date.replace(year=current_date.year - 1, day=1)
 
-        # Преобразуем строку в формат даты для сравнения
-        # Пример: "2024-03" -> "2024-03-01"
-        start_date_str = start_date.strftime("%Y-%m")
+        # Преобразуем обе даты в формат "YYYY-MM"
+        current_month_str = current_date.strftime("%Y-%m")
+        start_month_str = start_date.strftime("%Y-%m")
 
-        # Подсчитываем количество отзывов, сделанных в последний год
+        # Подсчитываем количество отзывов в последний год (по месяцам)
         total_reviews = session.query(YandexReview).filter(
             YandexReview.restaurant_id == restaurant_id,
-            func.date(YandexReview.created_at) >= start_date_str
+            func.substr(YandexReview.created_at, 1, 7) >= start_month_str,
+            func.substr(YandexReview.created_at, 1, 7) <= current_month_str
         ).count()
 
         return total_reviews
