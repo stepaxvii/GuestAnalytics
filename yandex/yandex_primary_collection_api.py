@@ -12,10 +12,10 @@ from os import getenv
 from dotenv import load_dotenv
 
 from constants import (
-    POZITIVE_REVIEWS_SORTED,
+    # POZITIVE_REVIEWS_SORTED,
     NEGATIVE_REVIEWS_SORTED,
     NEW_REVIEWS_SORTED,
-    DEFAULT_REVIEWS_SORTED,
+    # DEFAULT_REVIEWS_SORTED,
     SORTED_BLOCK,
     AUTHOR_ELEMENT,
     DATE_ELEMENT,
@@ -199,9 +199,9 @@ def ya_prim_coll(reviews_url, rest_id):
     collect_reviews(NEW_REVIEWS_SORTED)
 
     if total_count > MAX_VIEW_REVIEWS:
-        collect_reviews(POZITIVE_REVIEWS_SORTED)
+        # collect_reviews(POZITIVE_REVIEWS_SORTED)
         collect_reviews(NEGATIVE_REVIEWS_SORTED)
-        collect_reviews(DEFAULT_REVIEWS_SORTED)
+        # collect_reviews(DEFAULT_REVIEWS_SORTED)
 
     logger.info(f"Общее количество уникальных отзывов: {len(all_reviews)}")
 
