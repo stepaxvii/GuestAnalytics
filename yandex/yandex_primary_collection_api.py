@@ -12,7 +12,7 @@ from os import getenv
 from dotenv import load_dotenv
 
 from constants import (
-    POZITIVE_REVIEWS_SORTED,
+    # POZITIVE_REVIEWS_SORTED,
     NEGATIVE_REVIEWS_SORTED,
     NEW_REVIEWS_SORTED,
     DEFAULT_REVIEWS_SORTED,
@@ -192,18 +192,14 @@ def ya_prim_coll(reviews_url, rest_id):
                 except Exception as e:
                     logger.error(f"Ошибка при получении данных отзыва: {e}")
 
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_all_elements_located(
-                    (By.CLASS_NAME, CARD_REVIEWS_BLOCK)
-                )
-            )
+            sleep(3)
 
         all_reviews.update(unique_reviews)
 
     collect_reviews(NEW_REVIEWS_SORTED)
 
     if total_count > MAX_VIEW_REVIEWS:
-        collect_reviews(POZITIVE_REVIEWS_SORTED)
+        # collect_reviews(POZITIVE_REVIEWS_SORTED)
         collect_reviews(NEGATIVE_REVIEWS_SORTED)
         collect_reviews(DEFAULT_REVIEWS_SORTED)
 
