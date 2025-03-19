@@ -18,7 +18,8 @@ from utils.dashboard import (
     calculate_nps_for_month,
     calculate_satisfaction_level,
     calculate_satisfaction_level_for_month,
-    count_rest_ya_reviews
+    count_reviews_last_year
+    # count_rest_ya_reviews
 )
 from utils.dashboard import month_dict
 
@@ -57,7 +58,7 @@ def dashboard():
             }), 404
 
         # Общее количество отзывов за всё время
-        total_reviews = count_rest_ya_reviews(restaurant_id=restaurant_id)
+        total_reviews = count_reviews_last_year(restaurant_id=restaurant_id)
         # Среднее значение рейтинга за всё время
         average_rating = avg_rest_ya_rating(restaurant_id=restaurant_id)
         # Процент лояльных гостей (NPS)
