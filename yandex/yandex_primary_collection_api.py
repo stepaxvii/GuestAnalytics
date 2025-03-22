@@ -12,7 +12,6 @@ from os import getenv
 from dotenv import load_dotenv
 
 from constants import (
-    # POZITIVE_REVIEWS_SORTED,
     NEGATIVE_REVIEWS_SORTED,
     NEW_REVIEWS_SORTED,
     DEFAULT_REVIEWS_SORTED,
@@ -27,7 +26,7 @@ from constants import (
     TEXT_ELEMENT,
     MAX_VIEW_REVIEWS
 )
-from data.create_data import create_review
+from data.create_data import create_ya_review
 from semantic_analysis.simple_semantic import simple_semantic
 from yandex.ya_prim_coll_month_insight_api import primary_month_insight
 
@@ -199,7 +198,6 @@ def ya_prim_coll(reviews_url, rest_id):
     collect_reviews(NEW_REVIEWS_SORTED)
 
     if total_count > MAX_VIEW_REVIEWS:
-        # collect_reviews(POZITIVE_REVIEWS_SORTED)
         collect_reviews(NEGATIVE_REVIEWS_SORTED)
         collect_reviews(DEFAULT_REVIEWS_SORTED)
 
@@ -235,7 +233,7 @@ def ya_prim_coll(reviews_url, rest_id):
                 'text': review[4],
                 'semantic': review[5],
             }
-            create_review(review_data)
+            create_ya_review(review_data)
         except Exception as e:
             logger.error(f"Ошибка при добавлении отзыва в базу данных: {e}")
 

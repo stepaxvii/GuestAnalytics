@@ -6,7 +6,12 @@ from sqlalchemy.exc import IntegrityError, PendingRollbackError
 from dotenv import load_dotenv
 
 from api.db import session
-from data.data_main import Restaurant, RestaurantInsight, YandexReview
+from data.data_main import (
+    Restaurant,
+    RestaurantInsight,
+    TwogisReview,
+    YandexReview
+)
 
 load_dotenv()
 
@@ -38,8 +43,8 @@ def create_restaurant(data):
     session.close()
 
 
-def create_review(data):
-    """Создание отзыва из словаря."""
+def create_ya_review(data):
+    """Создание Яндекс отзыва из словаря."""
 
     # Извлекаем данные из словаря
     restaurant_id = data.get('restaurant_id')
@@ -58,6 +63,50 @@ def create_review(data):
 
     # Создаем экземпляр YandexReview с данными из словаря
     review = YandexReview(
+        restaurant_id=restaurant_id,
+        created_at=created_at,
+        author=author,
+        link=link,
+        rating=rating,
+        content=content,
+        semantic=semantic,
+    )
+
+    try:
+        # Добавляем и коммитим запись в базу данных
+        session.add(review)
+        session.commit()
+    except PendingRollbackError as e:
+        # Специальная обработка ошибки при наличии неоконченной транзакции
+        session.rollback()
+        logger.error(f"Ошибка с транзакцией: {e}")
+    except Exception as e:
+        session.rollback()  # Откат транзакции при ошибке
+        logger.error(f"Ошибка при добавлении отзыва в базу данных: {e}")
+    finally:
+        session.close()
+
+
+def create_twogis_review(data):
+    """Создание 2GIS отзыва из словаря."""
+
+    # Извлекаем данные из словаря
+    restaurant_id = data.get('restaurant_id')
+    created_at = data.get('review_date')
+    author = data.get('author_name', 'Аноним')
+    link = data.get('author_link', None)
+    rating = data.get('rating_value', 0)
+    content = data.get('text')
+    semantic = data.get('semantic', None)
+
+    # Проверка обязательных полей
+    if not created_at:
+        raise ValueError("Поле 'review_date' обязательно.")
+    if not content:
+        raise ValueError("Поле 'text' обязательно.")
+
+    # Создаем экземпляр 2GIS с данными из словаря
+    review = TwogisReview(
         restaurant_id=restaurant_id,
         created_at=created_at,
         author=author,

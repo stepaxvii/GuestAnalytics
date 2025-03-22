@@ -13,11 +13,10 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 DRIVER_PATH = getenv('DRIVER_PATH')
-TG_GROUP = getenv('TG_GROUP')
 
 
-def check_full_url_yandex(user_url):
-    """Функция проверки полной ссылки."""
+def check_full_url(user_url):
+    """Функция проверки полной Яндекс ссылки."""
 
     logger.info(f"Формируем полный адрес URL по user_url: {user_url}")
 

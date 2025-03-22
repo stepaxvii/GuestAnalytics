@@ -23,12 +23,10 @@ logger = logging.getLogger(__name__)
 # Инициализация приложения Flask
 app = Flask(__name__)
 
-# Логируем запуск процесса создания таблиц
-logger.info("Пытаемся создать таблицы в базе данных...")
+# Создания таблицы
 create_tables()
-logger.info("Таблицы успешно созданы или уже существуют.")
 
-# Регистрируем Blueprint для каждого API (без логирования)
+# Регистрируем Blueprint для каждого API
 app.register_blueprint(dashboard.dashboard_bp, url_prefix='/api')
 app.register_blueprint(reviews.total_reviews_bp, url_prefix='/api')
 app.register_blueprint(reviews.trend_reviews_bp, url_prefix='/api')

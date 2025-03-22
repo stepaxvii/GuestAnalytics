@@ -20,7 +20,7 @@ from constants import (
     RATING_ELEMENT,
     TEXT_ELEMENT
 )
-from data.create_data import create_review
+from data.create_data import create_ya_review
 from data.read_data import read_restaurant_data, read_rest_ya_reviews
 from semantic_analysis.simple_semantic import simple_semantic
 from utils.urls import process_url_yandex
@@ -231,7 +231,7 @@ def matching_reviews(org_url):
                 'semantic': review_data_tuple[6],
             }
 
-            create_review(review_data_dict)
+            create_ya_review(review_data_dict)
 
     else:
         logging.info("Новых отзывов нет.")

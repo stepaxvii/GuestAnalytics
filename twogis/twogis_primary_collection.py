@@ -10,18 +10,28 @@ from selenium.webdriver import Firefox, FirefoxOptions
 from selenium.webdriver.firefox.service import Service
 
 from constants import (
+    DATE_FORMAT,
     TWOGIS_REVIEW_BLOCK,
     TWOGIS_AUTHOR_CLASS,
     TWOGIS_REVIEW_TEXT_CLASS,
     TWOGIS_RATING_COLOR,
     TWOGIS_DATE_CLASS,
 )
+from data.create_data import create_twogis_review
 from utils.date import handle_date
+from utils.urls import process_url_twogis
+from semantic_analysis.simple_semantic import simple_semantic
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
-DRIVER_PATH = getenv('DRIVER_PATH', default='')
+DRIVER_PATH = getenv('DRIVER_PATH')
+
+# Если тестирую локально. Иначе комментить путь до драйвера ниже.
+# DRIVER_PATH = (
+#     r'C:\Users\stepa\Downloads\geckodriver-v0.36.0-win64\geckodriver.exe'
+# )
+
 
 # Логирование
 logging.basicConfig(level=logging.INFO)
@@ -49,12 +59,13 @@ def scroll_to_bottom(driver, elem, prev_reviews_count):
     return True  # Возвращаем True, что значит, что новых отзывов нет
 
 
-def twogis_prim_coll(url):
+def twogis_prim_coll(url: str, rest_id: int) -> int:
     options = FirefoxOptions()
     options.add_argument('--headless')
     service = Service(DRIVER_PATH)
     driver = Firefox(service=service, options=options)
-    driver.get(url)
+    reviews_url = process_url_twogis(original_url=url)
+    driver.get(reviews_url)
 
     # Подождём, пока страница полностью загрузится
     sleep(5)
@@ -130,24 +141,38 @@ def twogis_prim_coll(url):
     # Закрываем браузер
     driver.quit()
 
-    # Возвращаем все уникальные отзывы
-    results = [
-        {
-            "date": review[0],
-            "author": review[1],
-            "rating": review[2],
-            "text": review[3]
-        }
-        for review in unique_reviews
-    ]
+    new_reviews_to_save = set()
+    for review in unique_reviews:
+        semantic = simple_semantic(review_text=review[3])
+        # Создаём новый кортеж, добавляя 'semantic' в конец
+        review_with_semantic = review + (semantic,)
+        new_reviews_to_save.add(review_with_semantic)
 
-    return results
+    sorted_reviews = sorted(
+        new_reviews_to_save,
+        key=lambda x: datetime.strptime(x[0], DATE_FORMAT)
+    )
+    for review in sorted_reviews:
+        try:
+            # Проверяем наличие обязательных полей
+            if not review[0] or not review[3]:
+                logging.warning(
+                    f"Пропущен отзыв с отсутствующими данными: {review}"
+                )
+                continue
 
+            review_data = {
+                'restaurant_id': rest_id,
+                'review_date': review[0],
+                'author_name': review[1] if review[1] else 'Аноним',
+                'rating_value': review[2],
+                'text': review[3],
+                'semantic': review[4],
+            }
+            # Сохраняем отзывы в БД
+            create_twogis_review(review_data)
+        except Exception as e:
+            logging.error(f"Ошибка при добавлении отзыва в базу данных: {e}")
 
-if __name__ == "__main__":
-    url = "https://2gis.ru/sochi/firm/70000001082615141/tab/reviews"
-    results = twogis_prim_coll(url)
-
-    for r in results:
-        print(r)
-    print(len(results))
+    # Возвращаем число отсортированных отзывов.
+    return len(sorted_reviews)

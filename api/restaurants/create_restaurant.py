@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from api.db import session
 from data.data_main import Restaurant
 from data.read_data import read_restaurant_data
-from utils.urls import check_full_url_yandex, process_url_yandex
+from utils.urls import check_full_url, process_url_yandex
 from yandex.yandex_primary_collection_api import ya_prim_coll
 
 create_restaurant_bp = Blueprint("create_restaurant", __name__)
@@ -22,7 +22,7 @@ def process_restaurant_creation(restaurant_data):
     tg_id = restaurant_data["telegram_id"]
 
     # Приводим yandex_link к необходимому виду
-    user_link = check_full_url_yandex(user_url=rest_link)
+    user_link = check_full_url(user_url=rest_link)
     org_url, reviews_url = process_url_yandex(user_link)
 
     # Создаем новый ресторан в базе данных
@@ -74,7 +74,7 @@ def create_restaurant():
             thread.start()
 
             return jsonify(
-                {"status": "ok", "message": "Restaurant creation in progress."}
+                {"status": "ok", "message": "Создаём новый ресторан."}
             ), 200
         except ValueError as e:
             return jsonify(
@@ -82,4 +82,6 @@ def create_restaurant():
             ), 400
 
     # Если действие не является 'create', возвращаем ошибку
-    return jsonify({"status": "error", "message": "Invalid action."}), 400
+    return jsonify(
+        {"status": "error", "message": "Некорректное действие."}
+    ), 400

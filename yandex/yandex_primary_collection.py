@@ -28,7 +28,7 @@ from constants import (
     TEXT_ELEMENT,
     MAX_VIEW_REVIEWS
 )
-from data.create_data import create_restaurant, create_review
+from data.create_data import create_restaurant, create_ya_review
 from data.read_data import read_restaurant_data
 from semantic_analysis.simple_semantic import simple_semantic
 from utils.urls import process_url_yandex
@@ -272,7 +272,7 @@ def ya_prim_coll(original_url):
                 'text': review[4],
                 'semantic': review[5],
             }
-            create_review(review_data)
+            create_ya_review(review_data)
         except Exception as e:
             logger.error(f"Ошибка при добавлении отзыва в базу данных: {e}")
 

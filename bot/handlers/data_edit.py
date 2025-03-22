@@ -11,6 +11,8 @@ from api.db import session
 from bot.states import RestaurantEditState
 from data.data_main import Restaurant
 from data.read_data import read_all_restaurant_data
+from twogis.twogis_primary_collection import twogis_prim_coll
+from utils.urls import check_full_url
 
 load_dotenv()
 router = Router()
@@ -26,7 +28,7 @@ async def check_admin(user_id: int) -> bool:
 @router.callback_query(lambda c: c.data == 'data_edit')
 async def handle_data_edit(callback_query: Message):
     if await check_admin(callback_query.from_user.id):
-        # Получаем все рестораны с помощью вашей функции
+        # Получаем все рестораны
         restaurants_list = read_all_restaurant_data()
 
         # Проверяем, есть ли рестораны
@@ -89,6 +91,12 @@ async def edit_restaurant(callback_query: CallbackQuery, state: FSMContext):
                 ],
                 [
                     InlineKeyboardButton(
+                        text="добавить 2ГИС",
+                        callback_data="edit_add_twogis"
+                    )
+                ],
+                [
+                    InlineKeyboardButton(
                         text="удалить ресторан",
                         callback_data="restaurant_delete"
                     )
@@ -136,6 +144,15 @@ async def edit_wp_id(callback_query: CallbackQuery, state: FSMContext):
         await state.set_state(RestaurantEditState.wp_id_edit)
 
         await callback_query.message.answer("Введите изменённый wp_id:")
+
+
+@router.callback_query(lambda c: c.data == "edit_add_twogis")
+async def edit_add_twogis(callback_query: CallbackQuery, state: FSMContext):
+    if await check_admin(callback_query.from_user.id):
+        # Переходим к состоянию редактирования add_twogis
+        await state.set_state(RestaurantEditState.add_twogis)
+
+        await callback_query.message.answer("Введите url 2ГИС:")
 
 
 @router.message(RestaurantEditState.title_edit)
@@ -240,6 +257,34 @@ async def save_wp_id(message: Message, state: FSMContext):
         # Завершаем редактирование
         await state.clear()
         await message.answer("Редактирование завершено.")
+
+
+@router.message(RestaurantEditState.add_twogis)
+async def save_twogis_link(message: Message, state: FSMContext):
+    if await check_admin(message.from_user.id):
+        new_twogis_link = message.text.strip()
+
+        if new_twogis_link:
+            data = await state.get_data()
+            restaurant_id = data.get("restaurant_id")
+
+            restaurant = session.query(
+                Restaurant
+            ).filter(Restaurant.id == restaurant_id).first()
+            if restaurant:
+                twogis_link_save = check_full_url(user_url=new_twogis_link)
+                restaurant.twogis_link = twogis_link_save
+                session.commit()
+                await message.answer(
+                    "Ссылка 2ГИС обновлена.\nНачинаю первичный сбор отзывов."
+                )
+                twogis_prim_coll(url=twogis_link_save, rest_id=restaurant_id)
+            else:
+                await message.answer("Ошибка при изменении данных")
+
+        # Завершаем редактирование
+        await state.clear()
+        await message.answer("Редактирование завершено")
 
 
 @router.callback_query(lambda c: c.data == "restaurant_delete")

@@ -44,9 +44,8 @@ def change_subscription():
                     }
                 ), 400
 
-            # Логируем полученное значение для отладки
             logging.debug(
-                f"Updating subscription for {wp_id}: {subscription}"
+                f"Обновляем данные о подписке {wp_id}: {subscription}"
                 )
 
             # Обновляем данные о подписке

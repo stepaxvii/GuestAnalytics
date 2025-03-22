@@ -7,3 +7,4 @@ class RestaurantEditState(StatesGroup):
     address_edit = State()
     tg_channal_edit = State()
     wp_id_edit = State()
+    add_twogis = State()
