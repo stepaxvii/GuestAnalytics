@@ -36,7 +36,7 @@ def twogis_check_reviews(org_url):
     и сохранение их в БД.
     """
     logger.info(f"Запуск проверки отзывов для URL: {org_url}")
-    
+
     try:
         options = FirefoxOptions()
         options.add_argument('--headless')
@@ -49,7 +49,7 @@ def twogis_check_reviews(org_url):
         sleep(2)
         full_org_url = driver.current_url
         logger.info(f"Полный URL компании: {full_org_url}")
-        org_url, reviews_url = process_url_twogis(full_org_url)
+        reviews_url = process_url_twogis(full_org_url)
 
         # Переходим на страницу с отзывами
         driver.get(reviews_url)
@@ -62,10 +62,13 @@ def twogis_check_reviews(org_url):
         unique_reviews = set()
 
         helpful_divs = soup.find_all(lambda tag: (
-            tag.name in ("button", "div") and "Полезно" in tag.get_text(strip=True)
+            tag.name in ("button", "div")
+            and "Полезно" in tag.get_text(strip=True)
         ))
 
-        logger.info(f"Найдено {len(helpful_divs)} полезных блоков для обработки отзывов")
+        logger.info(
+            f"Найдено {len(helpful_divs)} полезных блоков для обработки"
+        )
 
         for helpful_div in helpful_divs:
             review_container = helpful_div.find_parent(
@@ -97,7 +100,9 @@ def twogis_check_reviews(org_url):
             rating_value = len(rating_svgs)
 
             # --- ИЩЕМ ТЕКСТ ОТЗЫВА ---
-            review_text_a = review_container.select_one(TWOGIS_REVIEW_TEXT_CLASS)
+            review_text_a = review_container.select_one(
+                TWOGIS_REVIEW_TEXT_CLASS
+            )
             text = review_text_a.get_text(
                 strip=True
             ) if review_text_a else "Текст не найден"
@@ -181,7 +186,7 @@ def twogis_matching_reviews(org_url):
                 new_reviews_to_save.append(new_review)
 
             logger.info(
-                f"Обработано {len(new_reviews_to_save)} новых отзывов для сохранения."
+                f"Обработано {len(new_reviews_to_save)} отзывов."
             )
 
         else:
