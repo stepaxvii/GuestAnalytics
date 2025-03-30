@@ -139,7 +139,7 @@ async def check_twogis_new_reviews_periodically(bot: Bot):
                     logger.info(
                         f"У ресторана {restaurant['title']} нет 2ГИС."
                     )
-                    continue  # Пропускаем этот ресторан, если ссылки нет
+                    continue  # Пропускаем ресторан, если ссылки нет
 
                 rest_title = restaurant['title']
                 rest_address = restaurant['address']
