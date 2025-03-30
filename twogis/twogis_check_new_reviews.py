@@ -76,7 +76,7 @@ def twogis_check_reviews(org_url):
             strip=True
         ) if date_div else "Дата не найдена"
         actual_date = datetime.now()  # Текущая дата
-        formatted_date = handle_date(review_date, actual_date)
+        review_date = handle_date(review_date, actual_date)
 
         # --- ИЩЕМ АВТОРА ---
         author_span = review_container.find(
