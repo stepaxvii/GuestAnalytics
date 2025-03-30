@@ -125,8 +125,8 @@ async def check_twogis_new_reviews_periodically(bot: Bot):
     """Функция периодической проверки новых отзывов."""
     while True:
         try:
-            # Пауза между проверками минута (тест)
-            await asyncio.sleep(60)
+            # Пауза между проверками 2 часа (тест)
+            await asyncio.sleep(7200)
             logger.info("Функция для проверки новых отзывов 2ГИС.")
 
             # Получаем данные о ресторанах

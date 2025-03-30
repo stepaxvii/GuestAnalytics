@@ -179,7 +179,7 @@ def twogis_matching_reviews(org_url):
             )
 
             for review in sorted_new_reviews:
-                logger.debug(f"Сохраняем отзыв: {review}")
+                logger.info(f"Сохраняем отзыв: {review}")
                 review_data_tuple = (
                     restaurant_id,
                     review["review_date"],
