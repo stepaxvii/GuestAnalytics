@@ -41,7 +41,7 @@ def twogis_valid_content(url):
     review_date = ""
 
     try:
-        # Находим кнопку "Полезно" (кнопка, которая гарантированно есть на странице)
+        # Находим кнопку "Полезно" (кнопка, которая есть на странице)
         useful_button = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located(
                 (By.XPATH, '//button[.//div[text()="Полезно"]]'))

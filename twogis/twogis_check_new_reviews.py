@@ -90,19 +90,23 @@ def twogis_check_reviews(org_url):
         rating_svgs = review_container.find_all(
             'svg', fill=TWOGIS_RATING_COLOR
         )
-        rating = len(rating_svgs)
+        rating_value = len(rating_svgs)
 
         # --- ИЩЕМ ТЕКСТ ОТЗЫВА ---
         review_text_a = review_container.select_one(TWOGIS_REVIEW_TEXT_CLASS)
-        review_text_content = review_text_a.get_text(
+        text = review_text_a.get_text(
             strip=True
         ) if review_text_a else "Текст не найден"
 
-        # --- ФИЛЬТРАЦИЯ ДУБЛИКАТОВ ---
-        review_entry = (
-            formatted_date, author_name, rating, review_text_content
-        )
-        unique_reviews.add(review_entry)
+        # Сохранение отзыва в список для уникальности
+        review_entry = {
+            "review_date": review_date,
+            "author_name": author_name,
+            "author_link": None,
+            "rating_value": rating_value,
+            "text": text
+        }
+        unique_reviews.append(review_entry)
 
 
 def twogis_matching_reviews(org_url):
