@@ -50,7 +50,7 @@ async def main():
 
     # Запуск фоновой задачи для проверки новых отзывов
     check_twogis = asyncio.create_task(
-        periodically_tasks.check_twogis_new_reviews_periodically
+        periodically_tasks.check_twogis_new_reviews_periodically(bot)
     )
     check_yandex = asyncio.create_task(
         periodically_tasks.check_ya_new_reviews_periodically(bot)
