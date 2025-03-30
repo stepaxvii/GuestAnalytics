@@ -1,5 +1,10 @@
 from api.db import session
-from data.data_main import Restaurant, RestaurantInsight, YandexReview
+from data.data_main import (
+    TwogisReview,
+    Restaurant,
+    RestaurantInsight,
+    YandexReview
+)
 
 
 def read_all_restaurant_data():
@@ -41,10 +46,15 @@ def read_restaurant_data(rest_data):
             Restaurant.id == rest_data
         ).first()
     else:
-        # Иначе ищем по yandex_link
-        restaurant = session.query(Restaurant).filter(
-            Restaurant.yandex_link == rest_data
-        ).first()
+        # Иначе ищем по ссылкам
+        if 'yandex' in rest_data:  # Если в строке есть ссылка на Yandex
+            restaurant = session.query(Restaurant).filter(
+                Restaurant.yandex_link == rest_data
+            ).first()
+        else:
+            restaurant = session.query(Restaurant).filter(
+                Restaurant.twogis_link == rest_data
+            ).first()
 
     if restaurant:
         return {
@@ -96,6 +106,22 @@ def read_rest_ya_reviews_date(restaurant_id, date_filter):
     return session.query(YandexReview).filter(
         YandexReview.restaurant_id == restaurant_id,
         YandexReview.created_at.startswith(date_filter)
+    ).all()
+
+
+def read_rest_twogis_reviews(restaurant_id):
+    """Получаем отзывы с 2GIS определённого ресторана."""
+
+    return session.query(TwogisReview).filter(
+        TwogisReview.restaurant_id == restaurant_id
+    ).all()
+
+
+def read_rest_twogis_reviews_date(restaurant_id, date_filter):
+    """Получаем отзывы с 2GIS определённого ресторана, фильтруя по дате."""
+    return session.query(TwogisReview).filter(
+        TwogisReview.restaurant_id == restaurant_id,
+        TwogisReview.created_at.startswith(date_filter)
     ).all()
 
 

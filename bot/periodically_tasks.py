@@ -27,7 +27,7 @@ load_dotenv()
 ADMIN_ID = getenv("ADMIN_ID")
 
 
-async def check_new_reviews_periodically(bot: Bot):
+async def check_ya_new_reviews_periodically(bot: Bot):
     """Функция переодической проверки новых отзывов."""
     while True:
         try:

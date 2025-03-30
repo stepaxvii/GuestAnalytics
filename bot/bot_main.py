@@ -16,6 +16,21 @@ load_dotenv()
 # Из окружения извлекаем необходимые токены, ключи и переменные
 TELEGRAM_TOKEN = getenv('TELEGRAM_TOKEN')
 
+# Настройка логирования
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+# Создаем обработчик для вывода логов в консоль
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(logging.INFO)
+
+# Форматирование логов
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+
+# Добавляем обработчик к логгеру
+logger.addHandler(console_handler)
+
 
 # Запуск планировщика внутри функции main
 async def main():
@@ -33,7 +48,7 @@ async def main():
 
     # Запуск фоновой задачи для проверки новых отзывов
     periodic_task = asyncio.create_task(
-        periodically_tasks.check_new_reviews_periodically(bot)
+        periodically_tasks.check_ya_new_reviews_periodically(bot)
     )
     another_periodic_task = asyncio.create_task(
         periodically_tasks.check_new_insight_periodically(bot)
@@ -46,13 +61,9 @@ async def main():
         await periodic_task
         await another_periodic_task
     except Exception as error:
-        logging.error(f"Произошла ошибка: {error}")
+        logger.error(f"Произошла ошибка: {error}")
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO,
-        stream=sys.stdout,
-    )
-    logging.info("Запуск bot_app!")
+    logger.info("Запуск bot_app!")
     asyncio.run(main())

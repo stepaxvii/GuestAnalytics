@@ -14,7 +14,7 @@ router = Router()
 ADMIN_ID = int(getenv('ADMIN_ID'))
 
 # Настройка логирования
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
 
 
 async def check_admin(user_id: int) -> bool:
@@ -25,12 +25,12 @@ async def check_admin(user_id: int) -> bool:
 @router.message(CommandStart())
 async def command_start_handler(message: Message):
     """Обработчик стартовой команды и выбор действий."""
-    logging.info(
+    logger.info(
         f"Получена команда /start от пользователя {message.from_user.id}"
     )
 
     if await check_admin(message.from_user.id):
-        logging.info(
+        logger.info(
             f"Пользователь {message.from_user.id} является администратором."
         )
 
@@ -64,11 +64,11 @@ async def command_start_handler(message: Message):
             reply_markup=keyboard
         )
 
-        logging.info(
+        logger.info(
             f"Меню отправлено пользователю {message.from_user.id}."
         )
     else:
-        logging.warning(
+        logger.warning(
             f"Пользователь {message.from_user.id} не является администратором."
         )
         await message.answer(text="Вы не имеете доступа к этой команде.")
