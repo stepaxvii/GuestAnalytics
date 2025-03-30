@@ -122,7 +122,7 @@ async def check_ya_new_reviews_periodically(bot: Bot):
 
 
 async def check_twogis_new_reviews_periodically(bot: Bot):
-    """Функция переодической проверки новых отзывов."""
+    """Функция периодической проверки новых отзывов."""
     while True:
         try:
             # Пауза между проверками 3 минуты (тест)
@@ -133,9 +133,15 @@ async def check_twogis_new_reviews_periodically(bot: Bot):
             restaurants = read_all_restaurant_data()
 
             for restaurant in restaurants:
-                # rest_id = restaurant['id'] сделать для сравнения с БД
+                # Проверяем, что ссылка на 2ГИС не пуста
+                rest_link = restaurant.get('twogis_link')
+                if not rest_link:
+                    logger.info(
+                        f"У ресторана {restaurant['title']} нет 2ГИС."
+                    )
+                    continue  # Пропускаем этот ресторан, если ссылки нет
+
                 rest_title = restaurant['title']
-                rest_link = restaurant['twogis_link']
                 rest_address = restaurant['address']
                 rest_tg_channal = restaurant['tg_channal']
                 rest_reviews_link = rest_link + '/tab/reviews'
