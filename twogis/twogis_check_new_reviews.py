@@ -59,7 +59,7 @@ def twogis_check_reviews(org_url):
         soup = BeautifulSoup(driver.page_source, 'html.parser')
 
         # Создаём список для хранения уникальных отзывов
-        unique_reviews = set()
+        unique_reviews = []
 
         helpful_divs = soup.find_all(lambda tag: (
             tag.name in ("button", "div")
