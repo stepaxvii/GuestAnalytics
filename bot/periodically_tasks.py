@@ -19,12 +19,17 @@ from data.read_data import (
 from semantic_analysis.month_insight import month_insight
 from utils.date import check_month, make_last_months
 from utils.message_text import get_star_rating
-from yandex.yandex_check_new_reviews import matching_reviews
+from twogis.twogis_check_new_reviews import twogis_matching_reviews
+from yandex.yandex_check_new_reviews import ya_matching_reviews
 
 
 load_dotenv()
 
 ADMIN_ID = getenv("ADMIN_ID")
+
+
+# Настройка логирования
+logger = logging.getLogger()
 
 
 async def check_ya_new_reviews_periodically(bot: Bot):
@@ -33,7 +38,7 @@ async def check_ya_new_reviews_periodically(bot: Bot):
         try:
             # Пауза между проверками 1 час
             await asyncio.sleep(3600)
-            logging.info("Функция для проверки новых отзывов.")
+            logger.info("Функция для проверки новых отзывов.")
 
             # Получаем данные о ресторанах
             restaurants = read_all_restaurant_data()
@@ -47,16 +52,16 @@ async def check_ya_new_reviews_periodically(bot: Bot):
                 rest_reviews_link = rest_link + 'reviews'
 
                 # Получаем новые отзывы
-                new_reviews = matching_reviews(rest_link)
+                new_reviews = ya_matching_reviews(rest_link)
 
                 # Логируем количество новых отзывов
-                logging.info(f"Найдено новых отзывов: {len(new_reviews)}")
+                logger.info(f"Найдено новых отзывов: {len(new_reviews)}")
 
                 # Проверяем, есть ли новые отзывы
                 if new_reviews:
                     for review in new_reviews:
                         # Логируем информацию о каждом отзыве
-                        logging.info(
+                        logger.info(
                             "Обрабатываем отзыв от "
                             f"{review.get('author_name', 'неизвестен' )}"
                         )
@@ -110,10 +115,72 @@ async def check_ya_new_reviews_periodically(bot: Bot):
                         )
                         await asyncio.sleep(3)
 
-            logging.info("Проверка новых отзывов завершена.")
+            logger.info("Проверка новых отзывов завершена.")
 
         except Exception as e:
-            logging.error(f"Ошибка в периодической задаче отзывов: {e}")
+            logger.error(f"Ошибка в периодической задаче отзывов: {e}")
+
+
+async def check_twogis_new_reviews_periodically(bot: Bot):
+    """Функция переодической проверки новых отзывов."""
+    while True:
+        try:
+            # Пауза между проверками 3 минуты (тест)
+            await asyncio.sleep(180)
+            logger.info("Функция для проверки новых отзывов.")
+
+            # Получаем данные о ресторанах
+            restaurants = read_all_restaurant_data()
+
+            for restaurant in restaurants:
+                # rest_id = restaurant['id'] сделать для сравнения с БД
+                rest_title = restaurant['title']
+                rest_link = restaurant['twogis_link']
+                rest_address = restaurant['address']
+                rest_tg_channal = restaurant['tg_channal']
+                rest_reviews_link = rest_link + '/tab/reviews'
+
+                # Получаем новые отзывы
+                new_reviews = twogis_matching_reviews(rest_link)
+
+                # Логируем количество новых отзывов
+                logger.info(f"Найдено новых отзывов: {len(new_reviews)}")
+
+                # Проверяем, есть ли новые отзывы
+                if new_reviews:
+                    for review in new_reviews:
+                        # Логируем информацию о каждом отзыве
+                        logger.info(
+                            "Обрабатываем отзыв от "
+                            f"{review.get('author_name', 'неизвестен' )}"
+                        )
+                        message = (
+                            f"{rest_title}, <b>{rest_address}</b>.\n"
+                            f"{get_star_rating(int(review['rating_value']))}\n"
+                            f"2ГИС, {review['review_date']}\n\n"
+                            f"{review['text']}\n\n"
+                            f"Автор: {review['author_name']}\n"
+                        )
+
+                        button_text = "Перейти к отзывам"
+                        button_url = rest_reviews_link
+
+                        keyboard = InlineKeyboardMarkup(
+                            inline_keyboard=[[InlineKeyboardButton(
+                                text=button_text, url=button_url
+                            )]]
+                        )
+
+                        # Отправляем сообщение в канал
+                        await bot.send_message(
+                            rest_tg_channal, message, reply_markup=keyboard
+                        )
+                        await asyncio.sleep(3)
+
+            logger.info("Проверка новых отзывов завершена.")
+
+        except Exception as e:
+            logger.error(f"Ошибка в периодической задаче отзывов: {e}")
 
 
 async def check_new_insight_periodically(bot: Bot):
@@ -122,7 +189,7 @@ async def check_new_insight_periodically(bot: Bot):
         try:
             # Пауза между проверками 12 часов
             await asyncio.sleep(43200)
-            logging.info("Функция для запуска анализов новых инсайтов.")
+            logger.info("Функция для запуска анализов новых инсайтов.")
             await bot.send_message(
                 chat_id=ADMIN_ID,
                 text="Запуск периодической задачи инсайтов."
@@ -239,7 +306,7 @@ async def check_new_insight_periodically(bot: Bot):
                     chat_id=ADMIN_ID,
                     text="Ещё рано запрашивать инсайты за прошлый месяц."
                 )
-            logging.info("Проверка новых инсайтов завершена.")
+            logger.info("Проверка новых инсайтов завершена.")
 
         except Exception as e:
-            logging.error(f"Ошибка в периодической задаче с инсайтами: {e}")
+            logger.error(f"Ошибка в периодической задаче с инсайтами: {e}")

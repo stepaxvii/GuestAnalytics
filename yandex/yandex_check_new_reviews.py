@@ -146,7 +146,7 @@ def ya_check_reviews(org_url):
     return unique_reviews
 
 
-def matching_reviews(org_url):
+def ya_matching_reviews(org_url):
     """Функция сравнения собранных отзывов с БД."""
 
     # Определяем id ресторана для связи с отзывами

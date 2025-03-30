@@ -106,7 +106,7 @@ def twogis_check_reviews(org_url):
         unique_reviews.add(review_entry)
 
 
-def matching_reviews(org_url):
+def twogis_matching_reviews(org_url):
     """Функция сравнения собранных отзывов с БД."""
 
     # Определяем id ресторана для связи с отзывами

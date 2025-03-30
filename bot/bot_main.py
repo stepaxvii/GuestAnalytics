@@ -25,7 +25,9 @@ console_handler = logging.StreamHandler(sys.stdout)
 console_handler.setLevel(logging.INFO)
 
 # Форматирование логов
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 console_handler.setFormatter(formatter)
 
 # Добавляем обработчик к логгеру
@@ -47,10 +49,13 @@ async def main():
     )
 
     # Запуск фоновой задачи для проверки новых отзывов
-    periodic_task = asyncio.create_task(
+    check_twogis = asyncio.create_task(
+        periodically_tasks.check_twogis_new_reviews_periodically
+    )
+    check_yandex = asyncio.create_task(
         periodically_tasks.check_ya_new_reviews_periodically(bot)
     )
-    another_periodic_task = asyncio.create_task(
+    check_insight = asyncio.create_task(
         periodically_tasks.check_new_insight_periodically(bot)
     )
 
@@ -58,8 +63,9 @@ async def main():
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot)
         # Дожидаемся завершения фоновых задач
-        await periodic_task
-        await another_periodic_task
+        await check_twogis
+        await check_yandex
+        await check_insight
     except Exception as error:
         logger.error(f"Произошла ошибка: {error}")
 
