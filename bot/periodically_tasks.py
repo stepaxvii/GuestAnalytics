@@ -38,7 +38,7 @@ async def check_ya_new_reviews_periodically(bot: Bot):
         try:
             # Пауза между проверками 1 час
             await asyncio.sleep(3600)
-            logger.info("Функция для проверки новых отзывов.")
+            logger.info("Функция для проверки новых отзывов Яндекс.")
 
             # Получаем данные о ресторанах
             restaurants = read_all_restaurant_data()
@@ -115,10 +115,10 @@ async def check_ya_new_reviews_periodically(bot: Bot):
                         )
                         await asyncio.sleep(3)
 
-            logger.info("Проверка новых отзывов завершена.")
+            logger.info("Проверка новых отзывов Яндекс завершена.")
 
         except Exception as e:
-            logger.error(f"Ошибка в периодической задаче отзывов: {e}")
+            logger.error(f"Ошибка в периодической задаче отзывов Яндекс: {e}")
 
 
 async def check_twogis_new_reviews_periodically(bot: Bot):
@@ -127,7 +127,7 @@ async def check_twogis_new_reviews_periodically(bot: Bot):
         try:
             # Пауза между проверками 3 минуты (тест)
             await asyncio.sleep(180)
-            logger.info("Функция для проверки новых отзывов.")
+            logger.info("Функция для проверки новых отзывов 2ГИС.")
 
             # Получаем данные о ресторанах
             restaurants = read_all_restaurant_data()
@@ -177,10 +177,10 @@ async def check_twogis_new_reviews_periodically(bot: Bot):
                         )
                         await asyncio.sleep(3)
 
-            logger.info("Проверка новых отзывов завершена.")
+            logger.info("Проверка новых отзывов 2ГИС завершена.")
 
         except Exception as e:
-            logger.error(f"Ошибка в периодической задаче отзывов: {e}")
+            logger.error(f"Ошибка в периодической задаче отзывов 2ГИС: {e}")
 
 
 async def check_new_insight_periodically(bot: Bot):
