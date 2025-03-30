@@ -146,9 +146,7 @@ def twogis_matching_reviews(org_url):
                 "review_date": review["review_date"],
                 "author_name": review["author_name"],
                 "author_link": review["author_link"],
-                "rating_value": int(
-                    review["rating_value"].split('.')[0]
-                ) if review["rating_value"] else None,
+                "rating_value": review["rating_value"],
                 "text": review["text"]
             }
 
