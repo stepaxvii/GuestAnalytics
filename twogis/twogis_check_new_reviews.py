@@ -36,6 +36,7 @@ def twogis_check_reviews(org_url):
     и сохранение их в БД.
     """
     logger.info(f"Запуск проверки отзывов для URL: {org_url}")
+    unique_reviews = []  # Инициализируем пустой список для отзывов
 
     try:
         options = FirefoxOptions()
@@ -58,56 +59,34 @@ def twogis_check_reviews(org_url):
         # Считываем HTML страницы с BeautifulSoup после полной загрузки
         soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-        # Создаём список для хранения уникальных отзывов
-        unique_reviews = []
-
         helpful_divs = soup.find_all(lambda tag: (
             tag.name in ("button", "div")
             and "Полезно" in tag.get_text(strip=True)
         ))
 
-        logger.info(
-            f"Найдено {len(helpful_divs)} полезных блоков для обработки"
-        )
+        logger.info(f"Найдено {len(helpful_divs)} полезных блоков для обработки")
 
         for helpful_div in helpful_divs:
-            review_container = helpful_div.find_parent(
-                "div", class_=TWOGIS_REVIEW_BLOCK
-            )
+            review_container = helpful_div.find_parent("div", class_=TWOGIS_REVIEW_BLOCK)
             if not review_container:
                 continue  # Пропускаем, если контейнер не найден
 
-            # --- ИЩЕМ ДАТУ ---
+            # Дата, автор, рейтинг и текст отзыва
             date_div = review_container.find('div', class_=TWOGIS_DATE_CLASS)
-            review_date = date_div.get_text(
-                strip=True
-            ) if date_div else "Дата не найдена"
+            review_date = date_div.get_text(strip=True) if date_div else "Дата не найдена"
             actual_date = datetime.now()  # Текущая дата
             review_date = handle_date(review_date, actual_date)
 
-            # --- ИЩЕМ АВТОРА ---
-            author_span = review_container.find(
-                'span', class_=TWOGIS_AUTHOR_CLASS
-            )
-            author_name = author_span.get_text(
-                strip=True
-            ) if author_span else "Автор не найден"
+            author_span = review_container.find('span', class_=TWOGIS_AUTHOR_CLASS)
+            author_name = author_span.get_text(strip=True) if author_span else "Автор не найден"
 
-            # --- ИЩЕМ РЕЙТИНГ ---
-            rating_svgs = review_container.find_all(
-                'svg', fill=TWOGIS_RATING_COLOR
-            )
+            rating_svgs = review_container.find_all('svg', fill=TWOGIS_RATING_COLOR)
             rating_value = len(rating_svgs)
 
-            # --- ИЩЕМ ТЕКСТ ОТЗЫВА ---
-            review_text_a = review_container.select_one(
-                TWOGIS_REVIEW_TEXT_CLASS
-            )
-            text = review_text_a.get_text(
-                strip=True
-            ) if review_text_a else "Текст не найден"
+            review_text_a = review_container.select_one(TWOGIS_REVIEW_TEXT_CLASS)
+            text = review_text_a.get_text(strip=True) if review_text_a else "Текст не найден"
 
-            # Сохранение отзыва в список для уникальности
+            # Добавляем уникальные отзывы в список
             review_entry = {
                 "review_date": review_date,
                 "author_name": author_name,
@@ -118,10 +97,11 @@ def twogis_check_reviews(org_url):
             unique_reviews.append(review_entry)
 
         logger.info(f"Обработано {len(unique_reviews)} уникальных отзывов.")
+        return unique_reviews  # Возвращаем список отзывов
 
     except Exception as e:
         logger.error(f"Ошибка в twogis_check_reviews: {str(e)}")
-        raise e  # Перебрасываем исключение дальше
+        return []  # В случае ошибки возвращаем пустой список
 
 
 def twogis_matching_reviews(org_url):
