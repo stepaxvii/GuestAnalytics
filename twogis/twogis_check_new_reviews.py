@@ -180,6 +180,7 @@ def twogis_check_reviews(org_url):
         if driver:
             try:
                 driver.quit()
+                logger.info("Закрываем браузер!!!!!!!!!!!!!!!!!!!!!!!!")
             except Exception as e:
                 logger.error(f"Ошибка при закрытии драйвера: {str(e)}")
 
