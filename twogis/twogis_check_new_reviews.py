@@ -246,7 +246,7 @@ def twogis_check_reviews(org_url):
     и сохранение их в БД.
     """
     logger.info(f"Запуск проверки отзывов для URL: {org_url}")
-    unique_reviews = set()  # Используем множество для хранения уникальных отзывов
+    unique_reviews = set()  # Используем для хранения уникальных отзывов
 
     try:
         options = FirefoxOptions()
@@ -271,7 +271,9 @@ def twogis_check_reviews(org_url):
             and "Полезно" in tag.get_text(strip=True)
         ))
 
-        logger.info(f"Найдено {len(helpful_divs)} полезных блоков для обработки")
+        logger.info(
+            f"Найдено {len(helpful_divs)} полезных блоков для обработки"
+        )
 
         seen_reviews = set()  # Множество для отслеживания уникальных отзывов
 
@@ -284,21 +286,33 @@ def twogis_check_reviews(org_url):
 
             # Извлекаем данные отзыва
             date_div = review_container.find('div', class_=TWOGIS_DATE_CLASS)
-            review_date = date_div.get_text(strip=True) if date_div else "Дата не найдена"
+            review_date = date_div.get_text(
+                strip=True
+            ) if date_div else "Дата не найдена"
             review_date = handle_date(review_date, datetime.now())
-            
-            author_span = review_container.find('span', class_=TWOGIS_AUTHOR_CLASS)
-            author_name = author_span.get_text(strip=True) if author_span else "Автор не найден"
-            
-            rating_svgs = review_container.find_all('svg', fill=TWOGIS_RATING_COLOR)
+
+            author_span = review_container.find(
+                'span', class_=TWOGIS_AUTHOR_CLASS
+            )
+            author_name = author_span.get_text(
+                strip=True
+            ) if author_span else "Автор не найден"
+
+            rating_svgs = review_container.find_all(
+                'svg', fill=TWOGIS_RATING_COLOR
+            )
             rating_value = len(rating_svgs)
-            
-            review_text_a = review_container.select_one(TWOGIS_REVIEW_TEXT_CLASS)
-            text = review_text_a.get_text(strip=True) if review_text_a else "Текст не найден"
+
+            review_text_a = review_container.select_one(
+                TWOGIS_REVIEW_TEXT_CLASS
+            )
+            text = review_text_a.get_text(
+                strip=True
+            ) if review_text_a else "Текст не найден"
 
             # Создаем уникальный ключ для отзыва
             review_key = (review_date, author_name, text, rating_value)
-            
+
             # Проверяем на дубликат перед добавлением
             if review_key not in seen_reviews:
                 seen_reviews.add(review_key)
@@ -332,13 +346,19 @@ def twogis_matching_reviews(org_url):
     try:
         restaurant_data = read_restaurant_data(rest_data=org_url)
         restaurant_id = restaurant_data['id']
-        
-        old_reviews_data = read_rest_twogis_reviews(restaurant_id=restaurant_id)
+
+        old_reviews_data = read_rest_twogis_reviews(
+            restaurant_id=restaurant_id
+        )
         old_reviews_set = set()
-        
+
         for review in old_reviews_data:
             review_key = (
-                review.created_at.strftime("%Y-%m-%d") if isinstance(review.created_at, datetime) else review.created_at,
+                review.created_at.strftime(
+                    "%Y-%m-%d"
+                ) if isinstance(
+                    review.created_at, datetime
+                ) else review.created_at,
                 review.author,
                 review.content,
                 review.rating
@@ -355,7 +375,7 @@ def twogis_matching_reviews(org_url):
                 review["text"],
                 review["rating_value"]
             )
-            
+
             if review_key not in old_reviews_set:
                 semantic = simple_semantic(review_text=review["text"])
                 new_reviews_to_save.append({
@@ -366,7 +386,7 @@ def twogis_matching_reviews(org_url):
         if new_reviews_to_save:
             # Сортировка по дате (уже в строковом формате YYYY-MM-DD)
             new_reviews_to_save.sort(key=lambda x: x["review_date"])
-            
+
             for review in new_reviews_to_save:
                 review_data = {
                     'restaurant_id': restaurant_id,
