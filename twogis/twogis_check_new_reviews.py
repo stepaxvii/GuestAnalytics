@@ -1,12 +1,19 @@
 import logging
 from datetime import datetime
 from os import getenv
-from time import sleep
 
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from selenium.webdriver import Firefox, FirefoxOptions
 from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import (
+    StaleElementReferenceException,
+    TimeoutException,
+    WebDriverException
+)
 
 from constants import (
     DATE_FORMAT,
@@ -32,76 +39,239 @@ DRIVER_PATH = getenv('DRIVER_PATH')
 
 def twogis_check_reviews(org_url):
     """
-    Проверка наличия новых отзывов о ресторане
-    и сохранение их в БД.
+    Проверка наличия новых отзывов о ресторане с обработкой ошибок
     """
     logger.info(f"Запуск проверки отзывов для URL: {org_url}")
-    unique_reviews = []  # Инициализируем пустой список для отзывов
+    unique_reviews = []
+    driver = None
 
     try:
-        options = FirefoxOptions()
-        options.add_argument('--headless')
-        options.add_argument('--no-sandbox')  # Для работы с Docker
-        options.add_argument('--disable-dev-shm-usage')  # Для работы с Docker
-        service = Service(DRIVER_PATH)
-        driver = Firefox(service=service, options=options)
+        # Инициализация драйвера с обработкой ошибок
+        try:
+            options = FirefoxOptions()
+            options.add_argument('--headless')
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
+            service = Service(DRIVER_PATH)
+            driver = Firefox(service=service, options=options)
+            driver.set_page_load_timeout(30)
+        except WebDriverException as e:
+            logger.error(f"Ошибка инициализации WebDriver: {str(e)}")
+            return []
 
-        driver.get(org_url)
-        sleep(2)
+        # Первый запрос с обработкой таймаутов
+        try:
+            driver.get(org_url)
+            WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.TAG_NAME, 'body'))
+            )
+        except TimeoutException:
+            logger.error("Таймаут загрузки основной страницы 2GIS")
+            return []
+        except Exception as e:
+            logger.error(f"Ошибка загрузки страницы: {str(e)}")
+            return []
+
         full_org_url = driver.current_url
         logger.info(f"Полный URL компании: {full_org_url}")
-        reviews_url = process_url_twogis(full_org_url)
 
-        # Переходим на страницу с отзывами
-        driver.get(reviews_url)
-        sleep(4)
+        try:
+            reviews_url = process_url_twogis(full_org_url)
+            driver.get(reviews_url)
+            WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located(
+                    (By.CLASS_NAME, TWOGIS_REVIEW_BLOCK)
+                )
+            )
+        except TimeoutException:
+            logger.error("Таймаут загрузки страницы отзывов")
+            return []
+        except Exception as e:
+            logger.error(f"Ошибка обработки URL отзывов: {str(e)}")
+            return []
 
-        # Считываем HTML страницы с BeautifulSoup после полной загрузки
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
+        # Парсинг страницы
+        try:
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
+            helpful_divs = soup.find_all(lambda tag: (
+                tag.name in ("button", "div")
+                and "Полезно" in tag.get_text(strip=True)
+            ))
+            logger.info(f"Найдено {len(helpful_divs)} полезных блоков")
+        except Exception as e:
+            logger.error(f"Ошибка парсинга страницы: {str(e)}")
+            return []
 
-        helpful_divs = soup.find_all(lambda tag: (
-            tag.name in ("button", "div")
-            and "Полезно" in tag.get_text(strip=True)
-        ))
-
-        logger.info(f"Найдено {len(helpful_divs)} полезных блоков для обработки")
-
+        # Обработка каждого отзыва с перехватом исключений
         for helpful_div in helpful_divs:
-            review_container = helpful_div.find_parent("div", class_=TWOGIS_REVIEW_BLOCK)
-            if not review_container:
-                continue  # Пропускаем, если контейнер не найден
+            try:
+                review_container = helpful_div.find_parent(
+                    "div", class_=TWOGIS_REVIEW_BLOCK
+                )
+                if not review_container:
+                    continue
 
-            # Дата, автор, рейтинг и текст отзыва
-            date_div = review_container.find('div', class_=TWOGIS_DATE_CLASS)
-            review_date = date_div.get_text(strip=True) if date_div else "Дата не найдена"
-            actual_date = datetime.now()  # Текущая дата
-            review_date = handle_date(review_date, actual_date)
+                # Извлечение данных с обработкой ошибок
+                try:
+                    date_div = review_container.find(
+                        'div', class_=TWOGIS_DATE_CLASS
+                    )
+                    review_date = date_div.get_text(
+                        strip=True
+                    ) if date_div else "Дата не найдена"
+                    review_date = handle_date(review_date, datetime.now())
+                except Exception as e:
+                    logger.warning(f"Ошибка обработки даты: {str(e)}")
+                    review_date = "Дата не определена"
 
-            author_span = review_container.find('span', class_=TWOGIS_AUTHOR_CLASS)
-            author_name = author_span.get_text(strip=True) if author_span else "Автор не найден"
+                try:
+                    author_span = review_container.find(
+                        'span', class_=TWOGIS_AUTHOR_CLASS
+                    )
+                    author_name = author_span.get_text(
+                        strip=True
+                    ) if author_span else "Автор не найден"
+                except Exception as e:
+                    logger.warning(f"Ошибка обработки автора: {str(e)}")
+                    author_name = "Автор не определён"
 
-            rating_svgs = review_container.find_all('svg', fill=TWOGIS_RATING_COLOR)
-            rating_value = len(rating_svgs)
+                try:
+                    rating_svgs = review_container.find_all(
+                        'svg', fill=TWOGIS_RATING_COLOR
+                    )
+                    rating_value = len(rating_svgs)
+                except Exception as e:
+                    logger.warning(f"Ошибка обработки рейтинга: {str(e)}")
+                    rating_value = 0
 
-            review_text_a = review_container.select_one(TWOGIS_REVIEW_TEXT_CLASS)
-            text = review_text_a.get_text(strip=True) if review_text_a else "Текст не найден"
+                try:
+                    review_text_a = review_container.select_one(
+                        TWOGIS_REVIEW_TEXT_CLASS
+                    )
+                    text = review_text_a.get_text(
+                        strip=True
+                    ) if review_text_a else "Текст не найден"
+                except Exception as e:
+                    logger.warning(f"Ошибка обработки текста: {str(e)}")
+                    text = "Текст не получен"
 
-            # Добавляем уникальные отзывы в список
-            review_entry = {
-                "review_date": review_date,
-                "author_name": author_name,
-                "author_link": None,
-                "rating_value": rating_value,
-                "text": text
-            }
-            unique_reviews.append(review_entry)
+                unique_reviews.append({
+                    "review_date": review_date,
+                    "author_name": author_name,
+                    "author_link": None,
+                    "rating_value": rating_value,
+                    "text": text
+                })
 
-        logger.info(f"Обработано {len(unique_reviews)} уникальных отзывов.")
-        return unique_reviews  # Возвращаем список отзывов
+            except StaleElementReferenceException:
+                logger.warning("Элемент устарел, пропускаем отзыв")
+                continue
+            except Exception as e:
+                logger.warning(f"Ошибка обработки отзыва: {str(e)}")
+                continue
+
+        logger.info(f"Успешно обработано {len(unique_reviews)} отзывов")
+        return unique_reviews
 
     except Exception as e:
-        logger.error(f"Ошибка в twogis_check_reviews: {str(e)}")
-        return []  # В случае ошибки возвращаем пустой список
+        logger.error(f"Критическая ошибка в twogis_check_reviews: {str(e)}")
+        return []
+    finally:
+        if driver:
+            try:
+                driver.quit()
+            except Exception as e:
+                logger.error(f"Ошибка при закрытии драйвера: {str(e)}")
+
+
+# def twogis_check_reviews(org_url):
+#     """
+#     Проверка наличия новых отзывов о ресторане
+#     и сохранение их в БД.
+#     """
+#     logger.info(f"Запуск проверки отзывов для URL: {org_url}")
+#     unique_reviews = []  # Инициализируем пустой список для отзывов
+
+#     try:
+#         options = FirefoxOptions()
+#         options.add_argument('--headless')
+#         options.add_argument('--no-sandbox')  # Для работы с Docker
+#         options.add_argument('--disable-dev-shm-usage')  # Для работы с Docker
+#         service = Service(DRIVER_PATH)
+#         driver = Firefox(service=service, options=options)
+
+#         driver.get(org_url)
+#         sleep(2)
+#         full_org_url = driver.current_url
+#         logger.info(f"Полный URL компании: {full_org_url}")
+#         reviews_url = process_url_twogis(full_org_url)
+
+#         # Переходим на страницу с отзывами
+#         driver.get(reviews_url)
+#         sleep(4)
+
+#         # Считываем HTML страницы с BeautifulSoup после полной загрузки
+#         soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+#         helpful_divs = soup.find_all(lambda tag: (
+#             tag.name in ("button", "div")
+#             and "Полезно" in tag.get_text(strip=True)
+#         ))
+
+#         logger.info(
+#             f"Найдено {len(helpful_divs)} полезных блоков для обработки"
+#         )
+
+#         for helpful_div in helpful_divs:
+#             review_container = helpful_div.find_parent(
+#                 "div", class_=TWOGIS_REVIEW_BLOCK
+#             )
+#             if not review_container:
+#                 continue  # Пропускаем, если контейнер не найден
+
+#             # Дата, автор, рейтинг и текст отзыва
+#             date_div = review_container.find('div', class_=TWOGIS_DATE_CLASS)
+#             review_date = date_div.get_text(
+#                 strip=True
+#             ) if date_div else "Дата не найдена"
+#             actual_date = datetime.now()  # Текущая дата
+#             review_date = handle_date(review_date, actual_date)
+
+#             author_span = review_container.find(
+#                 'span', class_=TWOGIS_AUTHOR_CLASS
+#             )
+#             author_name = author_span.get_text(
+#                 strip=True
+#             ) if author_span else "Автор не найден"
+
+#             rating_svgs = review_container.find_all(
+#                 'svg', fill=TWOGIS_RATING_COLOR
+#             )
+#             rating_value = len(rating_svgs)
+
+#             review_text_a = review_container.select_one(
+#                 TWOGIS_REVIEW_TEXT_CLASS
+#             )
+#             text = review_text_a.get_text(
+#                 strip=True
+#             ) if review_text_a else "Текст не найден"
+
+#             # Добавляем уникальные отзывы в список
+#             review_entry = {
+#                 "review_date": review_date,
+#                 "author_name": author_name,
+#                 "author_link": None,
+#                 "rating_value": rating_value,
+#                 "text": text
+#             }
+#             unique_reviews.append(review_entry)
+
+#         logger.info(f"Обработано {len(unique_reviews)} уникальных отзывов.")
+#         return unique_reviews  # Возвращаем список отзывов
+
+#     except Exception as e:
+#         logger.error(f"Ошибка в twogis_check_reviews: {str(e)}")
+#         return []  # В случае ошибки возвращаем пустой список
 
 
 def twogis_matching_reviews(org_url):
