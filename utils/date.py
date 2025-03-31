@@ -9,7 +9,7 @@ def handle_date(date_str, actual_date):
         date_str = date_str.replace(', отредактирован', '')
     # Обработка слова "сегодня"
     if "сегодня" in date_str.lower():
-        return actual_date
+        return actual_date.strftime("%Y-%m-%d")
     # Обработка слова "вчера"
     elif "вчера" in date_str.lower():
         yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
@@ -20,7 +20,7 @@ def handle_date(date_str, actual_date):
             return formatted_date(date_str)
         except ValueError:
             print(f"Не удалось обработать дату: {date_str}")
-            return actual_date  # Если ошибка, возвращаем текущую дату
+            return actual_date.strftime("%Y-%m-%d")
 
 
 def formatted_date(date_str):
