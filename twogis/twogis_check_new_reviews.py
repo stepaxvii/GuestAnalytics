@@ -346,7 +346,7 @@ def twogis_matching_reviews(org_url):
         if new_reviews_to_save:
             sorted_new_reviews = sorted(
                 new_reviews_to_save,
-                key=lambda x: datetime.strptime(x["review_date"], DATE_FORMAT)
+                key=lambda x: x["review_date"]
             )
 
             for review in sorted_new_reviews:
