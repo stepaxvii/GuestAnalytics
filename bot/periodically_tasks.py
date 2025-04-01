@@ -284,7 +284,7 @@ async def check_new_insight_periodically(bot: Bot):
                             reviews_ya = [
                                 review.content for review in reviews_data_ya
                             ]
-                            reviews_data_twogis = read_rest_ya_reviews_date(
+                            reviews_data_twogis = read_rest_twogis_reviews_date(
                                 restaurant_id=rest_id,
                                 date_filter=last_month
                             )
