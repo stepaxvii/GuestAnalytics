@@ -2,7 +2,7 @@ from datetime import datetime
 from sqlalchemy import func
 from sqlalchemy.types import Date as DATE
 from api.db import session
-from data.data_main import YandexReview, TwogisReview
+from data.data_main import YandexReview
 
 # Словарь для нужного формата дат в dashboard
 month_dict = {
