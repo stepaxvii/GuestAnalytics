@@ -13,7 +13,7 @@ from data.read_data import (
     read_restaurant_by_wp
 )
 from utils.dashboard import (
-    avg_rest_ya_rating,
+    avg_rest_rating,
     calculate_nps,
     calculate_nps_for_month,
     calculate_satisfaction_level,
@@ -60,7 +60,7 @@ def dashboard():
         # Общее количество отзывов за всё время
         total_reviews = count_reviews_last_year(restaurant_id=restaurant_id)
         # Среднее значение рейтинга за всё время
-        average_rating = avg_rest_ya_rating(restaurant_id=restaurant_id)
+        average_rating = avg_rest_rating(restaurant_id=restaurant_id)
         # Процент лояльных гостей (NPS)
         nps = calculate_nps(restaurant_id=restaurant_id)
         # Процент положительных отзывов
