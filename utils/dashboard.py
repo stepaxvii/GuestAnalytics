@@ -2,7 +2,7 @@ from datetime import datetime
 from sqlalchemy import func
 from sqlalchemy.types import Date as DATE
 from api.db import session
-from data.data_main import YandexReview
+from data.data_main import YandexReview, TwogisReview
 
 # Словарь для нужного формата дат в dashboard
 month_dict = {
@@ -48,66 +48,66 @@ def count_rest_ya_reviews(restaurant_id):
 #         raise e
 
 
-def count_reviews_last_year(restaurant_id):
-    """
-    Получаем количество отзывов за последний год
-    с Яндекса для определённого ресторана.
-    """
-    try:
-        # Текущая дата
-        current_date = datetime.now()
-
-        # Дата год назад (месяц назад)
-        start_date = current_date.replace(year=current_date.year - 1, day=1)
-
-        # Преобразуем обе даты в формат "YYYY-MM"
-        current_month_str = current_date.strftime("%Y-%m")
-        start_month_str = start_date.strftime("%Y-%m")
-
-        # Подсчитываем количество отзывов в последний год (по месяцам)
-        total_reviews = session.query(YandexReview).filter(
-            YandexReview.restaurant_id == restaurant_id,
-            func.substr(YandexReview.created_at, 1, 7) >= start_month_str,
-            func.substr(YandexReview.created_at, 1, 7) <= current_month_str
-        ).count()
-
-        return total_reviews
-    except Exception as e:
-        session.rollback()
-        raise e
 # def count_reviews_last_year(restaurant_id):
 #     """
-#     Получаем общее количество отзывов за последний год с Яндекса и TwoGIS для ресторана.
+#     Получаем количество отзывов за последний год
+#     с Яндекса для определённого ресторана.
 #     """
 #     try:
 #         # Текущая дата
 #         current_date = datetime.now()
 
-#         # Дата год назад
+#         # Дата год назад (месяц назад)
 #         start_date = current_date.replace(year=current_date.year - 1, day=1)
 
 #         # Преобразуем обе даты в формат "YYYY-MM"
 #         current_month_str = current_date.strftime("%Y-%m")
 #         start_month_str = start_date.strftime("%Y-%m")
 
-#         # Подсчитываем количество отзывов с Яндекса
-#         yandex_reviews = session.query(YandexReview).filter(
+#         # Подсчитываем количество отзывов в последний год (по месяцам)
+#         total_reviews = session.query(YandexReview).filter(
 #             YandexReview.restaurant_id == restaurant_id,
 #             func.substr(YandexReview.created_at, 1, 7) >= start_month_str,
 #             func.substr(YandexReview.created_at, 1, 7) <= current_month_str
 #         ).count()
 
-#         # Подсчитываем количество отзывов с TwoGIS
-#         twogis_reviews = session.query(TwogisReview).filter(
-#             TwogisReview.restaurant_id == restaurant_id,
-#             func.substr(TwogisReview.created_at, 1, 7) >= start_month_str,
-#             func.substr(TwogisReview.created_at, 1, 7) <= current_month_str
-#         ).count()
-
-#         return yandex_reviews + twogis_reviews
+#         return total_reviews
 #     except Exception as e:
 #         session.rollback()
 #         raise e
+def count_reviews_last_year(restaurant_id):
+    """
+    Получаем общее количество отзывов за последний год с Яндекса и TwoGIS для ресторана.
+    """
+    try:
+        # Текущая дата
+        current_date = datetime.now()
+
+        # Дата год назад
+        start_date = current_date.replace(year=current_date.year - 1, day=1)
+
+        # Преобразуем обе даты в формат "YYYY-MM"
+        current_month_str = current_date.strftime("%Y-%m")
+        start_month_str = start_date.strftime("%Y-%m")
+
+        # Подсчитываем количество отзывов с Яндекса
+        yandex_reviews = session.query(YandexReview).filter(
+            YandexReview.restaurant_id == restaurant_id,
+            func.substr(YandexReview.created_at, 1, 7) >= start_month_str,
+            func.substr(YandexReview.created_at, 1, 7) <= current_month_str
+        ).count()
+
+        # Подсчитываем количество отзывов с TwoGIS
+        twogis_reviews = session.query(TwogisReview).filter(
+            TwogisReview.restaurant_id == restaurant_id,
+            func.substr(TwogisReview.created_at, 1, 7) >= start_month_str,
+            func.substr(TwogisReview.created_at, 1, 7) <= current_month_str
+        ).count()
+
+        return yandex_reviews + twogis_reviews
+    except Exception as e:
+        session.rollback()
+        raise e
 
 
 def avg_rest_ya_rating(restaurant_id):
