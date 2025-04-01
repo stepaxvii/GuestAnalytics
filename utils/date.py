@@ -3,24 +3,47 @@ from datetime import datetime, timedelta
 from constants import DATE_FORMAT, DATE_FORMAT_FOR_MONTH_INSIGHT
 
 
+# def handle_date(date_str, actual_date):
+#     # Убираем суффикс ", отредактирован", если он есть
+#     if ', отредактирован' in date_str:
+#         date_str = date_str.replace(', отредактирован', '')
+#     # Обработка слова "сегодня"
+#     if "сегодня" in date_str.lower():
+#         return actual_date.strftime("%Y-%m-%d")
+#     # Обработка слова "вчера"
+#     elif "вчера" in date_str.lower():
+#         yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+#         return yesterday
+#     else:
+#         # Если дата в другом формате, используем существующую логику
+#         try:
+#             return formatted_date(date_str)
+#         except ValueError:
+#             print(f"Не удалось обработать дату: {date_str}")
+#             return actual_date.strftime("%Y-%m-%d")
+
 def handle_date(date_str, actual_date):
     # Убираем суффикс ", отредактирован", если он есть
     if ', отредактирован' in date_str:
         date_str = date_str.replace(', отредактирован', '')
+
     # Обработка слова "сегодня"
     if "сегодня" in date_str.lower():
         return actual_date.strftime("%Y-%m-%d")
+
     # Обработка слова "вчера"
     elif "вчера" in date_str.lower():
         yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
         return yesterday
+
     else:
-        # Если дата в другом формате, используем существующую логику
+        # Если дата в другом формате, пытаемся обработать через логику
         try:
             return formatted_date(date_str)
         except ValueError:
+            # Логируем ошибку и возвращаем None, а не актуальную дату
             print(f"Не удалось обработать дату: {date_str}")
-            return actual_date.strftime("%Y-%m-%d")
+            return None
 
 
 def formatted_date(date_str):
