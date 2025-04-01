@@ -21,31 +21,31 @@ month_dict = {
 }
 
 
-# def count_rest_ya_reviews(restaurant_id):
-#     """Получаем количество отзывов с Яндекса определённого ресторана."""
-#     try:
-#         return session.query(YandexReview).filter(
-#             YandexReview.restaurant_id == restaurant_id
-#         ).count()
-#     except Exception as e:
-#         session.rollback()
-#         raise e
-
-def count_rest_reviews(restaurant_id):
-    """Получаем общее количество отзывов для ресторана с Яндекса и TwoGIS."""
+def count_rest_ya_reviews(restaurant_id):
+    """Получаем количество отзывов с Яндекса определённого ресторана."""
     try:
-        yandex_reviews_count = session.query(YandexReview).filter(
+        return session.query(YandexReview).filter(
             YandexReview.restaurant_id == restaurant_id
         ).count()
-
-        twogis_reviews_count = session.query(TwogisReview).filter(
-            TwogisReview.restaurant_id == restaurant_id
-        ).count()
-
-        return yandex_reviews_count + twogis_reviews_count
     except Exception as e:
         session.rollback()
         raise e
+
+# def count_rest_reviews(restaurant_id):
+#     """Получаем общее количество отзывов для ресторана с Яндекса и TwoGIS."""
+#     try:
+#         yandex_reviews_count = session.query(YandexReview).filter(
+#             YandexReview.restaurant_id == restaurant_id
+#         ).count()
+
+#         twogis_reviews_count = session.query(TwogisReview).filter(
+#             TwogisReview.restaurant_id == restaurant_id
+#         ).count()
+
+#         return yandex_reviews_count + twogis_reviews_count
+#     except Exception as e:
+#         session.rollback()
+#         raise e
 
 
 # # def count_reviews_last_year(restaurant_id):
