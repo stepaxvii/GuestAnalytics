@@ -138,7 +138,7 @@ def read_rest_month_insight_list(restaurant_id):
     """Получаем инсайты списком за прошедший месяц."""
     insight = session.query(RestaurantInsight).filter(
         RestaurantInsight.restaurant_id == restaurant_id
-    ).first()
+    ).order_by(RestaurantInsight.id.desc()).first()
 
     # Если инсайт найден
     if insight and insight.insight:

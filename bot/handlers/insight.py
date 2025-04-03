@@ -23,8 +23,8 @@ router = Router()
 
 ADMIN_ID = int(getenv('ADMIN_ID'))
 
-# Настроим базовое логирование
-logging.basicConfig(level=logging.INFO)
+# Настройка логирования
+logger = logging.getLogger()
 
 
 async def check_admin(user_id: int) -> bool:
@@ -41,7 +41,7 @@ async def test_insight(callback_query: CallbackQuery, bot: Bot):
             text='Тестирую месячный инсайт для ресторанов.'
         )
 
-        logging.info("Запуск тестирования инсайтов для ресторанов...")
+        logger.info("Запуск тестирования инсайтов для ресторанов...")
 
         current_date = datetime.now()
 
@@ -55,7 +55,7 @@ async def test_insight(callback_query: CallbackQuery, bot: Bot):
             # Проверяем наличие инсайтов для ресторана в БД
             insight = read_rest_month_insight(restaurant_id=rest_id)
             if not insight:
-                logging.info(f"Инсайтов для ресторана '{rest_name}' нет в БД.")
+                logger.info(f"Инсайтов для ресторана '{rest_name}' нет в БД.")
 
                 await bot.send_message(
                     chat_id=ADMIN_ID,
@@ -84,7 +84,7 @@ async def test_insight(callback_query: CallbackQuery, bot: Bot):
                 count_reviews = len(reviews)
 
                 if reviews:
-                    logging.info(
+                    logger.info(
                         f"Всего {count_reviews} отзывов. {len(reviews_ya)} + {len(reviews_twogis)}"
                         f"'{rest_name}' за месяц {last_month}."
                     )
@@ -94,7 +94,7 @@ async def test_insight(callback_query: CallbackQuery, bot: Bot):
                         f"Всего отзывов: {count_reviews}"
                     )
                 else:
-                    logging.warning(
+                    logger.info(
                         f"Отзывов за месяц {last_month} "
                         f"для ресторана '{rest_name}' не найдено."
                     )
@@ -121,7 +121,7 @@ async def test_insight(callback_query: CallbackQuery, bot: Bot):
                 # Проверка актуальности инсайта
                 last_month_insight, last_month = check_month(insight.period)
                 if last_month_insight:
-                    logging.info(
+                    logger.info(
                         f"Найден актуальный инсайт для '{rest_name}'."
                     )
                     await bot.send_message(
@@ -130,21 +130,31 @@ async def test_insight(callback_query: CallbackQuery, bot: Bot):
                         f"'{rest_name}' за {last_month}.\n{insight.insight}"
                     )
                 else:
-                    logging.info(
+                    logger.info(
                         f"Инсайт для '{rest_name}' устарел. "
                         "Проводим новый анализ."
                     )
 
-                    # Извлекаем отзывы за последний месяц
-                    reviews_data = read_rest_ya_reviews_date(
+                    # Извлекаем отзывы за предыдущий месяц
+                    reviews_data_ya = read_rest_ya_reviews_date(
+                        restaurant_id=rest_id,
+                        date_filter=last_month
+                        )
+                    reviews_ya = [
+                        review.content for review in reviews_data_ya
+                    ]
+                    reviews_data_twogis = read_rest_twogis_reviews_date(
                         restaurant_id=rest_id,
                         date_filter=last_month
                     )
-                    reviews = [review.content for review in reviews_data]
+                    reviews_twogis = [
+                        review.content for review in reviews_data_twogis
+                    ]
+                    reviews = reviews_ya + reviews_twogis
                     count_reviews = len(reviews)
 
                     if reviews:
-                        logging.info(
+                        logger.info(
                             f"Всего {count_reviews} отзывов для "
                             f"'{rest_name}' за месяц {last_month}."
                         )
@@ -171,7 +181,7 @@ async def test_insight(callback_query: CallbackQuery, bot: Bot):
                             f"'{rest_name}':\n{insight_text}"
                         )
                     else:
-                        logging.warning(
+                        logger.warning(
                             f"Отзывов за месяц {last_month} для "
                             f"'{rest_name}' не найдено."
                         )
@@ -181,4 +191,4 @@ async def test_insight(callback_query: CallbackQuery, bot: Bot):
                             f"'{rest_name}' не найдено."
                         )
 
-        logging.info("Проверка и создание инсайтов завершена.")
+        logger.info("Проверка и создание инсайтов завершена.")
