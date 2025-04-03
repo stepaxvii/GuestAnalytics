@@ -85,7 +85,7 @@ async def test_insight(callback_query: CallbackQuery, bot: Bot):
 
                 if reviews:
                     logging.info(
-                        f"Всего {count_reviews} отзывов для ресторана "
+                        f"Всего {count_reviews} отзывов. {len(reviews_ya)} + {len(reviews_twogis)}"
                         f"'{rest_name}' за месяц {last_month}."
                     )
                     await bot.send_message(

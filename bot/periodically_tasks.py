@@ -296,7 +296,7 @@ async def check_new_insight_periodically(bot: Bot):
                             await bot.send_message(
                                 chat_id=ADMIN_ID,
                                 text=f"2ГИС - {len(reviews_twogis)}\n"
-                                "Яндекс - {len(reviews_ya)}"
+                                f"Яндекс - {len(reviews_ya)}"
                             )
 
                             count_reviews = len(reviews)
