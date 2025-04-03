@@ -10,6 +10,7 @@ from data.create_data import create_insight
 from data.read_data import (
     read_all_restaurant_data,
     read_rest_month_insight,
+    read_rest_twogis_reviews_date,
     read_rest_ya_reviews_date
 )
 from semantic_analysis.month_insight import month_insight
@@ -64,12 +65,22 @@ async def test_insight(callback_query: CallbackQuery, bot: Bot):
                 # Получаем последний месяц для анализа
                 last_month = make_last_months(current_date=current_date)[0]
 
-                # Извлекаем отзывы за последний месяц
-                reviews_data = read_rest_ya_reviews_date(
+                # Извлекаем отзывы за предыдущий месяц
+                reviews_data_ya = read_rest_ya_reviews_date(
+                    restaurant_id=rest_id,
+                    date_filter=last_month
+                    )
+                reviews_ya = [
+                    review.content for review in reviews_data_ya
+                ]
+                reviews_data_twogis = read_rest_twogis_reviews_date(
                     restaurant_id=rest_id,
                     date_filter=last_month
                 )
-                reviews = [review.content for review in reviews_data]
+                reviews_twogis = [
+                    review.content for review in reviews_data_twogis
+                ]
+                reviews = reviews_ya + reviews_twogis
                 count_reviews = len(reviews)
 
                 if reviews:
