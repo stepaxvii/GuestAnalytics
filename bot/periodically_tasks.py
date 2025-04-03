@@ -20,6 +20,7 @@ from data.read_data import (
 from semantic_analysis.month_insight import month_insight
 from utils.date import check_month, make_last_months
 from utils.message_text import get_star_rating
+from utils.semantic import make_count_insights
 from twogis.twogis_check_new_reviews import twogis_matching_reviews
 from yandex.yandex_check_new_reviews import ya_matching_reviews
 
@@ -276,7 +277,7 @@ async def check_new_insight_periodically(bot: Bot):
                                 text=f"Нет свежего инсайта за {last_month}"
                             )
 
-                            # Извлекаем отзывы за текущий месяц
+                            # Извлекаем отзывы за предыдущий месяц
                             reviews_data_ya = read_rest_ya_reviews_date(
                                 restaurant_id=rest_id,
                                 date_filter=last_month
@@ -292,6 +293,11 @@ async def check_new_insight_periodically(bot: Bot):
                                 review.content for review in reviews_data_twogis
                             ]
                             reviews = reviews_ya + reviews_twogis
+                            await bot.send_message(
+                                chat_id=ADMIN_ID,
+                                text=f"2ГИС - {len(reviews_twogis)}\n"
+                                "Яндекс - {len(reviews_ya)}"
+                            )
 
                             count_reviews = len(reviews)
 
@@ -301,8 +307,12 @@ async def check_new_insight_periodically(bot: Bot):
                                     text="Выявляю инсайты.\n"
                                     f"Всего отзывов {count_reviews}"
                                 )
+                                count_insights = make_count_insights(review_block=reviews)
                                 # Выполнение анализа инсайтов
-                                insight = month_insight(reviews_block=reviews)
+                                insight = month_insight(
+                                    reviews_block=reviews,
+                                    count_insights=count_insights
+                                    )
                                 insight_data = (rest_id, last_month, insight)
                                 create_insight(data=insight_data)
 
