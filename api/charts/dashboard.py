@@ -106,7 +106,9 @@ def dashboard():
             # Получаем количество отзывов за месяц
             # Логируем текущий месяц
             logger.debug(f"Обрабатываем месяц: {month_start.strftime('%Y-%m')}")
-            logger.debug(f"Запрос отзывов за период: {month_start.replace(day=1)} до {(month_start + relativedelta(months=1)).replace(day=1)}")
+            logger.debug(
+                f"Запрос отзывов за период: {month_start.replace(day=1)} до {(month_start + relativedelta(months=1)).replace(day=1)}"
+            )
 
             reviews_in_month = session.query(YandexReview).filter(
                 YandexReview.restaurant_id == restaurant_id,
