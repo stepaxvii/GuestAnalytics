@@ -307,7 +307,9 @@ async def check_new_insight_periodically(bot: Bot):
                                     text="Выявляю инсайты.\n"
                                     f"Всего отзывов {count_reviews}"
                                 )
-                                count_insights = make_count_insights(review_block=reviews)
+                                count_insights = make_count_insights(
+                                    review_block=reviews
+                                )
                                 # Выполнение анализа инсайтов
                                 insight = month_insight(
                                     reviews_block=reviews,

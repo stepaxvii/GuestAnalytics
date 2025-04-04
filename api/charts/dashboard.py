@@ -23,7 +23,7 @@ from utils.dashboard import (
 from utils.dashboard import month_dict
 
 # Настройка логирования
-logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger()
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
@@ -32,7 +32,7 @@ dashboard_bp = Blueprint('dashboard', __name__)
 def dashboard():
     wp_id = request.args.get('restaurant_id')
     if not wp_id:
-        logging.error('Не указан wp_id')
+        logger.error('Не указан wp_id')
         return jsonify({
             "success": False,
             "data": None,
@@ -47,7 +47,7 @@ def dashboard():
 
         # Если нет отзывов, возвращаем пустой ответ
         if not reviews:
-            logging.warning(
+            logger.warning(
                 f"Отзывы для ресторана id: {wp_id} не найдены"
             )
             return jsonify({
@@ -93,15 +93,27 @@ def dashboard():
                 labels.insert(0, f"{month_dict[month_str]}")
 
             # Получаем количество отзывов за месяц
+            # reviews_in_month = session.query(YandexReview).filter(
+            #     YandexReview.restaurant_id == restaurant_id,
+            #     func.cast(
+            #         YandexReview.created_at, DATE
+            #     ) >= month_start.replace(day=1),
+            #     func.cast(YandexReview.created_at, DATE) < (
+            #         month_start + relativedelta(months=1)
+            #     ).replace(day=1)
+            # ).count()
+
+            # Получаем количество отзывов за месяц
+            # Логируем текущий месяц
+            logger.debug(f"Обрабатываем месяц: {month_start.strftime('%Y-%m')}")
+            logger.debug(f"Запрос отзывов за период: {month_start.replace(day=1)} до {(month_start + relativedelta(months=1)).replace(day=1)}")
+
             reviews_in_month = session.query(YandexReview).filter(
                 YandexReview.restaurant_id == restaurant_id,
-                func.cast(
-                    YandexReview.created_at, DATE
-                ) >= month_start.replace(day=1),
-                func.cast(YandexReview.created_at, DATE) < (
-                    month_start + relativedelta(months=1)
-                ).replace(day=1)
+                func.cast(YandexReview.created_at, DATE) >= month_start.replace(day=1),
+                func.cast(YandexReview.created_at, DATE) < (month_start + relativedelta(months=1)).replace(day=1)
             ).count()
+            logger.debug(f"Отзывы за апрель: {reviews_in_month}")
             trend_reviews_data.insert(0, reviews_in_month)
 
             # Средний рейтинг за месяц
@@ -160,7 +172,7 @@ def dashboard():
         })
 
     except Exception as e:
-        logging.error(f"Ошибка при обработке запроса: {e}")
+        logger.error(f"Ошибка при обработке запроса: {e}")
         session.rollback()
         return jsonify({
             "success": False,
