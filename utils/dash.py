@@ -73,7 +73,7 @@ def count_reviews_last_year(restaurant_id):
         raise e
 
 
-def avg_rest_rating(restaurant_id):
+def avg_rest_ya_rating(restaurant_id):
     """Получаем средний рейтинг отзывов с Яндекса и TwoGIS для ресторана."""
     try:
         yandex_avg_rating = session.query(

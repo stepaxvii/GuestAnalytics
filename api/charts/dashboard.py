@@ -12,7 +12,7 @@ from data.read_data import (
     read_rest_month_insight_list,
     read_restaurant_by_wp
 )
-from utils.dashboard import (
+from utils.dash import (
     avg_rest_ya_rating,
     calculate_nps,
     calculate_nps_for_month,
@@ -79,33 +79,6 @@ def dashboard():
         trend_sentiment_data = []
 
         today = datetime.today()
-        # for i in range(12):  # За последние 12 месяцев
-        #     month_start = today - relativedelta(months=i)
-
-        #     # Используем словарь для перевода месяца в русский формат
-        #     month_str = month_start.strftime("%m")
-        #     # Если месяц — январь, заменяем "янв" на текущий год
-        #     if month_dict[month_str] == "янв":
-        #         # Вставляем год в формате "гггг"
-        #         labels.insert(0, month_start.strftime("%Y"))
-        #     else:
-        #         # Вставляем сокращённое название месяца
-        #         labels.insert(0, f"{month_dict[month_str]}")
-
-        #     # Получаем количество отзывов за месяц
-        #     # Логируем текущий месяц
-        #     logger.info(f"Обрабатываем месяц: {month_start.strftime('%Y-%m')}")
-        #     logger.info(
-        #         f"Запрос отзывов за период: {month_start.replace(day=1)} до {(month_start + relativedelta(months=1)).replace(day=1)}"
-        #     )
-
-        #     reviews_in_month = session.query(YandexReview).filter(
-        #         YandexReview.restaurant_id == restaurant_id,
-        #         func.date(YandexReview.created_at) >= month_start.replace(day=1).date(),  # только дата
-        #         func.date(YandexReview.created_at) < (month_start + relativedelta(months=1)).replace(day=1).date()  # только дата
-        #     ).count()
-        #     logger.info(f"Отзывы за апрель: {reviews_in_month}")
-        #     trend_reviews_data.insert(0, reviews_in_month)
         for i in range(12):  # За последние 12 месяцев
             month_start = today - relativedelta(months=i)
 
@@ -124,10 +97,10 @@ def dashboard():
             # Формируем год-месяц для фильтрации
             year_month = month_start.strftime('%Y-%m')
 
-            # Получаем количество отзывов за месяц, используя только год и месяц
+            # Получаем количество отзывов за месяц, используя год и месяц
             reviews_in_month = session.query(YandexReview).filter(
                 YandexReview.restaurant_id == restaurant_id,
-                func.substring(YandexReview.created_at, 1, 7) == year_month  # фильтруем по году и месяцу
+                func.substring(YandexReview.created_at, 1, 7) == year_month
             ).count()
 
             # Логируем количество отзывов

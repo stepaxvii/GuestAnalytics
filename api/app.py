@@ -1,5 +1,4 @@
 import logging
-import sys
 
 from flask import Flask
 from api.charts import (
