@@ -6,7 +6,7 @@ from flask import Blueprint, jsonify, request
 from sqlalchemy import func
 from sqlalchemy.types import Date as DATE
 from api.db import session
-from data.data_main import YandexReview
+from data.data_main import TwogisReview, YandexReview
 from data.read_data import (
     read_rest_ya_reviews,
     read_rest_month_insight_list,
@@ -79,12 +79,55 @@ def dashboard():
         trend_sentiment_data = []
 
         today = datetime.today()
+        # for i in range(12):  # За последние 12 месяцев
+        #     month_start = today - relativedelta(months=i)
+
+        #     # Получаем строковое представление месяца
+        #     month_str = month_start.strftime("%m")
+
+        #     # Если месяц — январь, заменяем "янв" на текущий год
+        #     if month_dict[month_str] == "янв":
+        #         labels.insert(0, month_start.strftime("%Y"))
+        #     else:
+        #         labels.insert(0, f"{month_dict[month_str]}")
+
+        #     # Логируем текущий месяц
+        #     logger.info(f"Обрабатываем месяц: {month_start.strftime('%Y-%m')}")
+
+        #     # Формируем год-месяц для фильтрации
+        #     year_month = month_start.strftime('%Y-%m')
+
+        #     # Получаем количество отзывов за месяц, используя год и месяц
+        #     reviews_in_month = session.query(YandexReview).filter(
+        #         YandexReview.restaurant_id == restaurant_id,
+        #         func.substring(YandexReview.created_at, 1, 7) == year_month
+        #     ).count()
+
+        #     # Логируем количество отзывов
+        #     logger.info(f"Отзывы за {year_month}: {reviews_in_month}")
+
+        #     # Добавляем данные в список
+        #     trend_reviews_data.insert(0, reviews_in_month)
+
+        #     # Средний рейтинг за месяц
+        #     avg_rating_month = session.query(
+        #         func.round(func.avg(YandexReview.rating), 1)
+        #     ).filter(
+        #         YandexReview.restaurant_id == restaurant_id,
+        #         func.cast(
+        #             YandexReview.created_at, DATE
+        #         ) >= month_start.replace(day=1),
+        #         func.cast(YandexReview.created_at, DATE) < (
+        #             month_start + relativedelta(months=1)
+        #         ).replace(day=1)
+        #     ).scalar() or 0
+        #     trend_rating_data.insert(0, avg_rating_month)
         for i in range(12):  # За последние 12 месяцев
             month_start = today - relativedelta(months=i)
 
             # Получаем строковое представление месяца
             month_str = month_start.strftime("%m")
-
+            
             # Если месяц — январь, заменяем "янв" на текущий год
             if month_dict[month_str] == "янв":
                 labels.insert(0, month_start.strftime("%Y"))
@@ -93,15 +136,23 @@ def dashboard():
 
             # Логируем текущий месяц
             logger.info(f"Обрабатываем месяц: {month_start.strftime('%Y-%m')}")
-
+            
             # Формируем год-месяц для фильтрации
             year_month = month_start.strftime('%Y-%m')
-
-            # Получаем количество отзывов за месяц, используя год и месяц
-            reviews_in_month = session.query(YandexReview).filter(
+            
+            # Получаем количество отзывов за месяц для обеих таблиц (YandexReview и TwogisReview)
+            reviews_in_month_yandex = session.query(YandexReview).filter(
                 YandexReview.restaurant_id == restaurant_id,
                 func.substring(YandexReview.created_at, 1, 7) == year_month
             ).count()
+
+            reviews_in_month_twogis = session.query(TwogisReview).filter(
+                TwogisReview.restaurant_id == restaurant_id,
+                func.substring(TwogisReview.created_at, 1, 7) == year_month
+            ).count()
+
+            # Суммируем количество отзывов
+            reviews_in_month = reviews_in_month_yandex + reviews_in_month_twogis
 
             # Логируем количество отзывов
             logger.info(f"Отзывы за {year_month}: {reviews_in_month}")
@@ -109,18 +160,29 @@ def dashboard():
             # Добавляем данные в список
             trend_reviews_data.insert(0, reviews_in_month)
 
-            # Средний рейтинг за месяц
-            avg_rating_month = session.query(
+            # Средний рейтинг за месяц для обеих таблиц
+            avg_rating_month_yandex = session.query(
                 func.round(func.avg(YandexReview.rating), 1)
             ).filter(
                 YandexReview.restaurant_id == restaurant_id,
-                func.cast(
-                    YandexReview.created_at, DATE
-                ) >= month_start.replace(day=1),
-                func.cast(YandexReview.created_at, DATE) < (
-                    month_start + relativedelta(months=1)
-                ).replace(day=1)
+                func.substring(YandexReview.created_at, 1, 7) == year_month
             ).scalar() or 0
+
+            avg_rating_month_twogis = session.query(
+                func.round(func.avg(TwogisReview.rating), 1)
+            ).filter(
+                TwogisReview.restaurant_id == restaurant_id,
+                func.substring(TwogisReview.created_at, 1, 7) == year_month
+            ).scalar() or 0
+
+            # Считаем средний рейтинг для обоих источников
+            total_reviews = reviews_in_month_yandex + reviews_in_month_twogis
+            total_rating = (avg_rating_month_yandex * reviews_in_month_yandex +
+                            avg_rating_month_twogis * reviews_in_month_twogis)
+
+            # Вычисляем общий средний рейтинг с учетом всех отзывов
+            avg_rating_month = (total_rating / total_reviews) if total_reviews > 0 else 0
+
             trend_rating_data.insert(0, avg_rating_month)
 
             # NPS за месяц
