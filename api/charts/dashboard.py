@@ -105,8 +105,8 @@ def dashboard():
 
             # Получаем количество отзывов за месяц
             # Логируем текущий месяц
-            logger.debug(f"Обрабатываем месяц: {month_start.strftime('%Y-%m')}")
-            logger.debug(
+            logger.info(f"Обрабатываем месяц: {month_start.strftime('%Y-%m')}")
+            logger.info(
                 f"Запрос отзывов за период: {month_start.replace(day=1)} до {(month_start + relativedelta(months=1)).replace(day=1)}"
             )
 
@@ -115,7 +115,7 @@ def dashboard():
                 func.cast(YandexReview.created_at, DATE) >= month_start.replace(day=1),
                 func.cast(YandexReview.created_at, DATE) < (month_start + relativedelta(months=1)).replace(day=1)
             ).count()
-            logger.debug(f"Отзывы за апрель: {reviews_in_month}")
+            logger.info(f"Отзывы за апрель: {reviews_in_month}")
             trend_reviews_data.insert(0, reviews_in_month)
 
             # Средний рейтинг за месяц
