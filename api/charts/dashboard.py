@@ -112,8 +112,8 @@ def dashboard():
 
             reviews_in_month = session.query(YandexReview).filter(
                 YandexReview.restaurant_id == restaurant_id,
-                func.cast(YandexReview.created_at, DATE) >= month_start.replace(day=1),
-                func.cast(YandexReview.created_at, DATE) < (month_start + relativedelta(months=1)).replace(day=1)
+                func.date(YandexReview.created_at) >= month_start.replace(day=1).date(),  # только дата
+                func.date(YandexReview.created_at) < (month_start + relativedelta(months=1)).replace(day=1).date()  # только дата
             ).count()
             logger.info(f"Отзывы за апрель: {reviews_in_month}")
             trend_reviews_data.insert(0, reviews_in_month)
