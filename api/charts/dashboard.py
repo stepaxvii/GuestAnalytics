@@ -127,7 +127,7 @@ def dashboard():
 
             # Получаем строковое представление месяца
             month_str = month_start.strftime("%m")
-            
+
             # Если месяц — январь, заменяем "янв" на текущий год
             if month_dict[month_str] == "янв":
                 labels.insert(0, month_start.strftime("%Y"))
@@ -136,11 +136,11 @@ def dashboard():
 
             # Логируем текущий месяц
             logger.info(f"Обрабатываем месяц: {month_start.strftime('%Y-%m')}")
-            
+
             # Формируем год-месяц для фильтрации
             year_month = month_start.strftime('%Y-%m')
-            
-            # Получаем количество отзывов за месяц для обеих таблиц (YandexReview и TwogisReview)
+
+            # Получаем количество отзывов за месяц для обеих таблиц
             reviews_in_month_yandex = session.query(YandexReview).filter(
                 YandexReview.restaurant_id == restaurant_id,
                 func.substring(YandexReview.created_at, 1, 7) == year_month
@@ -176,12 +176,12 @@ def dashboard():
             ).scalar() or 0
 
             # Считаем средний рейтинг для обоих источников
-            total_reviews = reviews_in_month_yandex + reviews_in_month_twogis
+            total_reviews_month = reviews_in_month_yandex + reviews_in_month_twogis
             total_rating = (avg_rating_month_yandex * reviews_in_month_yandex +
                             avg_rating_month_twogis * reviews_in_month_twogis)
 
             # Вычисляем общий средний рейтинг с учетом всех отзывов
-            avg_rating_month = (total_rating / total_reviews) if total_reviews > 0 else 0
+            avg_rating_month = (total_rating / total_reviews_month) if total_reviews_month > 0 else 0
 
             trend_rating_data.insert(0, avg_rating_month)
 
