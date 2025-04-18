@@ -155,15 +155,15 @@ def dashboard():
                 total_rating / total_reviews_month
             ) if total_reviews_month > 0 else 0
 
-            trend_rating_data.insert(0, avg_rating_month)
-            trend_rating_data_yandex.insert(0, avg_rating_month_yandex)
-            trend_rating_data_twogis.insert(0, avg_rating_month_twogis)
+            trend_rating_data.insert(0, round(avg_rating_month, 1))
+            trend_rating_data_yandex.insert(
+                0, round(avg_rating_month_yandex, 1)
+            )
+            trend_rating_data_twogis.insert(
+                0, round(avg_rating_month_twogis, 1)
+            )
 
             # NPS за месяц
-            # nps_month = calculate_nps_for_month(
-            #     restaurant_id, month_start.year, month_start.month
-            # )
-            # trend_nps_data.insert(0, nps_month)
             nps_month, nps_month_yandex, nps_month_twogis = calculate_nps_for_month(
                 restaurant_id, month_start.year, month_start.month
             )
