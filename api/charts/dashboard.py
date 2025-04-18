@@ -4,7 +4,6 @@ from dateutil.relativedelta import relativedelta
 
 from flask import Blueprint, jsonify, request
 from sqlalchemy import func
-from sqlalchemy.types import Date as DATE
 from api.db import session
 from data.data_main import TwogisReview, YandexReview
 from data.read_data import (
@@ -20,7 +19,7 @@ from utils.dash import (
     calculate_satisfaction_level_for_month,
     count_reviews_last_year
 )
-from utils.dashboard import month_dict
+from utils.date import month_dict_dash
 
 # Настройка логирования
 logger = logging.getLogger()
@@ -79,49 +78,6 @@ def dashboard():
         trend_sentiment_data = []
 
         today = datetime.today()
-        # for i in range(12):  # За последние 12 месяцев
-        #     month_start = today - relativedelta(months=i)
-
-        #     # Получаем строковое представление месяца
-        #     month_str = month_start.strftime("%m")
-
-        #     # Если месяц — январь, заменяем "янв" на текущий год
-        #     if month_dict[month_str] == "янв":
-        #         labels.insert(0, month_start.strftime("%Y"))
-        #     else:
-        #         labels.insert(0, f"{month_dict[month_str]}")
-
-        #     # Логируем текущий месяц
-        #     logger.info(f"Обрабатываем месяц: {month_start.strftime('%Y-%m')}")
-
-        #     # Формируем год-месяц для фильтрации
-        #     year_month = month_start.strftime('%Y-%m')
-
-        #     # Получаем количество отзывов за месяц, используя год и месяц
-        #     reviews_in_month = session.query(YandexReview).filter(
-        #         YandexReview.restaurant_id == restaurant_id,
-        #         func.substring(YandexReview.created_at, 1, 7) == year_month
-        #     ).count()
-
-        #     # Логируем количество отзывов
-        #     logger.info(f"Отзывы за {year_month}: {reviews_in_month}")
-
-        #     # Добавляем данные в список
-        #     trend_reviews_data.insert(0, reviews_in_month)
-
-        #     # Средний рейтинг за месяц
-        #     avg_rating_month = session.query(
-        #         func.round(func.avg(YandexReview.rating), 1)
-        #     ).filter(
-        #         YandexReview.restaurant_id == restaurant_id,
-        #         func.cast(
-        #             YandexReview.created_at, DATE
-        #         ) >= month_start.replace(day=1),
-        #         func.cast(YandexReview.created_at, DATE) < (
-        #             month_start + relativedelta(months=1)
-        #         ).replace(day=1)
-        #     ).scalar() or 0
-        #     trend_rating_data.insert(0, avg_rating_month)
         for i in range(12):  # За последние 12 месяцев
             month_start = today - relativedelta(months=i)
 
@@ -129,10 +85,10 @@ def dashboard():
             month_str = month_start.strftime("%m")
 
             # Если месяц — январь, заменяем "янв" на текущий год
-            if month_dict[month_str] == "янв":
+            if month_dict_dash[month_str] == "янв":
                 labels.insert(0, month_start.strftime("%Y"))
             else:
-                labels.insert(0, f"{month_dict[month_str]}")
+                labels.insert(0, f"{month_dict_dash[month_str]}")
 
             # Логируем текущий месяц
             logger.info(f"Обрабатываем месяц: {month_start.strftime('%Y-%m')}")
@@ -152,7 +108,9 @@ def dashboard():
             ).count()
 
             # Суммируем количество отзывов
-            reviews_in_month = reviews_in_month_yandex + reviews_in_month_twogis
+            reviews_in_month = (
+                reviews_in_month_yandex + reviews_in_month_twogis
+            )
 
             # Логируем количество отзывов
             logger.info(f"Отзывы за {year_month}: {reviews_in_month}")
@@ -176,12 +134,16 @@ def dashboard():
             ).scalar() or 0
 
             # Считаем средний рейтинг для обоих источников
-            total_reviews_month = reviews_in_month_yandex + reviews_in_month_twogis
+            total_reviews_month = (
+                reviews_in_month_yandex + reviews_in_month_twogis
+            )
             total_rating = (avg_rating_month_yandex * reviews_in_month_yandex +
                             avg_rating_month_twogis * reviews_in_month_twogis)
 
             # Вычисляем общий средний рейтинг с учетом всех отзывов
-            avg_rating_month = (total_rating / total_reviews_month) if total_reviews_month > 0 else 0
+            avg_rating_month = (
+                total_rating / total_reviews_month
+            ) if total_reviews_month > 0 else 0
 
             trend_rating_data.insert(0, avg_rating_month)
 
@@ -207,7 +169,27 @@ def dashboard():
                     "sentiment_percent": sentiment_percent,
                     "ai_insights": ai_insights,
                 },
+                "kpi_yandex": {
+                    "total_reviews_yandex": 100,
+                    "average_rating_yandex": average_rating,
+                    "nps_yandex": nps,
+                    "sentiment_percent_yandex": sentiment_percent,
+                },
+                "kpi_twogis": {
+                    "total_reviews_twogis": 50,
+                    "average_rating_twogis": average_rating,
+                    "nps_twogis": nps,
+                    "sentiment_percent_twogis": sentiment_percent,
+                },
                 "trend_reviews": {
+                    "labels": labels,
+                    "data": trend_reviews_data
+                },
+                "trend_reviews_yandex": {
+                    "labels": labels,
+                    "data": trend_reviews_data
+                },
+                "trend_reviews_twogis": {
                     "labels": labels,
                     "data": trend_reviews_data
                 },
@@ -215,14 +197,38 @@ def dashboard():
                     "labels": labels,
                     "data": trend_rating_data
                 },
+                "trend_rating_yandex": {
+                    "labels": labels,
+                    "data": trend_rating_data
+                },
+                "trend_rating_twogis": {
+                    "labels": labels,
+                    "data": trend_rating_data
+                },
                 "trend_nps": {
+                    "labels": labels,
+                    "data": trend_nps_data
+                },
+                "trend_nps_yandex": {
+                    "labels": labels,
+                    "data": trend_nps_data
+                },
+                "trend_nps_twogis": {
                     "labels": labels,
                     "data": trend_nps_data
                 },
                 "trend_sentiment": {
                     "labels": labels,
                     "data": trend_sentiment_data
-                }
+                },
+                "trend_sentiment_yandex": {
+                    "labels": labels,
+                    "data": trend_sentiment_data
+                },
+                "trend_sentiment_twogis": {
+                    "labels": labels,
+                    "data": trend_sentiment_data
+                },
             }
         })
 
