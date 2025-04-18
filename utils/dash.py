@@ -58,7 +58,7 @@ def count_reviews_last_year(restaurant_id):
         raise e
 
 
-def avg_rest_ya_rating(restaurant_id):
+def avg_rest_rating(restaurant_id):
     """Получаем средний рейтинг отзывов с Яндекса и TwoGIS для ресторана."""
     try:
         yandex_avg_rating = session.query(
@@ -87,49 +87,116 @@ def avg_rest_ya_rating(restaurant_id):
         raise e
 
 
+# def calculate_nps(restaurant_id):
+#     """Рассчитываем NPS для ресторана с Яндекса и TwoGIS."""
+#     try:
+#         total_reviews = count_rest_reviews(restaurant_id)
+
+#         if total_reviews == 0:
+#             return 0
+
+#         # Количество Promoters (5 звезд) для Яндекса
+#         yandex_promoters = session.query(YandexReview).filter(
+#             YandexReview.restaurant_id == restaurant_id,
+#             YandexReview.rating == 5
+#         ).count()
+
+#         # Количество Promoters (5 звезд) для TwoGIS
+#         twogis_promoters = session.query(TwogisReview).filter(
+#             TwogisReview.restaurant_id == restaurant_id,
+#             TwogisReview.rating == 5
+#         ).count()
+
+#         # Количество Detractors (1, 2, или 3 звезды) для Яндекса
+#         yandex_detractors = session.query(YandexReview).filter(
+#             YandexReview.restaurant_id == restaurant_id,
+#             YandexReview.rating.in_([1, 2, 3])
+#         ).count()
+
+#         # Количество Detractors (1, 2, или 3 звезды) для TwoGIS
+#         twogis_detractors = session.query(TwogisReview).filter(
+#             TwogisReview.restaurant_id == restaurant_id,
+#             TwogisReview.rating.in_([1, 2, 3])
+#         ).count()
+
+#         # Рассчитываем проценты
+#         promoters_percent = (
+#             yandex_promoters + twogis_promoters
+#         ) / total_reviews * 100
+#         detractors_percent = (
+#             yandex_detractors + twogis_detractors
+#         ) / total_reviews * 100
+
+#         # NPS = Promoters - Detractors
+#         nps = round(promoters_percent - detractors_percent, 1)
+#         return nps
+#     except Exception as e:
+#         session.rollback()
+#         raise e
+
 def calculate_nps(restaurant_id):
-    """Рассчитываем NPS для ресторана с Яндекса и TwoGIS."""
+    """Рассчитываем общий NPS, а также отдельно для Яндекса и TwoGIS."""
     try:
-        total_reviews = count_rest_reviews(restaurant_id)
+        total_yandex_reviews = session.query(YandexReview).filter(
+            YandexReview.restaurant_id == restaurant_id
+        ).count()
+
+        total_twogis_reviews = session.query(TwogisReview).filter(
+            TwogisReview.restaurant_id == restaurant_id
+        ).count()
+
+        total_reviews = total_yandex_reviews + total_twogis_reviews
 
         if total_reviews == 0:
-            return 0
+            return {
+                'overall_nps': 0,
+                'yandex_nps': 0,
+                'twogis_nps': 0
+            }
 
-        # Количество Promoters (5 звезд) для Яндекса
+        # Яндекс
         yandex_promoters = session.query(YandexReview).filter(
             YandexReview.restaurant_id == restaurant_id,
             YandexReview.rating == 5
         ).count()
 
-        # Количество Promoters (5 звезд) для TwoGIS
-        twogis_promoters = session.query(TwogisReview).filter(
-            TwogisReview.restaurant_id == restaurant_id,
-            TwogisReview.rating == 5
-        ).count()
-
-        # Количество Detractors (1, 2, или 3 звезды) для Яндекса
         yandex_detractors = session.query(YandexReview).filter(
             YandexReview.restaurant_id == restaurant_id,
             YandexReview.rating.in_([1, 2, 3])
         ).count()
 
-        # Количество Detractors (1, 2, или 3 звезды) для TwoGIS
+        if total_yandex_reviews > 0:
+            yandex_nps = round(
+                (yandex_promoters - yandex_detractors) / total_yandex_reviews * 100, 1)
+        else:
+            yandex_nps = 0
+
+        # TwoGIS
+        twogis_promoters = session.query(TwogisReview).filter(
+            TwogisReview.restaurant_id == restaurant_id,
+            TwogisReview.rating == 5
+        ).count()
+
         twogis_detractors = session.query(TwogisReview).filter(
             TwogisReview.restaurant_id == restaurant_id,
             TwogisReview.rating.in_([1, 2, 3])
         ).count()
 
-        # Рассчитываем проценты
-        promoters_percent = (
-            yandex_promoters + twogis_promoters
-        ) / total_reviews * 100
-        detractors_percent = (
-            yandex_detractors + twogis_detractors
-        ) / total_reviews * 100
+        if total_twogis_reviews > 0:
+            twogis_nps = round(
+                (twogis_promoters - twogis_detractors) / total_twogis_reviews * 100, 1)
+        else:
+            twogis_nps = 0
 
-        # NPS = Promoters - Detractors
-        nps = round(promoters_percent - detractors_percent, 1)
-        return nps
+        # Общий NPS
+        total_promoters = yandex_promoters + twogis_promoters
+        total_detractors = yandex_detractors + twogis_detractors
+
+        overall_nps = round(
+            (total_promoters - total_detractors) / total_reviews * 100, 1)
+
+        return overall_nps, yandex_nps, twogis_nps
+
     except Exception as e:
         session.rollback()
         raise e

@@ -12,7 +12,7 @@ from data.read_data import (
     read_restaurant_by_wp
 )
 from utils.dash import (
-    avg_rest_ya_rating,
+    avg_rest_rating,
     calculate_nps,
     calculate_nps_for_month,
     calculate_satisfaction_level,
@@ -59,9 +59,9 @@ def dashboard():
         # Общее количество отзывов за всё время
         total_reviews, total_reviews_yandex, total_reviews_twogis = count_reviews_last_year(restaurant_id=restaurant_id)
         # Среднее значение рейтинга за всё время
-        average_rating, average_rating_yandex, average_rating_twogis = avg_rest_ya_rating(restaurant_id=restaurant_id)
+        average_rating, average_rating_yandex, average_rating_twogis = avg_rest_rating(restaurant_id=restaurant_id)
         # Процент лояльных гостей (NPS)
-        nps = calculate_nps(restaurant_id=restaurant_id)
+        nps, nps_yandex, nps_twogis = calculate_nps(restaurant_id=restaurant_id)
         # Процент положительных отзывов
         sentiment_percent = calculate_satisfaction_level(
             restaurant_id=restaurant_id
@@ -159,6 +159,9 @@ def dashboard():
             )
             trend_sentiment_data.insert(0, satisfaction_month)
 
+            # ЛОГГИРУЕМ ДАННЫЕ
+            logger.info(f"yandex_avr = {average_rating_yandex}")
+
         return jsonify({
             "success": True,
             "data": {
@@ -172,13 +175,13 @@ def dashboard():
                 "kpi_yandex": {
                     "total_reviews_yandex": total_reviews_yandex,
                     "average_rating_yandex": average_rating_yandex,
-                    "nps_yandex": 15,
+                    "nps_yandex": nps_yandex,
                     "sentiment_percent_yandex": 60,
                 },
                 "kpi_twogis": {
                     "total_reviews_twogis": total_reviews_twogis,
                     "average_rating_twogis": average_rating_twogis,
-                    "nps_twogis": 10,
+                    "nps_twogis": nps_twogis,
                     "sentiment_percent_twogis": 55,
                 },
                 "trend_reviews": {
