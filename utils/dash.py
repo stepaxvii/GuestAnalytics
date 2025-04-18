@@ -75,9 +75,13 @@ def avg_rest_ya_rating(restaurant_id):
 
         # Возвращаем среднее значение рейтинга
         total_reviews = count_rest_reviews(restaurant_id)
+
+        average_rating = round((yandex_avg_rating + twogis_avg_rating) / 2, 1)
+        yandex_avg_rating = round(yandex_avg_rating, 1)
+        twogis_avg_rating = round(twogis_avg_rating, 1)
         if total_reviews == 0:
-            return 0
-        return round((yandex_avg_rating + twogis_avg_rating) / 2, 1)
+            return 0, 0, 0
+        return average_rating, yandex_avg_rating, twogis_avg_rating
     except Exception as e:
         session.rollback()
         raise e
