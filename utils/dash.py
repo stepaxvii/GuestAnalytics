@@ -87,53 +87,6 @@ def avg_rest_rating(restaurant_id):
         raise e
 
 
-# def calculate_nps(restaurant_id):
-#     """Рассчитываем NPS для ресторана с Яндекса и TwoGIS."""
-#     try:
-#         total_reviews = count_rest_reviews(restaurant_id)
-
-#         if total_reviews == 0:
-#             return 0
-
-#         # Количество Promoters (5 звезд) для Яндекса
-#         yandex_promoters = session.query(YandexReview).filter(
-#             YandexReview.restaurant_id == restaurant_id,
-#             YandexReview.rating == 5
-#         ).count()
-
-#         # Количество Promoters (5 звезд) для TwoGIS
-#         twogis_promoters = session.query(TwogisReview).filter(
-#             TwogisReview.restaurant_id == restaurant_id,
-#             TwogisReview.rating == 5
-#         ).count()
-
-#         # Количество Detractors (1, 2, или 3 звезды) для Яндекса
-#         yandex_detractors = session.query(YandexReview).filter(
-#             YandexReview.restaurant_id == restaurant_id,
-#             YandexReview.rating.in_([1, 2, 3])
-#         ).count()
-
-#         # Количество Detractors (1, 2, или 3 звезды) для TwoGIS
-#         twogis_detractors = session.query(TwogisReview).filter(
-#             TwogisReview.restaurant_id == restaurant_id,
-#             TwogisReview.rating.in_([1, 2, 3])
-#         ).count()
-
-#         # Рассчитываем проценты
-#         promoters_percent = (
-#             yandex_promoters + twogis_promoters
-#         ) / total_reviews * 100
-#         detractors_percent = (
-#             yandex_detractors + twogis_detractors
-#         ) / total_reviews * 100
-
-#         # NPS = Promoters - Detractors
-#         nps = round(promoters_percent - detractors_percent, 1)
-#         return nps
-#     except Exception as e:
-#         session.rollback()
-#         raise e
-
 def calculate_nps(restaurant_id):
     """Рассчитываем общий NPS, а также отдельно для Яндекса и TwoGIS."""
     try:
@@ -206,96 +159,107 @@ def calculate_nps(restaurant_id):
         raise e
 
 
+# def calculate_nps_for_month(restaurant_id, year, month):
+#     """Рассчитываем NPS для ресторана за конкретный месяц (Яндекс + 2ГИС)."""
+#     try:
+#         start_date = datetime(year, month, 1)
+#         end_date = datetime(
+#             year, month + 1, 1
+#         ) if month < 12 else datetime(year + 1, 1, 1)
+
+#         # Общее количество отзывов за месяц
+#         total_reviews = session.query(YandexReview).filter(
+#             YandexReview.restaurant_id == restaurant_id,
+#             func.cast(YandexReview.created_at, DATE) >= start_date,
+#             func.cast(YandexReview.created_at, DATE) < end_date
+#         ).count() + session.query(TwogisReview).filter(
+#             TwogisReview.restaurant_id == restaurant_id,
+#             func.cast(TwogisReview.created_at, DATE) >= start_date,
+#             func.cast(TwogisReview.created_at, DATE) < end_date
+#         ).count()
+
+#         if total_reviews == 0:
+#             return 0  # Если нет отзывов за месяц, NPS равен 0
+
+#         # Количество Promoters (5 звезд)
+#         promoters_count = session.query(YandexReview).filter(
+#             YandexReview.restaurant_id == restaurant_id,
+#             YandexReview.rating == 5,
+#             func.cast(YandexReview.created_at, DATE) >= start_date,
+#             func.cast(YandexReview.created_at, DATE) < end_date
+#         ).count() + session.query(TwogisReview).filter(
+#             TwogisReview.restaurant_id == restaurant_id,
+#             TwogisReview.rating == 5,
+#             func.cast(TwogisReview.created_at, DATE) >= start_date,
+#             func.cast(TwogisReview.created_at, DATE) < end_date
+#         ).count()
+
+#         # Количество Detractors (1, 2, или 3 звезды)
+#         detractors_count = session.query(YandexReview).filter(
+#             YandexReview.restaurant_id == restaurant_id,
+#             YandexReview.rating.in_([1, 2, 3]),
+#             func.cast(YandexReview.created_at, DATE) >= start_date,
+#             func.cast(YandexReview.created_at, DATE) < end_date
+#         ).count() + session.query(TwogisReview).filter(
+#             TwogisReview.restaurant_id == restaurant_id,
+#             TwogisReview.rating.in_([1, 2, 3]),
+#             func.cast(TwogisReview.created_at, DATE) >= start_date,
+#             func.cast(TwogisReview.created_at, DATE) < end_date
+#         ).count()
+
+#         # Рассчитываем проценты
+#         promoters_percent = round((promoters_count / total_reviews) * 100, 1)
+#         detractors_percent = round((detractors_count / total_reviews) * 100, 1)
+
+#         # NPS = Promoters - Detractors
+#         nps = round(promoters_percent - detractors_percent, 1)
+#         return nps
+#     except Exception as e:
+#         session.rollback()
+#         raise e
+
 def calculate_nps_for_month(restaurant_id, year, month):
-    """Рассчитываем NPS для ресторана за конкретный месяц (Яндекс + 2ГИС)."""
+    """Рассчитывает NPS за указанный месяц (в целом, Яндекс и 2ГИС)."""
     try:
-        start_date = datetime(year, month, 1)
-        end_date = datetime(
-            year, month + 1, 1
-        ) if month < 12 else datetime(year + 1, 1, 1)
+        # Преобразуем в строку YYYY-MM
+        year_month = f"{year}-{month:02}"
 
-        # Общее количество отзывов за месяц
-        total_reviews = session.query(YandexReview).filter(
+        # Отзывы за месяц
+        yandex_reviews = session.query(YandexReview).filter(
             YandexReview.restaurant_id == restaurant_id,
-            func.cast(YandexReview.created_at, DATE) >= start_date,
-            func.cast(YandexReview.created_at, DATE) < end_date
-        ).count() + session.query(TwogisReview).filter(
+            func.substring(YandexReview.created_at, 1, 7) == year_month
+        )
+
+        twogis_reviews = session.query(TwogisReview).filter(
             TwogisReview.restaurant_id == restaurant_id,
-            func.cast(TwogisReview.created_at, DATE) >= start_date,
-            func.cast(TwogisReview.created_at, DATE) < end_date
+            func.substring(TwogisReview.created_at, 1, 7) == year_month
+        )
+
+        yandex_promoters = yandex_reviews.filter(
+            YandexReview.rating == 5
         ).count()
+        yandex_detractors = yandex_reviews.filter(YandexReview.rating.in_([1, 2, 3])).count()
+        total_yandex = yandex_reviews.count()
 
-        if total_reviews == 0:
-            return 0  # Если нет отзывов за месяц, NPS равен 0
+        twogis_promoters = twogis_reviews.filter(TwogisReview.rating == 5).count()
+        twogis_detractors = twogis_reviews.filter(TwogisReview.rating.in_([1, 2, 3])).count()
+        total_twogis = twogis_reviews.count()
 
-        # Количество Promoters (5 звезд)
-        promoters_count = session.query(YandexReview).filter(
-            YandexReview.restaurant_id == restaurant_id,
-            YandexReview.rating == 5,
-            func.cast(YandexReview.created_at, DATE) >= start_date,
-            func.cast(YandexReview.created_at, DATE) < end_date
-        ).count() + session.query(TwogisReview).filter(
-            TwogisReview.restaurant_id == restaurant_id,
-            TwogisReview.rating == 5,
-            func.cast(TwogisReview.created_at, DATE) >= start_date,
-            func.cast(TwogisReview.created_at, DATE) < end_date
-        ).count()
+        total = total_yandex + total_twogis
+        total_promoters = yandex_promoters + twogis_promoters
+        total_detractors = yandex_detractors + twogis_detractors
 
-        # Количество Detractors (1, 2, или 3 звезды)
-        detractors_count = session.query(YandexReview).filter(
-            YandexReview.restaurant_id == restaurant_id,
-            YandexReview.rating.in_([1, 2, 3]),
-            func.cast(YandexReview.created_at, DATE) >= start_date,
-            func.cast(YandexReview.created_at, DATE) < end_date
-        ).count() + session.query(TwogisReview).filter(
-            TwogisReview.restaurant_id == restaurant_id,
-            TwogisReview.rating.in_([1, 2, 3]),
-            func.cast(TwogisReview.created_at, DATE) >= start_date,
-            func.cast(TwogisReview.created_at, DATE) < end_date
-        ).count()
+        nps = round((total_promoters - total_detractors) / total * 100, 1) if total else 0
+        yandex_nps = round((yandex_promoters - yandex_detractors) / total_yandex * 100, 1) if total_yandex else 0
+        twogis_nps = round((twogis_promoters - twogis_detractors) / total_twogis * 100, 1) if total_twogis else 0
 
-        # Рассчитываем проценты
-        promoters_percent = round((promoters_count / total_reviews) * 100, 1)
-        detractors_percent = round((detractors_count / total_reviews) * 100, 1)
+        return nps, yandex_nps, twogis_nps
 
-        # NPS = Promoters - Detractors
-        nps = round(promoters_percent - detractors_percent, 1)
-        return nps
     except Exception as e:
         session.rollback()
         raise e
 
 
-# def calculate_satisfaction_level(restaurant_id):
-#     """Рассчитываем уровень удовлетворенности для ресторана."""
-#     try:
-#         total_reviews = count_rest_reviews(restaurant_id)
-
-#         if total_reviews == 0:
-#             return 0
-
-#         # Количество положительных отзывов с Яндекса
-#         yandex_positive_reviews = session.query(YandexReview).filter(
-#             YandexReview.restaurant_id == restaurant_id,
-#             YandexReview.semantic.ilike("п")
-#         ).count()
-
-#         # Количество положительных отзывов с TwoGIS
-#         twogis_positive_reviews = session.query(TwogisReview).filter(
-#             TwogisReview.restaurant_id == restaurant_id,
-#             TwogisReview.semantic.ilike("п")
-#         ).count()
-
-#         # Рассчитываем процент положительных отзывов
-#         satisfaction_level = round(
-#             (
-#                 yandex_positive_reviews + twogis_positive_reviews
-#             ) / total_reviews * 100, 1
-#         )
-#         return satisfaction_level
-#     except Exception as e:
-#         session.rollback()
-#         raise e
 def calculate_satisfaction_level(restaurant_id):
     """Рассчитываем уровень удовлетворенности."""
     try:
@@ -350,44 +314,77 @@ def calculate_satisfaction_level(restaurant_id):
         raise e
 
 
+# def calculate_satisfaction_level_for_month(restaurant_id, year, month):
+#     """Рассчитываем уровень удовлетворенности для ресторана за месяц."""
+#     try:
+#         start_date = datetime(year, month, 1)
+#         end_date = datetime(
+#             year, month + 1, 1
+#         ) if month < 12 else datetime(year + 1, 1, 1)
+
+#         # Общее количество отзывов за месяц
+#         total_reviews = session.query(YandexReview).filter(
+#             YandexReview.restaurant_id == restaurant_id,
+#             func.cast(YandexReview.created_at, DATE) >= start_date,
+#             func.cast(YandexReview.created_at, DATE) < end_date
+#         ).count() + session.query(TwogisReview).filter(
+#             TwogisReview.restaurant_id == restaurant_id,
+#             func.cast(TwogisReview.created_at, DATE) >= start_date,
+#             func.cast(TwogisReview.created_at, DATE) < end_date
+#         ).count()
+
+#         if total_reviews == 0:
+#             return 0
+
+#         positive_reviews_count = session.query(YandexReview).filter(
+#             YandexReview.restaurant_id == restaurant_id,
+#             YandexReview.semantic.ilike("п"),
+#             func.cast(YandexReview.created_at, DATE) >= start_date,
+#             func.cast(YandexReview.created_at, DATE) < end_date
+#         ).count() + session.query(TwogisReview).filter(
+#             TwogisReview.restaurant_id == restaurant_id,
+#             TwogisReview.semantic.ilike("п"),
+#             func.cast(TwogisReview.created_at, DATE) >= start_date,
+#             func.cast(TwogisReview.created_at, DATE) < end_date
+#         ).count()
+
+#         satisfaction_level = round(
+#             (positive_reviews_count / total_reviews) * 100, 1
+#         )
+#         return satisfaction_level
+#     except Exception as e:
+#         session.rollback()
+#         raise e
+
 def calculate_satisfaction_level_for_month(restaurant_id, year, month):
-    """Рассчитываем уровень удовлетворенности для ресторана за месяц."""
+    """Рассчитывает уровень удовлетворенности за месяц (в целом, Яндекс и 2ГИС)."""
     try:
-        start_date = datetime(year, month, 1)
-        end_date = datetime(
-            year, month + 1, 1
-        ) if month < 12 else datetime(year + 1, 1, 1)
+        year_month = f"{year}-{month:02}"
 
-        # Общее количество отзывов за месяц
-        total_reviews = session.query(YandexReview).filter(
+        yandex_reviews = session.query(YandexReview).filter(
             YandexReview.restaurant_id == restaurant_id,
-            func.cast(YandexReview.created_at, DATE) >= start_date,
-            func.cast(YandexReview.created_at, DATE) < end_date
-        ).count() + session.query(TwogisReview).filter(
-            TwogisReview.restaurant_id == restaurant_id,
-            func.cast(TwogisReview.created_at, DATE) >= start_date,
-            func.cast(TwogisReview.created_at, DATE) < end_date
-        ).count()
-
-        if total_reviews == 0:
-            return 0
-
-        positive_reviews_count = session.query(YandexReview).filter(
-            YandexReview.restaurant_id == restaurant_id,
-            YandexReview.semantic.ilike("п"),
-            func.cast(YandexReview.created_at, DATE) >= start_date,
-            func.cast(YandexReview.created_at, DATE) < end_date
-        ).count() + session.query(TwogisReview).filter(
-            TwogisReview.restaurant_id == restaurant_id,
-            TwogisReview.semantic.ilike("п"),
-            func.cast(TwogisReview.created_at, DATE) >= start_date,
-            func.cast(TwogisReview.created_at, DATE) < end_date
-        ).count()
-
-        satisfaction_level = round(
-            (positive_reviews_count / total_reviews) * 100, 1
+            func.substring(YandexReview.created_at, 1, 7) == year_month
         )
-        return satisfaction_level
+
+        twogis_reviews = session.query(TwogisReview).filter(
+            TwogisReview.restaurant_id == restaurant_id,
+            func.substring(TwogisReview.created_at, 1, 7) == year_month
+        )
+
+        total_yandex = yandex_reviews.count()
+        total_twogis = twogis_reviews.count()
+
+        yandex_positive = yandex_reviews.filter(YandexReview.semantic.ilike("п")).count()
+        twogis_positive = twogis_reviews.filter(TwogisReview.semantic.ilike("п")).count()
+
+        total = total_yandex + total_twogis
+
+        overall = round((yandex_positive + twogis_positive) / total * 100, 1) if total else 0
+        yandex_score = round(yandex_positive / total_yandex * 100, 1) if total_yandex else 0
+        twogis_score = round(twogis_positive / total_twogis * 100, 1) if total_twogis else 0
+
+        return overall, yandex_score, twogis_score
+
     except Exception as e:
         session.rollback()
         raise e

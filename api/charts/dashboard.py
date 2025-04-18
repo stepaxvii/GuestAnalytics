@@ -75,7 +75,11 @@ def dashboard():
         trend_reviews_data = []
         trend_rating_data = []
         trend_nps_data = []
+        trend_nps_data_yandex = []
+        trend_nps_data_twogis = []
         trend_sentiment_data = []
+        trend_sentiment_data_yandex = []
+        trend_sentiment_data_twogis = []
 
         today = datetime.today()
         for i in range(12):  # За последние 12 месяцев
@@ -148,16 +152,28 @@ def dashboard():
             trend_rating_data.insert(0, avg_rating_month)
 
             # NPS за месяц
-            nps_month = calculate_nps_for_month(
+            # nps_month = calculate_nps_for_month(
+            #     restaurant_id, month_start.year, month_start.month
+            # )
+            # trend_nps_data.insert(0, nps_month)
+            nps_month, nps_month_yandex, nps_month_twogis = calculate_nps_for_month(
                 restaurant_id, month_start.year, month_start.month
             )
             trend_nps_data.insert(0, nps_month)
+            trend_nps_data_yandex.insert(0, nps_month_yandex)
+            trend_nps_data_twogis.insert(0, nps_month_twogis)
 
             # Уровень удовлетворенности за месяц
-            satisfaction_month = calculate_satisfaction_level_for_month(
+            # satisfaction_month = calculate_satisfaction_level_for_month(
+            #     restaurant_id, month_start.year, month_start.month
+            # )
+            # trend_sentiment_data.insert(0, satisfaction_month)
+            satisfaction_month, satisfaction_yandex, satisfaction_twogis = calculate_satisfaction_level_for_month(
                 restaurant_id, month_start.year, month_start.month
             )
             trend_sentiment_data.insert(0, satisfaction_month)
+            trend_sentiment_data_yandex.insert(0, satisfaction_yandex)
+            trend_sentiment_data_twogis.insert(0, satisfaction_twogis)
 
             # ЛОГГИРУЕМ ДАННЫЕ
             logger.info(f"yandex_avr = {average_rating_yandex}")
@@ -174,7 +190,7 @@ def dashboard():
                 },
                 "kpi_yandex": {
                     "total_reviews_yandex": total_reviews_yandex,
-                    "average_rating_yandex": 4.8,
+                    "average_rating_yandex": average_rating_yandex,
                     "nps_yandex": nps_yandex,
                     "sentiment_percent_yandex": sentiment_percent_yandex,
                 },
@@ -214,11 +230,11 @@ def dashboard():
                 },
                 "trend_nps_yandex": {
                     "labels": labels,
-                    "data": trend_nps_data
+                    "data": trend_nps_data_yandex
                 },
                 "trend_nps_twogis": {
                     "labels": labels,
-                    "data": trend_nps_data
+                    "data": trend_nps_data_twogis
                 },
                 "trend_sentiment": {
                     "labels": labels,
@@ -226,11 +242,11 @@ def dashboard():
                 },
                 "trend_sentiment_yandex": {
                     "labels": labels,
-                    "data": trend_sentiment_data
+                    "data": trend_sentiment_data_yandex
                 },
                 "trend_sentiment_twogis": {
                     "labels": labels,
-                    "data": trend_sentiment_data
+                    "data": trend_sentiment_data_twogis
                 },
             }
         })
