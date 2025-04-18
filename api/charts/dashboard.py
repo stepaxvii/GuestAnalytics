@@ -171,15 +171,15 @@ def dashboard():
                 },
                 "kpi_yandex": {
                     "total_reviews_yandex": 100,
-                    "average_rating_yandex": average_rating,
-                    "nps_yandex": nps,
-                    "sentiment_percent_yandex": sentiment_percent,
+                    "average_rating_yandex": 4.2,
+                    "nps_yandex": 15,
+                    "sentiment_percent_yandex": 60,
                 },
                 "kpi_twogis": {
                     "total_reviews_twogis": 50,
-                    "average_rating_twogis": average_rating,
-                    "nps_twogis": nps,
-                    "sentiment_percent_twogis": sentiment_percent,
+                    "average_rating_twogis": 4.0,
+                    "nps_twogis": 10,
+                    "sentiment_percent_twogis": 55,
                 },
                 "trend_reviews": {
                     "labels": labels,
