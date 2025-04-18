@@ -167,7 +167,9 @@ def calculate_nps(restaurant_id):
 
         if total_yandex_reviews > 0:
             yandex_nps = round(
-                (yandex_promoters - yandex_detractors) / total_yandex_reviews * 100, 1)
+                (
+                    yandex_promoters - yandex_detractors
+                ) / total_yandex_reviews * 100, 1)
         else:
             yandex_nps = 0
 
@@ -184,7 +186,9 @@ def calculate_nps(restaurant_id):
 
         if total_twogis_reviews > 0:
             twogis_nps = round(
-                (twogis_promoters - twogis_detractors) / total_twogis_reviews * 100, 1)
+                (
+                    twogis_promoters - twogis_detractors
+                ) / total_twogis_reviews * 100, 1)
         else:
             twogis_nps = 0
 
@@ -262,33 +266,85 @@ def calculate_nps_for_month(restaurant_id, year, month):
         raise e
 
 
+# def calculate_satisfaction_level(restaurant_id):
+#     """Рассчитываем уровень удовлетворенности для ресторана."""
+#     try:
+#         total_reviews = count_rest_reviews(restaurant_id)
+
+#         if total_reviews == 0:
+#             return 0
+
+#         # Количество положительных отзывов с Яндекса
+#         yandex_positive_reviews = session.query(YandexReview).filter(
+#             YandexReview.restaurant_id == restaurant_id,
+#             YandexReview.semantic.ilike("п")
+#         ).count()
+
+#         # Количество положительных отзывов с TwoGIS
+#         twogis_positive_reviews = session.query(TwogisReview).filter(
+#             TwogisReview.restaurant_id == restaurant_id,
+#             TwogisReview.semantic.ilike("п")
+#         ).count()
+
+#         # Рассчитываем процент положительных отзывов
+#         satisfaction_level = round(
+#             (
+#                 yandex_positive_reviews + twogis_positive_reviews
+#             ) / total_reviews * 100, 1
+#         )
+#         return satisfaction_level
+#     except Exception as e:
+#         session.rollback()
+#         raise e
 def calculate_satisfaction_level(restaurant_id):
-    """Рассчитываем уровень удовлетворенности для ресторана."""
+    """Рассчитываем уровень удовлетворенности."""
     try:
-        total_reviews = count_rest_reviews(restaurant_id)
+        total_yandex_reviews = session.query(YandexReview).filter(
+            YandexReview.restaurant_id == restaurant_id
+        ).count()
+
+        total_twogis_reviews = session.query(TwogisReview).filter(
+            TwogisReview.restaurant_id == restaurant_id
+        ).count()
+
+        total_reviews = total_yandex_reviews + total_twogis_reviews
 
         if total_reviews == 0:
-            return 0
+            return {
+                'overall_satisfaction': 0,
+                'yandex_satisfaction': 0,
+                'twogis_satisfaction': 0
+            }
 
-        # Количество положительных отзывов с Яндекса
-        yandex_positive_reviews = session.query(YandexReview).filter(
+        # Положительные отзывы
+        yandex_positive = session.query(YandexReview).filter(
             YandexReview.restaurant_id == restaurant_id,
             YandexReview.semantic.ilike("п")
         ).count()
 
-        # Количество положительных отзывов с TwoGIS
-        twogis_positive_reviews = session.query(TwogisReview).filter(
+        twogis_positive = session.query(TwogisReview).filter(
             TwogisReview.restaurant_id == restaurant_id,
             TwogisReview.semantic.ilike("п")
         ).count()
 
-        # Рассчитываем процент положительных отзывов
-        satisfaction_level = round(
-            (
-                yandex_positive_reviews + twogis_positive_reviews
-            ) / total_reviews * 100, 1
-        )
-        return satisfaction_level
+        # Расчёты
+        if total_yandex_reviews > 0:
+            yandex_satisfaction = round(
+                yandex_positive / total_yandex_reviews * 100, 1)
+        else:
+            yandex_satisfaction = 0
+
+        if total_twogis_reviews > 0:
+            twogis_satisfaction = round(
+                twogis_positive / total_twogis_reviews * 100, 1)
+        else:
+            twogis_satisfaction = 0
+
+        overall_satisfaction = round(
+            (yandex_positive + twogis_positive) / total_reviews * 100, 1)
+
+        return overall_satisfaction, yandex_satisfaction, twogis_satisfaction
+
     except Exception as e:
         session.rollback()
         raise e

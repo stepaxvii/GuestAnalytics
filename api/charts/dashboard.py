@@ -63,7 +63,7 @@ def dashboard():
         # Процент лояльных гостей (NPS)
         nps, nps_yandex, nps_twogis = calculate_nps(restaurant_id=restaurant_id)
         # Процент положительных отзывов
-        sentiment_percent = calculate_satisfaction_level(
+        sentiment_percent, sentiment_percent_yandex, sentiment_percent_twogis = calculate_satisfaction_level(
             restaurant_id=restaurant_id
         )
 
@@ -174,15 +174,15 @@ def dashboard():
                 },
                 "kpi_yandex": {
                     "total_reviews_yandex": total_reviews_yandex,
-                    "average_rating_yandex": average_rating_yandex,
+                    "average_rating_yandex": 4.8,
                     "nps_yandex": nps_yandex,
-                    "sentiment_percent_yandex": 60,
+                    "sentiment_percent_yandex": sentiment_percent_yandex,
                 },
                 "kpi_twogis": {
                     "total_reviews_twogis": total_reviews_twogis,
                     "average_rating_twogis": average_rating_twogis,
                     "nps_twogis": nps_twogis,
-                    "sentiment_percent_twogis": 55,
+                    "sentiment_percent_twogis": sentiment_percent_twogis,
                 },
                 "trend_reviews": {
                     "labels": labels,
