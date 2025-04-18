@@ -57,7 +57,7 @@ def dashboard():
             }), 404
 
         # Общее количество отзывов за всё время
-        total_reviews = count_reviews_last_year(restaurant_id=restaurant_id)
+        total_reviews, total_reviews_yandex, total_reviews_twogis = count_reviews_last_year(restaurant_id=restaurant_id)
         # Среднее значение рейтинга за всё время
         average_rating = avg_rest_ya_rating(restaurant_id=restaurant_id)
         # Процент лояльных гостей (NPS)
@@ -170,13 +170,13 @@ def dashboard():
                     "ai_insights": ai_insights,
                 },
                 "kpi_yandex": {
-                    "total_reviews_yandex": 100,
+                    "total_reviews_yandex": total_reviews_yandex,
                     "average_rating_yandex": 4.2,
                     "nps_yandex": 15,
                     "sentiment_percent_yandex": 60,
                 },
                 "kpi_twogis": {
-                    "total_reviews_twogis": 50,
+                    "total_reviews_twogis": total_reviews_twogis,
                     "average_rating_twogis": 4.0,
                     "nps_twogis": 10,
                     "sentiment_percent_twogis": 55,

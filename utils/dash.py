@@ -51,7 +51,8 @@ def count_reviews_last_year(restaurant_id):
             func.substr(TwogisReview.created_at, 1, 7) <= current_month_str
         ).count()
 
-        return yandex_reviews + twogis_reviews
+        total_reviews = yandex_reviews + twogis_reviews
+        return total_reviews, yandex_reviews, twogis_reviews
     except Exception as e:
         session.rollback()
         raise e
