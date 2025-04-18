@@ -73,7 +73,11 @@ def dashboard():
         # Тренды за последние 12 месяцев
         labels = []
         trend_reviews_data = []
+        trend_reviews_data_yandex = []
+        trend_reviews_data_twogis = []
         trend_rating_data = []
+        trend_rating_data_yandex = []
+        trend_rating_data_twogis = []
         trend_nps_data = []
         trend_nps_data_yandex = []
         trend_nps_data_twogis = []
@@ -121,6 +125,8 @@ def dashboard():
 
             # Добавляем данные в список
             trend_reviews_data.insert(0, reviews_in_month)
+            trend_reviews_data_yandex.insert(0, reviews_in_month_yandex)
+            trend_reviews_data_twogis.insert(0, reviews_in_month_twogis)
 
             # Средний рейтинг за месяц для обеих таблиц
             avg_rating_month_yandex = session.query(
@@ -150,6 +156,8 @@ def dashboard():
             ) if total_reviews_month > 0 else 0
 
             trend_rating_data.insert(0, avg_rating_month)
+            trend_rating_data_yandex.insert(0, avg_rating_month_yandex)
+            trend_rating_data_twogis.insert(0, avg_rating_month_twogis)
 
             # NPS за месяц
             # nps_month = calculate_nps_for_month(
@@ -176,7 +184,7 @@ def dashboard():
             trend_sentiment_data_twogis.insert(0, satisfaction_twogis)
 
             # ЛОГГИРУЕМ ДАННЫЕ
-            logger.info(f"yandex_avr = {average_rating_yandex}")
+            logger.info(f"ya = {average_rating_yandex}\ntg = {average_rating_twogis}")
 
         return jsonify({
             "success": True,
@@ -206,11 +214,11 @@ def dashboard():
                 },
                 "trend_reviews_yandex": {
                     "labels": labels,
-                    "data": trend_reviews_data
+                    "data": trend_reviews_data_yandex
                 },
                 "trend_reviews_twogis": {
                     "labels": labels,
-                    "data": trend_reviews_data
+                    "data": trend_reviews_data_twogis
                 },
                 "trend_rating": {
                     "labels": labels,
@@ -218,11 +226,11 @@ def dashboard():
                 },
                 "trend_rating_yandex": {
                     "labels": labels,
-                    "data": trend_rating_data
+                    "data": trend_rating_data_yandex
                 },
                 "trend_rating_twogis": {
                     "labels": labels,
-                    "data": trend_rating_data
+                    "data": trend_rating_data_twogis
                 },
                 "trend_nps": {
                     "labels": labels,
