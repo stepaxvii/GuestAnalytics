@@ -10,6 +10,9 @@ from data.read_data import read_restaurant_data
 from utils.urls import check_full_url, process_url_yandex
 from yandex.yandex_primary_collection_api import ya_prim_coll
 
+# Настройка логирования
+logger = logging.getLogger()
+
 create_restaurant_bp = Blueprint("create_restaurant", __name__)
 
 
@@ -18,12 +21,15 @@ def process_restaurant_creation(restaurant_data):
     wp_id = restaurant_data["restaurant_id"]
     rest_title = restaurant_data["restaurant_name"]
     rest_link = restaurant_data["yandex_link"]
+    twogis_link = restaurant_data["ga_twogis_link"]
     rest_address = restaurant_data["address"]
     tg_id = restaurant_data["telegram_id"]
 
     # Приводим yandex_link к необходимому виду
     user_link = check_full_url(user_url=rest_link)
     org_url, reviews_url = process_url_yandex(user_link)
+
+    logger.info(f"Запрос на создание ресторана с 2ГИС {twogis_link}")
 
     # Создаем новый ресторан в базе данных
     try:
