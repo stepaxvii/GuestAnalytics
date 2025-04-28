@@ -58,9 +58,16 @@ def process_restaurant_creation(restaurant_data):
     wp_id = restaurant_data["restaurant_id"]
     rest_title = restaurant_data["restaurant_name"]
     yandex_link = restaurant_data["yandex_link"]
-    twogis_link = restaurant_data["ga_twogis_link"]
+    twogis_link = restaurant_data.get("ga_twogis_link", None)
     rest_address = restaurant_data["address"]
     tg_id = restaurant_data["telegram_id"]
+
+    if not twogis_link:
+        logging.warning(
+            "Не передан или пустой 'twogis_link'.\n"
+            "Будет использоваться дефолтное значение."
+        )
+        twogis_link = "https://2gis.ru/"
 
     # Приводим yandex_link к необходимому виду
     user_link = check_full_url(user_url=yandex_link)
