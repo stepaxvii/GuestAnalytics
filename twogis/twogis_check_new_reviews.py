@@ -106,7 +106,7 @@ def twogis_check_reviews(org_url):
             ) if review_text_a else "Текст не найден"
 
             # Создаем уникальный ключ для отзыва
-            review_key = (review_date, author_name, text, rating_value)
+            review_key = (author_name, text, rating_value)
 
             # Проверяем на дубликат перед добавлением
             if review_key not in seen_reviews:
@@ -135,13 +135,14 @@ def twogis_check_reviews(org_url):
 
 
 def twogis_matching_reviews(org_url):
-    """Функция сравнения собранных отзывов с БД."""
+    """Функция сравнения собранных отзывов с БД (без учёта даты)."""
     logger.info(f"Запуск проверки совпадений отзывов для URL: {org_url}")
 
     try:
         restaurant_data = read_restaurant_data(rest_data=org_url)
         restaurant_id = restaurant_data['id']
 
+        # Загружаем ранее сохранённые отзывы
         old_reviews_data = read_rest_twogis_reviews(
             restaurant_id=restaurant_id
         )
@@ -149,23 +150,18 @@ def twogis_matching_reviews(org_url):
 
         for review in old_reviews_data:
             review_key = (
-                review.created_at.strftime(
-                    "%Y-%m-%d"
-                ) if isinstance(
-                    review.created_at, datetime
-                ) else review.created_at,
                 review.author,
                 review.content,
                 review.rating
             )
             old_reviews_set.add(review_key)
 
+        # Собираем новые отзывы с сайта
         new_review_data = twogis_check_reviews(org_url=org_url)
         new_reviews_to_save = []
 
         for review in new_review_data:
             review_key = (
-                review["review_date"],
                 review["author_name"],
                 review["text"],
                 review["rating_value"]
@@ -179,7 +175,7 @@ def twogis_matching_reviews(org_url):
                 })
 
         if new_reviews_to_save:
-            # Сортировка по дате (уже в строковом формате YYYY-MM-DD)
+            # Сортировка по дате (если нужна для порядка)
             new_reviews_to_save.sort(key=lambda x: x["review_date"])
 
             for review in new_reviews_to_save:

@@ -35,7 +35,7 @@ logger = logging.getLogger()
 
 
 async def check_ya_new_reviews_periodically(bot: Bot):
-    """Функция переодической проверки новых отзывов."""
+    """Функция переодической проверки новых отзывов Яндекс."""
     while True:
         try:
             # Пауза между проверками 1 час
@@ -124,11 +124,11 @@ async def check_ya_new_reviews_periodically(bot: Bot):
 
 
 async def check_twogis_new_reviews_periodically(bot: Bot):
-    """Функция периодической проверки новых отзывов."""
+    """Функция периодической проверки новых отзывов 2ГИС."""
     while True:
         try:
-            # Пауза между проверками 4 часа (тест)
-            await asyncio.sleep(14600)
+            # Пауза между проверками 1 час
+            await asyncio.sleep(3627)
             logger.info("Функция для проверки новых отзывов 2ГИС.")
 
             # Получаем данные о ресторанах
@@ -195,8 +195,8 @@ async def check_new_insight_periodically(bot: Bot):
     """Функция для переодической проверки новых инсайтов."""
     while True:
         try:
-            # Пауза между проверками 12 часов
-            await asyncio.sleep(43200)
+            # Пауза между проверками 18 часов
+            await asyncio.sleep(64800)
             logger.info("Функция для запуска анализов новых инсайтов.")
             await bot.send_message(
                 chat_id=ADMIN_ID,

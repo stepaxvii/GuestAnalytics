@@ -98,9 +98,6 @@ def dashboard():
             else:
                 labels.insert(0, f"{month_dict_dash[month_str]}")
 
-            # Логируем текущий месяц
-            logger.info(f"Обрабатываем месяц: {month_start.strftime('%Y-%m')}")
-
             # Формируем год-месяц для фильтрации
             year_month = month_start.strftime('%Y-%m')
 
@@ -119,9 +116,6 @@ def dashboard():
             reviews_in_month = (
                 reviews_in_month_yandex + reviews_in_month_twogis
             )
-
-            # Логируем количество отзывов
-            logger.info(f"Отзывы за {year_month}: {reviews_in_month}")
 
             # Добавляем данные в список
             trend_reviews_data.insert(0, reviews_in_month)
@@ -171,20 +165,12 @@ def dashboard():
             trend_nps_data_yandex.insert(0, nps_month_yandex)
             trend_nps_data_twogis.insert(0, nps_month_twogis)
 
-            # Уровень удовлетворенности за месяц
-            # satisfaction_month = calculate_satisfaction_level_for_month(
-            #     restaurant_id, month_start.year, month_start.month
-            # )
-            # trend_sentiment_data.insert(0, satisfaction_month)
             satisfaction_month, satisfaction_yandex, satisfaction_twogis = calculate_satisfaction_level_for_month(
                 restaurant_id, month_start.year, month_start.month
             )
             trend_sentiment_data.insert(0, satisfaction_month)
             trend_sentiment_data_yandex.insert(0, satisfaction_yandex)
             trend_sentiment_data_twogis.insert(0, satisfaction_twogis)
-
-            # ЛОГГИРУЕМ ДАННЫЕ
-            logger.info(f"ya = {average_rating_yandex}\ntg = {average_rating_twogis}")
 
         return jsonify({
             "success": True,
