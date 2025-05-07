@@ -136,11 +136,6 @@ def twogis_prim_coll(url: str, rest_id: int) -> int:
         page_source = driver.page_source
         logger.info(f"Длина page_source: {len(page_source)} символов")
 
-        # Сохраняем HTML в файл для анализа при сбое
-        with open("twogis_dump.html", "w", encoding="utf-8") as file:
-            file.write(page_source)
-            logger.info("Сохранён HTML-файл: twogis_dump.html")
-
         soup = BeautifulSoup(page_source, 'html.parser')
         logger.info("HTML успешно распарсен с html.parser")
     except Exception as e:
