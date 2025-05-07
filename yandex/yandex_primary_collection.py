@@ -235,7 +235,7 @@ def ya_prim_coll(original_url):
                 except Exception as e:
                     logger.error(f"Ошибка при получении данных отзыва: {e}")
 
-            sleep(7)
+            sleep(3)
 
         all_reviews.update(unique_reviews)
 

@@ -273,17 +273,17 @@ async def save_twogis_link(message: Message, state: FSMContext):
             ).filter(Restaurant.id == restaurant_id).first()
             if restaurant:
                 twogis_link_save = check_full_url(user_url=new_twogis_link)
+                restaurant.twogis_link = twogis_link_save
+                session.commit()
+                await message.answer(
+                    "Ссылка 2ГИС сохранена."
+                )
                 await message.answer(
                     "Начинаю первичный сбор отзывов."
                 )
                 twogis_prim_coll(url=twogis_link_save, rest_id=restaurant_id)
                 await message.answer(
                     "Первичный сбор отзывов завершён."
-                )
-                restaurant.twogis_link = twogis_link_save
-                session.commit()
-                await message.answer(
-                    "Ссылка 2ГИС сохранена."
                 )
             else:
                 await message.answer("Ошибка при изменении данных")
