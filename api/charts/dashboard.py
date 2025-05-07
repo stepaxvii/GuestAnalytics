@@ -60,6 +60,9 @@ def dashboard():
         total_reviews, total_reviews_yandex, total_reviews_twogis = count_reviews_last_year(restaurant_id=restaurant_id)
         # Среднее значение рейтинга за всё время
         average_rating, average_rating_yandex, average_rating_twogis = avg_rest_rating(restaurant_id=restaurant_id)
+        logger.info(
+            f"СРЕДНИЙ РЕЙТИНГ:\n{average_rating}\n{average_rating_yandex}\n{average_rating_twogis}"
+        )
         # Процент лояльных гостей (NPS)
         nps, nps_yandex, nps_twogis = calculate_nps(restaurant_id=restaurant_id)
         # Процент положительных отзывов
