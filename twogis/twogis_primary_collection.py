@@ -23,7 +23,6 @@ from utils.urls import process_url_twogis
 from semantic_analysis.simple_semantic import simple_semantic
 
 load_dotenv()
-logging.basicConfig(level=logging.INFO)
 
 DRIVER_PATH = getenv('DRIVER_PATH')
 
@@ -35,6 +34,7 @@ DRIVER_PATH = getenv('DRIVER_PATH')
 
 # Логирование
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def scroll_to_bottom(driver, elem, prev_reviews_count):
@@ -48,14 +48,14 @@ def scroll_to_bottom(driver, elem, prev_reviews_count):
     while attempts < 3:
         if len(reviews) == prev_reviews_count:
             attempts += 1
-            logging.info(f"Попытка {attempts}: Количество не изменилось.")
+            logger.info(f"Попытка {attempts}: Количество не изменилось.")
             sleep(1)
             reviews = driver.find_elements(By.CLASS_NAME, TWOGIS_REVIEW_BLOCK)
         else:
             return False  # Отзывы изменились, продолжаем собирать
 
     # Если три попытки подряд не дали изменений в количестве отзывов, завершаем
-    logging.info("Завершаем сбор. Новых отзывов больше нет.")
+    logger.info("Завершаем сбор. Новых отзывов больше нет.")
     return True  # Возвращаем True, что значит, что новых отзывов нет
 
 
@@ -66,6 +66,7 @@ def twogis_prim_coll(url: str, rest_id: int) -> int:
     driver = Firefox(service=service, options=options)
     reviews_url = process_url_twogis(original_url=url)
     driver.get(reviews_url)
+    logger.info(f"Ссылка на страницу с отзывами {reviews_url}")
 
     # Подождём, пока страница полностью загрузится
     sleep(5)
@@ -98,6 +99,7 @@ def twogis_prim_coll(url: str, rest_id: int) -> int:
     ))
 
     for helpful_div in helpful_divs:
+        logger.info(f"Количество уникальных отзывов: {len(unique_reviews)}")
         review_container = helpful_div.find_parent(
             "div", class_=TWOGIS_REVIEW_BLOCK
         )
@@ -141,6 +143,7 @@ def twogis_prim_coll(url: str, rest_id: int) -> int:
     # Закрываем браузер
     driver.quit()
 
+    logger.info("Приступаем к запросу семантики отзывов")
     new_reviews_to_save = set()
     for review in unique_reviews:
         semantic = simple_semantic(review_text=review[3])
@@ -156,7 +159,7 @@ def twogis_prim_coll(url: str, rest_id: int) -> int:
         try:
             # Проверяем наличие обязательных полей
             if not review[0] or not review[3]:
-                logging.warning(
+                logger.warning(
                     f"Пропущен отзыв с отсутствующими данными: {review}"
                 )
                 continue
@@ -172,7 +175,7 @@ def twogis_prim_coll(url: str, rest_id: int) -> int:
             # Сохраняем отзывы в БД
             create_twogis_review(review_data)
         except Exception as e:
-            logging.error(f"Ошибка при добавлении отзыва в базу данных: {e}")
+            logger.error(f"Ошибка при добавлении отзыва в базу данных: {e}")
 
     # Возвращаем число отсортированных отзывов.
     return len(sorted_reviews)
