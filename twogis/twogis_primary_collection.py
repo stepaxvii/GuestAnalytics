@@ -289,7 +289,7 @@ def twogis_prim_coll(url: str, rest_id: int) -> int:
             author_name = author_span.text if author_span else "Автор не найден"
 
             # --- ИЩЕМ РЕЙТИНГ ---
-            rating_svgs = review.find_elements(By.CSS_SELECTOR, f'svg[fill={TWOGIS_RATING_COLOR}]')
+            rating_svgs = review.find_elements(By.CSS_SELECTOR, 'svg[fill="#ffb81c"]')
             rating = len(rating_svgs)
 
             # --- ИЩЕМ ТЕКСТ ОТЗЫВА ---
