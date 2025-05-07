@@ -59,37 +59,94 @@ def scroll_to_bottom(driver, elem, prev_reviews_count):
     return True  # Возвращаем True, что значит, что новых отзывов нет
 
 
+# def twogis_prim_coll(url: str, rest_id: int) -> int:
+#     options = FirefoxOptions()
+#     options.add_argument('--headless')
+#     service = Service(DRIVER_PATH)
+#     driver = Firefox(service=service, options=options)
+#     reviews_url = process_url_twogis(original_url=url)
+#     driver.get(reviews_url)
+#     logger.info(f"Ссылка на страницу с отзывами {reviews_url}")
+
+#     # Подождём, пока страница полностью загрузится
+#     sleep(5)
+
+#     # Считываем начальное количество отзывов
+#     reviews = driver.find_elements(By.CLASS_NAME, TWOGIS_REVIEW_BLOCK)
+#     prev_reviews_count = len(reviews)
+
+#     # Прокручиваем страницу и собираем новые отзывы
+#     while True:
+#         # Получаем последний элемент отзывов
+#         last_review = driver.find_elements(
+#             By.CLASS_NAME, TWOGIS_REVIEW_BLOCK
+#         )[-1]
+#         is_end = scroll_to_bottom(driver, last_review, prev_reviews_count)
+#         if is_end:
+#             break
+#         else:
+#             reviews = driver.find_elements(By.CLASS_NAME, TWOGIS_REVIEW_BLOCK)
+#             prev_reviews_count = len(reviews)
+
+#     # Считываем HTML страницы с BeautifulSoup после полной загрузки
+#     soup = BeautifulSoup(driver.page_source, 'html.parser')
 def twogis_prim_coll(url: str, rest_id: int) -> int:
+    logger.info("Запуск сбора отзывов 2ГИС")
     options = FirefoxOptions()
     options.add_argument('--headless')
     service = Service(DRIVER_PATH)
     driver = Firefox(service=service, options=options)
+    logger.info("WebDriver запущен")
+
     reviews_url = process_url_twogis(original_url=url)
+    logger.info(f"Ссылка на страницу с отзывами: {reviews_url}")
     driver.get(reviews_url)
-    logger.info(f"Ссылка на страницу с отзывами {reviews_url}")
 
-    # Подождём, пока страница полностью загрузится
     sleep(5)
+    logger.info("Ожидание полной загрузки страницы завершено")
 
-    # Считываем начальное количество отзывов
-    reviews = driver.find_elements(By.CLASS_NAME, TWOGIS_REVIEW_BLOCK)
+    try:
+        reviews = driver.find_elements(By.CLASS_NAME, TWOGIS_REVIEW_BLOCK)
+        logger.info(f"Начальное количество отзывов: {len(reviews)}")
+    except Exception as e:
+        logger.error(f"Ошибка при получении начальных отзывов: {e}")
+        driver.quit()
+        raise
+
     prev_reviews_count = len(reviews)
 
-    # Прокручиваем страницу и собираем новые отзывы
     while True:
-        # Получаем последний элемент отзывов
-        last_review = driver.find_elements(
-            By.CLASS_NAME, TWOGIS_REVIEW_BLOCK
-        )[-1]
+        try:
+            last_review = driver.find_elements(By.CLASS_NAME, TWOGIS_REVIEW_BLOCK)[-1]
+            logger.debug("Получен последний элемент отзывов")
+        except IndexError:
+            logger.warning("Не найдено ни одного отзыва")
+            break
+
         is_end = scroll_to_bottom(driver, last_review, prev_reviews_count)
         if is_end:
             break
         else:
             reviews = driver.find_elements(By.CLASS_NAME, TWOGIS_REVIEW_BLOCK)
             prev_reviews_count = len(reviews)
+            logger.info(f"Обновлённое количество отзывов: {prev_reviews_count}")
 
-    # Считываем HTML страницы с BeautifulSoup после полной загрузки
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    try:
+        logger.info("Попытка получить page_source для анализа...")
+        page_source = driver.page_source
+        logger.info(f"Длина page_source: {len(page_source)} символов")
+
+        # Сохраняем HTML в файл для анализа при сбое
+        with open("twogis_dump.html", "w", encoding="utf-8") as file:
+            file.write(page_source)
+            logger.info("Сохранён HTML-файл: twogis_dump.html")
+
+        soup = BeautifulSoup(page_source, 'html.parser')
+        logger.info("HTML успешно распарсен с html.parser")
+    except Exception as e:
+        logger.error(f"Ошибка при получении или парсинге page_source: {e}")
+        driver.quit()
+        raise
 
     # Собираем все уникальные отзывы
     unique_reviews = set()
