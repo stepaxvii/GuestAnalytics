@@ -57,27 +57,73 @@ def count_reviews_last_year(restaurant_id):
         raise e
 
 
+# def avg_rest_rating(restaurant_id):
+#     """Получаем средний рейтинг отзывов с Яндекса и TwoGIS для ресторана."""
+#     try:
+#         yandex_avg_rating = session.query(
+#             func.avg(YandexReview.rating)
+#         ).filter(
+#             YandexReview.restaurant_id == restaurant_id
+#         ).scalar() or 0
+
+#         twogis_avg_rating = session.query(
+#             func.avg(TwogisReview.rating)
+#         ).filter(
+#             TwogisReview.restaurant_id == restaurant_id
+#         ).scalar() or 0
+
+#         # Возвращаем среднее значение рейтинга
+#         total_reviews = count_rest_reviews(restaurant_id)
+
+#         average_rating = round((yandex_avg_rating + twogis_avg_rating) / 2, 1)
+#         yandex_avg_rating = round(yandex_avg_rating, 1)
+#         twogis_avg_rating = round(twogis_avg_rating, 1)
+#         if total_reviews == 0:
+#             return 0, 0, 0
+#         return average_rating, yandex_avg_rating, twogis_avg_rating
+#     except Exception as e:
+#         session.rollback()
+#         raise e
+
 def avg_rest_rating(restaurant_id):
-    """Получаем средний рейтинг отзывов с Яндекса и TwoGIS для ресторана."""
+    """Получаем средний рейтинг отзывов с Яндекса и TwoGIS за последний год."""
     try:
+        # Текущая дата
+        current_date = datetime.now()
+
+        # Дата год назад
+        start_date = current_date.replace(year=current_date.year - 1, day=1)
+
+        # Преобразуем обе даты в формат "YYYY-MM"
+        current_month_str = current_date.strftime("%Y-%m")
+        start_month_str = start_date.strftime("%Y-%m")
+
+        # Получаем средний рейтинг с Яндекса за последние 12 месяцев
         yandex_avg_rating = session.query(
             func.avg(YandexReview.rating)
         ).filter(
-            YandexReview.restaurant_id == restaurant_id
+            YandexReview.restaurant_id == restaurant_id,
+            func.substr(YandexReview.created_at, 1, 7) >= start_month_str,
+            func.substr(YandexReview.created_at, 1, 7) <= current_month_str
         ).scalar() or 0
 
+        # Получаем средний рейтинг с TwoGIS за последние 12 месяцев
         twogis_avg_rating = session.query(
             func.avg(TwogisReview.rating)
         ).filter(
-            TwogisReview.restaurant_id == restaurant_id
+            TwogisReview.restaurant_id == restaurant_id,
+            func.substr(TwogisReview.created_at, 1, 7) >= start_month_str,
+            func.substr(TwogisReview.created_at, 1, 7) <= current_month_str
         ).scalar() or 0
 
-        # Возвращаем среднее значение рейтинга
-        total_reviews = count_rest_reviews(restaurant_id)
+        # Получаем общее количество отзывов за последние 12 месяцев
+        total_reviews = count_reviews_last_year(restaurant_id)[0]
 
+        # Рассчитываем общий средний рейтинг
         average_rating = round((yandex_avg_rating + twogis_avg_rating) / 2, 1)
         yandex_avg_rating = round(yandex_avg_rating, 1)
         twogis_avg_rating = round(twogis_avg_rating, 1)
+
         if total_reviews == 0:
             return 0, 0, 0
         return average_rating, yandex_avg_rating, twogis_avg_rating
