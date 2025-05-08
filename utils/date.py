@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import pytz
 
 from constants import DATE_FORMAT, DATE_FORMAT_FOR_MONTH_INSIGHT
 
@@ -7,25 +8,34 @@ from constants import DATE_FORMAT, DATE_FORMAT_FOR_MONTH_INSIGHT
 #     # Убираем суффикс ", отредактирован", если он есть
 #     if ', отредактирован' in date_str:
 #         date_str = date_str.replace(', отредактирован', '')
+
 #     # Обработка слова "сегодня"
 #     if "сегодня" in date_str.lower():
 #         return actual_date.strftime("%Y-%m-%d")
+
 #     # Обработка слова "вчера"
 #     elif "вчера" in date_str.lower():
 #         yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 #         return yesterday
+
 #     else:
-#         # Если дата в другом формате, используем существующую логику
+#         # Если дата в другом формате, пытаемся обработать через логику
 #         try:
 #             return formatted_date(date_str)
 #         except ValueError:
+#             # Логируем ошибку и возвращаем None, а не актуальную дату
 #             print(f"Не удалось обработать дату: {date_str}")
-#             return actual_date.strftime("%Y-%m-%d")
+#             return None
+
 
 def handle_date(date_str, actual_date):
     # Убираем суффикс ", отредактирован", если он есть
     if ', отредактирован' in date_str:
         date_str = date_str.replace(', отредактирован', '')
+
+    # Получаем часовой пояс сервера (UTC-3)
+    server_tz = pytz.timezone('Etc/GMT+3')
+    actual_date = actual_date.astimezone(server_tz)
 
     # Обработка слова "сегодня"
     if "сегодня" in date_str.lower():
@@ -33,7 +43,7 @@ def handle_date(date_str, actual_date):
 
     # Обработка слова "вчера"
     elif "вчера" in date_str.lower():
-        yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+        yesterday = (actual_date - timedelta(days=1)).strftime("%Y-%m-%d")
         return yesterday
 
     else:
