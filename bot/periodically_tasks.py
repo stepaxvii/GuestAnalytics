@@ -38,8 +38,8 @@ async def check_ya_new_reviews_periodically(bot: Bot):
     """Функция переодической проверки новых отзывов Яндекс."""
     while True:
         try:
-            # Пауза между проверками 1.5 часа
-            await asyncio.sleep(5400)
+            # Пауза между проверками 1 час
+            await asyncio.sleep(3600)
             logger.info("Функция для проверки новых отзывов Яндекс.")
 
             # Получаем данные о ресторанах
