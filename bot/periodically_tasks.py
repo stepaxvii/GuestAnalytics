@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 from os import getenv
 
@@ -34,6 +34,162 @@ ADMIN_ID = getenv("ADMIN_ID")
 logger = logging.getLogger()
 
 
+# async def check_ya_new_reviews_periodically(bot: Bot):
+#     """Функция переодической проверки новых отзывов Яндекс."""
+#     while True:
+#         try:
+#             # Пауза между проверками 1 час
+#             await asyncio.sleep(3600)
+#             logger.info("Функция для проверки новых отзывов Яндекс.")
+
+#             # Получаем данные о ресторанах
+#             restaurants = read_all_restaurant_data()
+
+#             for restaurant in restaurants:
+#                 # rest_id = restaurant['id'] сделать для сравнения с БД
+#                 rest_title = restaurant['title']
+#                 rest_link = restaurant['yandex_link']
+#                 rest_address = restaurant['address']
+#                 rest_tg_channal = restaurant['tg_channal']
+#                 rest_reviews_link = rest_link + 'reviews'
+
+#                 # Получаем новые отзывы
+#                 new_reviews = ya_matching_reviews(rest_link)
+
+#                 # Логируем количество новых отзывов
+#                 logger.info(f"Найдено новых отзывов: {len(new_reviews)}")
+
+#                 # Проверяем, есть ли новые отзывы
+#                 if new_reviews:
+#                     for review in new_reviews:
+#                         # Логируем информацию о каждом отзыве
+#                         logger.info(
+#                             "Обрабатываем отзыв от "
+#                             f"{review.get('author_name', 'неизвестен' )}"
+#                         )
+#                         message = (
+#                             f"{rest_title}, <b>{rest_address}</b>.\n"
+#                             f"{get_star_rating(int(review['rating_value']))}\n"
+#                             f"Яндекс, {review['review_date']}\n\n"
+#                             f"{review['text']}\n\n"
+#                             f"Автор: {review['author_name']}\n"
+#                         )
+
+#                         if (
+#                             'author_link' in review
+#                             and review['author_link']
+#                             and review['author_link'] != 'None'
+#                         ):
+#                             # Если ссылка на автора есть
+#                             # и не равна 'None', создаем обе кнопки
+#                             button_text_1 = "К автору"
+#                             button_url_1 = review['author_link']
+#                             button_text_2 = " К отзывам"
+#                             button_url_2 = rest_reviews_link
+
+#                             keyboard = InlineKeyboardMarkup(
+#                                 inline_keyboard=[
+#                                     [
+#                                         InlineKeyboardButton(
+#                                             text=button_text_1,
+#                                             url=button_url_1
+#                                         ),
+#                                         InlineKeyboardButton(
+#                                             text=button_text_2,
+#                                             url=button_url_2
+#                                         )
+#                                     ]
+#                                 ]
+#                             )
+#                         else:
+#                             button_text = "Перейти к отзывам"
+#                             button_url = rest_reviews_link
+
+#                             keyboard = InlineKeyboardMarkup(
+#                                 inline_keyboard=[[InlineKeyboardButton(
+#                                     text=button_text, url=button_url
+#                                 )]]
+#                             )
+
+#                         # Отправляем сообщение в канал
+#                         await bot.send_message(
+#                             rest_tg_channal, message, reply_markup=keyboard
+#                         )
+#                         await asyncio.sleep(3)
+
+#             logger.info("Проверка новых отзывов Яндекс завершена.")
+
+#         except Exception as e:
+#             logger.error(f"Ошибка в периодической задаче отзывов Яндекс: {e}")
+
+
+# async def check_twogis_new_reviews_periodically(bot: Bot):
+#     """Функция периодической проверки новых отзывов 2ГИС."""
+#     while True:
+#         try:
+#             # Пауза между проверками 1.5 часа
+#             await asyncio.sleep(5427)
+#             logger.info("Функция для проверки новых отзывов 2ГИС.")
+
+#             # Получаем данные о ресторанах
+#             restaurants = read_all_restaurant_data()
+
+#             for restaurant in restaurants:
+#                 # Проверяем, что ссылка на 2ГИС не пуста
+#                 rest_link = restaurant.get('twogis_link')
+#                 if not rest_link:
+#                     logger.info(
+#                         f"У ресторана {restaurant['title']} нет 2ГИС."
+#                     )
+#                     continue  # Пропускаем ресторан, если ссылки нет
+
+#                 rest_title = restaurant['title']
+#                 rest_address = restaurant['address']
+#                 rest_tg_channal = restaurant['tg_channal']
+#                 rest_reviews_link = rest_link + '/tab/reviews'
+
+#                 # Получаем новые отзывы
+#                 new_reviews = twogis_matching_reviews(rest_link)
+
+#                 # Логируем количество новых отзывов
+#                 logger.info(f"Найдено новых отзывов: {len(new_reviews)}")
+
+#                 # Проверяем, есть ли новые отзывы
+#                 if new_reviews:
+#                     for review in new_reviews:
+#                         # Логируем информацию о каждом отзыве
+#                         logger.info(
+#                             "Обрабатываем отзыв от "
+#                             f"{review.get('author_name', 'неизвестен' )}"
+#                         )
+#                         message = (
+#                             f"{rest_title}, <b>{rest_address}</b>.\n"
+#                             f"{get_star_rating(int(review['rating_value']))}\n"
+#                             f"2ГИС, {review['review_date']}\n\n"
+#                             f"{review['text']}\n\n"
+#                             f"Автор: {review['author_name']}\n"
+#                         )
+
+#                         button_text = "Перейти к отзывам"
+#                         button_url = rest_reviews_link
+
+#                         keyboard = InlineKeyboardMarkup(
+#                             inline_keyboard=[[InlineKeyboardButton(
+#                                 text=button_text, url=button_url
+#                             )]]
+#                         )
+
+#                         # Отправляем сообщение в канал
+#                         await bot.send_message(
+#                             rest_tg_channal, message, reply_markup=keyboard
+#                         )
+#                         await asyncio.sleep(3)
+
+#             logger.info("Проверка новых отзывов 2ГИС завершена.")
+
+#         except Exception as e:
+#             logger.error(f"Ошибка в периодической задаче отзывов 2ГИС: {e}")
+
 async def check_ya_new_reviews_periodically(bot: Bot):
     """Функция переодической проверки новых отзывов Яндекс."""
     while True:
@@ -63,6 +219,19 @@ async def check_ya_new_reviews_periodically(bot: Bot):
                 if new_reviews:
                     for review in new_reviews:
                         # Логируем информацию о каждом отзыве
+                        review_date_str = review['review_date']
+                        review_date = datetime.strptime(
+                            review_date_str, '%Y-%m-%d'
+                        )
+                        current_date = datetime.now()
+
+                        # Проверяем, если дата отзыва старше, чем на 6 дней
+                        if current_date - review_date >= timedelta(days=6):
+                            logger.info(
+                                f"Отзыв на {review_date_str} слишком стар."
+                            )
+                            continue  # Пропускаем отзыв, если он старше 6 дней
+
                         logger.info(
                             "Обрабатываем отзыв от "
                             f"{review.get('author_name', 'неизвестен' )}"
@@ -88,18 +257,16 @@ async def check_ya_new_reviews_periodically(bot: Bot):
                             button_url_2 = rest_reviews_link
 
                             keyboard = InlineKeyboardMarkup(
-                                inline_keyboard=[
-                                    [
-                                        InlineKeyboardButton(
-                                            text=button_text_1,
-                                            url=button_url_1
-                                        ),
-                                        InlineKeyboardButton(
-                                            text=button_text_2,
-                                            url=button_url_2
-                                        )
-                                    ]
-                                ]
+                                inline_keyboard=[[
+                                    InlineKeyboardButton(
+                                        text=button_text_1,
+                                        url=button_url_1
+                                    ),
+                                    InlineKeyboardButton(
+                                        text=button_text_2,
+                                        url=button_url_2
+                                    )
+                                ]]
                             )
                         else:
                             button_text = "Перейти к отзывам"
@@ -158,6 +325,19 @@ async def check_twogis_new_reviews_periodically(bot: Bot):
                 if new_reviews:
                     for review in new_reviews:
                         # Логируем информацию о каждом отзыве
+                        review_date_str = review['review_date']
+                        review_date = datetime.strptime(
+                            review_date_str, '%Y-%m-%d'
+                        )
+                        current_date = datetime.now()
+
+                        # Проверяем, если дата отзыва старше, чем на 6 дней
+                        if current_date - review_date >= timedelta(days=6):
+                            logger.info(
+                                f"Отзыв от на {review_date_str} слишком стар."
+                                )
+                            continue  # Пропускаем отзыв, если он старше 6 дней
+
                         logger.info(
                             "Обрабатываем отзыв от "
                             f"{review.get('author_name', 'неизвестен' )}"

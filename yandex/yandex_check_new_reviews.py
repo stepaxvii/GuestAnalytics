@@ -145,7 +145,7 @@ def ya_check_reviews(org_url):
 
         except Exception as e:
             logging.info(f"Ошибка при получении информации об отзыве: {e}")
-        logging.info(f'Уникальных отзывов: {len(unique_reviews)}')
+    logging.info(f'Уникальных отзывов: {len(unique_reviews)}')
 
     # Закрываем браузер
     driver.quit()
