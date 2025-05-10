@@ -106,8 +106,8 @@ def ya_check_reviews(org_url):
                 ).get_attribute("href")
             except NoSuchElementException as e:
                 logging.error(f"Ошибка при поиске ссылки на автора: {e}")
-            except Exception as e:
-                logging.error(f"Не удалось получить ссылку: {e}")
+            except Exception:
+                logging.error("Не удалось получить ссылку")
             try:
                 # Попытка найти значение рейтинга
                 rating_value = WebDriverWait(review, 10).until(
@@ -121,7 +121,6 @@ def ya_check_reviews(org_url):
 
             text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
 
-
             # Сохранение отзыва в список для уникальности
             review_entry = {
                 "review_date": review_date,
@@ -134,7 +133,9 @@ def ya_check_reviews(org_url):
 
         except Exception as e:
             logging.info(f"Ошибка при получении информации об отзыве: {e}")
-    logging.info(f'Уникальных отзывов: {len(unique_reviews)}')
+    logging.info(
+        f'Уникальных отзывов для {reviews_url} - {len(unique_reviews)}'
+    )
 
     # Закрываем браузер
     driver.quit()
@@ -227,6 +228,7 @@ def matching_reviews(org_url):
             }
 
             create_ya_review(review_data_dict)
+            logger.info(f"Сохранен отзыв: {review_data_dict['text'][:50]}...")
 
     else:
         logging.info("Новых отзывов нет.")
