@@ -133,12 +133,6 @@ def ya_check_reviews(org_url):
 
             text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
 
-            # Логируем информацию о текущем отзыве
-            logging.info(
-                f"Дата отзыва: {review_date}, "
-                f"Автор: {author_name}, Рейтинг: {rating_value}"
-            )
-
             # Сохранение отзыва в список для уникальности
             review_entry = {
                 "review_date": review_date,
@@ -156,118 +150,6 @@ def ya_check_reviews(org_url):
     # Закрываем браузер
     driver.quit()
     return unique_reviews
-
-
-# def ya_check_reviews(org_url):
-#     """
-#     Проверка наличия новых отзывов о ресторане
-#     и сохранение их в БД.
-#     """
-#     options = FirefoxOptions()
-#     options.add_argument('--headless')
-#     options.add_argument('--no-sandbox')  # Для работы с Docker
-#     options.add_argument('--disable-dev-shm-usage')  # Для работы с Docker
-#     service = Service(DRIVER_PATH)
-#     driver = Firefox(service=service, options=options)
-
-#     driver.get(org_url)
-#     sleep(2)
-#     full_org_url = driver.current_url
-#     logger.info(f"Полный URL компании: {full_org_url}")
-#     org_url, reviews_url = process_url_yandex(full_org_url)
-
-#     # Переходим на страницу с отзывами
-#     driver.get(reviews_url)
-#     sleep(4)
-
-#     try:
-#         # Ищем элемент сортировки "По умолчанию" и кликаем по нему
-#         filter_button = WebDriverWait(driver, 20).until(
-#             EC.element_to_be_clickable((By.CLASS_NAME, SORTED_BLOCK))
-#         )
-#         filter_button.click()
-
-#         # Ждем, пока появится элемент с опцией "По новизне" и кликаем по нему
-#         newest_filter = WebDriverWait(driver, 20).until(
-#             EC.element_to_be_clickable((By.XPATH, NEW_REVIEWS_SORTED))
-#         )
-
-#         # Прокрутка до элемента (если нужно)
-#         driver.execute_script("arguments[0].scrollIntoView();", newest_filter)
-
-#         # Кликаем по элементу "По новизне"
-#         newest_filter.click()
-#         logging.info("Сортировка по новизне выбрана.")
-#     except Exception as e:
-#         logging.info(f"Ошибка при выборе сортировки: {e}")
-
-#     # Создаём список для хранения уникальных отзывов
-#     unique_reviews = []
-
-#     # Получаем все элементы с отзывами на странице
-#     reviews = driver.find_elements(By.CLASS_NAME, CARD_REVIEWS_BLOCK)
-
-#     # Сохраняем текущие отзывы из зоны видимости
-#     for review in reviews:
-#         try:
-#             date_str = review.find_element(
-#                 By.CSS_SELECTOR, DATE_ELEMENT
-#             ).get_attribute('content')
-#             review_date = datetime.strptime(
-#                 date_str, "%Y-%m-%dT%H:%M:%S.%fZ"
-#             ).strftime(DATE_FORMAT)
-#             author_name = review.find_element(
-#                 By.CSS_SELECTOR, AUTHOR_ELEMENT
-#             ).text
-#             # Ищем ссылку на пользователя в текущем отзыве
-#             author_link = 'None'
-#             try:
-#                 # Используем явное ожидание для ссылки
-#                 author_link = WebDriverWait(review, 5).until(
-#                     EC.presence_of_element_located(
-#                         (By.CSS_SELECTOR, LINK_ELEMENT)
-#                     )
-#                 ).get_attribute("href")
-#             except NoSuchElementException as e:
-#                 logging.error(f"Ошибка при поиске ссылки на автора: {e}")
-#             except Exception as e:
-#                 logging.error(f"Не удалось получить ссылку: {e}")
-#             try:
-#                 # Попытка найти значение рейтинга
-#                 rating_value = WebDriverWait(review, 10).until(
-#                     EC.presence_of_element_located(
-#                         (By.CSS_SELECTOR, RATING_ELEMENT)
-#                     )
-#                 ).get_attribute('content')
-#             except Exception as e:
-#                 logging.info(f"Ошибка при получении значения рейтинга: {e}")
-#                 rating_value = 0
-
-#             text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
-
-#             # Логируем информацию о текущем отзыве
-#             logging.info(
-#                 f"Дата отзыва: {review_date}, "
-#                 f"Автор: {author_name}, Рейтинг: {rating_value}"
-#             )
-
-#             # Сохранение отзыва в список для уникальности
-#             review_entry = {
-#                 "review_date": review_date,
-#                 "author_name": author_name,
-#                 "author_link": author_link,
-#                 "rating_value": rating_value,
-#                 "text": text
-#             }
-#             unique_reviews.append(review_entry)
-
-#         except Exception as e:
-#             logging.info(f"Ошибка при получении информации об отзыве: {e}")
-#         logging.info(f'Уникальных отзывов: {len(unique_reviews)}')
-
-#     # Закрываем браузер
-#     driver.quit()
-#     return unique_reviews
 
 
 def ya_matching_reviews(org_url):
@@ -356,6 +238,7 @@ def ya_matching_reviews(org_url):
             }
 
             create_ya_review(review_data_dict)
+            logger.info(f"Сохранен отзыв: {review_data_dict['text'][:50]}...")
 
     else:
         logging.info("Новых отзывов нет.")

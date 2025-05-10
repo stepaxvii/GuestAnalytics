@@ -76,7 +76,6 @@ def twogis_check_reviews(org_url):
             # Извлекаем данные отзыва
             date_div = review_container.find('div', class_=TWOGIS_DATE_CLASS)
             review_date = date_div.get_text(strip=True) if date_div else None
-            logger.info(f"Дата отзыва {review_date}")
 
             # Пропускаем отзыв, если дата не была извлечена
             if not review_date:
