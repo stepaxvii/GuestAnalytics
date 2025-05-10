@@ -334,7 +334,7 @@ async def check_twogis_new_reviews_periodically(bot: Bot):
                         # Проверяем, если дата отзыва старше, чем на 6 дней
                         if current_date - review_date >= timedelta(days=6):
                             logger.info(
-                                f"Отзыв от на {review_date_str} слишком стар."
+                                f"Отзыв на {review_date_str} слишком стар."
                                 )
                             continue  # Пропускаем отзыв, если он старше 6 дней
 

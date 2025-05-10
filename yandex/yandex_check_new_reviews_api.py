@@ -121,11 +121,6 @@ def ya_check_reviews(org_url):
 
             text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
 
-            # Логируем информацию о текущем отзыве
-            logging.info(
-                f"Дата отзыва: {review_date}, "
-                f"Автор: {author_name}, Рейтинг: {rating_value}"
-            )
 
             # Сохранение отзыва в список для уникальности
             review_entry = {
@@ -139,7 +134,7 @@ def ya_check_reviews(org_url):
 
         except Exception as e:
             logging.info(f"Ошибка при получении информации об отзыве: {e}")
-        logging.info(f'Уникальных отзывов: {len(unique_reviews)}')
+    logging.info(f'Уникальных отзывов: {len(unique_reviews)}')
 
     # Закрываем браузер
     driver.quit()

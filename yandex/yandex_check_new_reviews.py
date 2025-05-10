@@ -118,8 +118,8 @@ def ya_check_reviews(org_url):
                 ).get_attribute("href")
             except NoSuchElementException as e:
                 logging.error(f"Ошибка при поиске ссылки на автора: {e}")
-            except Exception as e:
-                logging.error(f"Не удалось получить ссылку: {e}")
+            except Exception:
+                logging.error("Не удалось получить ссылку")
             try:
                 # Попытка найти значение рейтинга
                 rating_value = WebDriverWait(review, 10).until(
