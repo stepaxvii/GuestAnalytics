@@ -1,3 +1,4 @@
+import asyncio
 from os import getenv
 
 from aiogram import Router
@@ -318,3 +319,11 @@ async def delete_restaurant(callback_query: CallbackQuery, state: FSMContext):
         # Завершаем редактирование
         await state.clear()
         await callback_query.message.answer("Редактирование завершено.")
+
+
+@router.message()
+async def rude_word_reply(message: Message):
+    rude_words = ["заебал", "заебала", "заебали"]
+    if any(word in message.text.lower() for word in rude_words):
+        await asyncio.sleep(2)
+        await message.answer("Так просто пошли нахуй)")
