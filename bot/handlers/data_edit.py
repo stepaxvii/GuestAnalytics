@@ -59,6 +59,8 @@ async def handle_data_edit(callback_query: Message):
 async def edit_restaurant(callback_query: CallbackQuery, state: FSMContext):
     if await check_admin(callback_query.from_user.id):
         restaurant_id = int(callback_query.data.split('_')[-1])
+        # Удаляем сообщение с клавиатурой
+        await callback_query.message.delete()
 
         # Сохраняем id ресторана в состоянии
         await state.update_data(restaurant_id=restaurant_id)
@@ -116,6 +118,8 @@ async def edit_title(callback_query: CallbackQuery, state: FSMContext):
     if await check_admin(callback_query.from_user.id):
         # Переходим к состоянию редактирования названия
         await state.set_state(RestaurantEditState.title_edit)
+        # Удаляем сообщение с клавиатурой
+        await callback_query.message.delete()
 
         await callback_query.message.answer("Введите новое название:")
 
@@ -125,6 +129,8 @@ async def edit_address(callback_query: CallbackQuery, state: FSMContext):
     if await check_admin(callback_query.from_user.id):
         # Переходим к состоянию редактирования адреса
         await state.set_state(RestaurantEditState.address_edit)
+        # Удаляем сообщение с клавиатурой
+        await callback_query.message.delete()
 
         await callback_query.message.answer("Введите новый адрес ресторана:")
 
@@ -134,6 +140,8 @@ async def edit_tg_channal(callback_query: CallbackQuery, state: FSMContext):
     if await check_admin(callback_query.from_user.id):
         # Переходим к состоянию редактирования tg_channal
         await state.set_state(RestaurantEditState.tg_channal_edit)
+        # Удаляем сообщение с клавиатурой
+        await callback_query.message.delete()
 
         await callback_query.message.answer("Введите новый TG канал:")
 
@@ -143,6 +151,8 @@ async def edit_wp_id(callback_query: CallbackQuery, state: FSMContext):
     if await check_admin(callback_query.from_user.id):
         # Переходим к состоянию редактирования wp_id_edit
         await state.set_state(RestaurantEditState.wp_id_edit)
+        # Удаляем сообщение с клавиатурой
+        await callback_query.message.delete()
 
         await callback_query.message.answer("Введите изменённый wp_id:")
 
@@ -152,6 +162,8 @@ async def edit_add_twogis(callback_query: CallbackQuery, state: FSMContext):
     if await check_admin(callback_query.from_user.id):
         # Переходим к состоянию редактирования add_twogis
         await state.set_state(RestaurantEditState.add_twogis)
+        # Удаляем сообщение с клавиатурой
+        await callback_query.message.delete()
 
         await callback_query.message.answer("Введите url 2ГИС:")
 
