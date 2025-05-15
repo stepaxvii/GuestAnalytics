@@ -46,7 +46,7 @@ TG_GROUP = getenv('TG_GROUP')
 def scroll_to_bottom(driver, elem, prev_reviews_count):
     """Функция для скроллинга до последнего отзыва."""
     driver.execute_script("arguments[0].scrollIntoView();", elem)
-    sleep(3)
+    sleep(1)
     reviews = driver.find_elements(By.CLASS_NAME, CARD_REVIEWS_BLOCK)
 
     # Проверяем изменение количества отзывов за три попытки
