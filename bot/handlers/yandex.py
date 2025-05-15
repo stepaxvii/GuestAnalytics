@@ -32,7 +32,7 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
         await callback_query.message.answer(
             text='Проверяю наличие новых отзывов для ресторанов партнёров.'
         )
-        await asyncio.sleep(1)
+        await asyncio.sleep(2)
 
         restaurants = read_all_restaurant_data()
 
