@@ -261,6 +261,9 @@ def ya_prim_coll(original_url):
     )
     restaurant_id = read_restaurant_data(rest_data=org_url)['id']
 
+    logger.info("Закрываем браузер.")
+    driver.quit()
+
     for review in sorted_reviews:
         try:
             review_data = {
@@ -275,8 +278,6 @@ def ya_prim_coll(original_url):
             create_ya_review(review_data)
         except Exception as e:
             logger.error(f"Ошибка при добавлении отзыва в базу данных: {e}")
-
-    logger.info("Закрываем браузер.")
-    driver.quit()
+    logger.info("Анализ завершён.")
 
     return len(sorted_reviews)
