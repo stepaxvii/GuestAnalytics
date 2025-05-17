@@ -1,4 +1,3 @@
-import asyncio
 from os import getenv
 
 from aiogram import Router
@@ -311,6 +310,8 @@ async def delete_restaurant(callback_query: CallbackQuery, state: FSMContext):
     if await check_admin(callback_query.from_user.id):
         data = await state.get_data()
         restaurant_id = data.get("restaurant_id")
+        # Удаляем сообщение с клавиатурой
+        await callback_query.message.delete()
 
         # Ищем ресторан в базе данных по ID
         restaurant = session.query(
