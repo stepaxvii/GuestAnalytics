@@ -3,17 +3,25 @@ import logging
 from os import getenv
 
 from aiogram import Router, Bot
-from aiogram.types import CallbackQuery
+from aiogram.types import (
+    CallbackQuery,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup
+)
 from dotenv import load_dotenv
 
-from data.read_data import read_all_restaurant_data
+from data.read_data import (
+    read_all_restaurant_data,
+    read_rest_month_insight_list
+)
 from utils.message_text import star_for_report
 from utils.monthly_report_tg import (
     avg_rest_rating,
     calculate_nps,
     calculate_satisfaction_level,
     count_reviews_by_rating,
-    get_count_reviews
+    get_count_reviews,
+    get_previous_month
 )
 load_dotenv()
 
@@ -39,14 +47,21 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
             text="Запускаю тест месячного отчёта"
         )
 
+        # Получаем отчётный месяц
+        report_date = get_previous_month()
         # Получаем данные о ресторанах
         restaurants = read_all_restaurant_data()
         for restaurant in restaurants:
             rest_id = restaurant['id']
+            rest_wp_id = restaurant['wp_id']
             rest_title = restaurant['title']
             rest_address = restaurant['address']
             rest_tg_channal = -1002453477756
-
+            # Формируем ссылку на dashboard
+            dashoard_link = (
+                "https://guestanalytics.ru/"
+                f"my-account/?dashboard={rest_wp_id}"
+            )
             # Количество отзывов
             total, twogis, yandex = get_count_reviews(restaurant_id=rest_id)
 
@@ -67,10 +82,28 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
                 yandex_satisfaction
             ) = calculate_satisfaction_level(restaurant_id=rest_id)
 
+            # Запрашиваем инсайты
+            insights = read_rest_month_insight_list(restaurant_id=rest_id)
+            # Подсчитываем количество отзывов с разным рейтингом
+            rating_count = count_reviews_by_rating(restaurant_id=rest_id)
+
+            # Сортируем по ключам (рейтингам) от 1 до 5
+            sorted_ratings = sorted(rating_count.items(), reverse=True)
+
+            # Добавляем информацию об инсайтах
+            insights_text = ""
+            for insight in insights:
+                insights_text += f"{insight}"
+            # Добавляем информацию о каждом рейтинге в сообщение
+            rating_text = ""
+            for rating, count in sorted_ratings:
+                rating_text += f"{star_for_report(rating)} - {count}\n"
+
             logger.info(f"Отчёт для ресторана {rest_title} готов!")
 
             # Формируем сообщение для отправки в телеграм
             message = (
+                f"📈Отчёт за {report_date}"
                 f"{rest_title}, <b>{rest_address}</b>.\n\n"
                 f"📝 <b>Общее количество</b>: {total}\n"
                 f"Яндекс: {yandex}\n"
@@ -86,25 +119,26 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
                 f"2ГИС: {twogis_satisfaction}%\n\n"
             )
 
-            # Подсчитываем количество отзывов с разным рейтингом
-            rating_count = count_reviews_by_rating(restaurant_id=rest_id)
-
-            # Сортируем по ключам (рейтингам) от 1 до 5
-            sorted_ratings = sorted(rating_count.items(), reverse=True)
-
-            # Добавляем информацию о каждом рейтинге в сообщение
-            rating_text = ""
-            for rating, count in sorted_ratings:
-                rating_text += f"{star_for_report(rating)} - {count}\n"
-
-            # Заключаем в спойлер
+            # Добавляем количество отзывов на каждый рейтинг
             message += (
-                f"📊 <b>Отзывоы по рейтингу:</b>\n{rating_text}"
+                f"📊 <b>Отзывы по рейтингу:</b>\n{rating_text}"
+            )
+            # Добавляем к отчёту первый инсайт
+            message += f"{insights_text[:100]}..."
+
+            # Создаем кнопку с ссылкой
+            keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [InlineKeyboardButton(
+                        text="💻 Полная статистика", url=dashoard_link
+                    )]
+                ]
             )
 
             await callback_query.bot.send_message(
                 chat_id=rest_tg_channal,
-                text=message
+                text=message,
+                reply_markup=keyboard
             )
             logger.info(f"Отчёт для ресторана {rest_title} отправлен!")
             await asyncio.sleep(3)
