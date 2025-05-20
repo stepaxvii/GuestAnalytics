@@ -14,6 +14,7 @@ from data.read_data import (
     read_all_restaurant_data,
     read_rest_month_insight_list
 )
+from utils.date import month_dict
 from utils.message_text import star_for_report
 from utils.monthly_report_tg import (
     avg_rest_rating,
@@ -49,6 +50,10 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
 
         # Получаем отчётный месяц
         report_date = get_previous_month()
+        year, month = report_date.split('-')
+        month_name = month_dict.get(month, "предыдущий месяц")
+        report_date = f"{month_name} {year}"
+
         # Получаем данные о ресторанах
         restaurants = read_all_restaurant_data()
         for restaurant in restaurants:
@@ -93,7 +98,7 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
             # Добавляем информацию об инсайтах
             insights_text = ""
             for insight in insights:
-                insights_text += f"{insight}"
+                insights_text += f"- {insight}"
             # Добавляем информацию о каждом рейтинге в сообщение
             rating_text = ""
             for rating, count in sorted_ratings:
@@ -103,8 +108,8 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
 
             # Формируем сообщение для отправки в телеграм
             message = (
-                f"📈Отчёт за {report_date}"
-                f"{rest_title}, <b>{rest_address}</b>.\n\n"
+                f"📈Отчёт за {report_date}\n"
+                f"<b>{rest_title}, {rest_address}</b>.\n\n"
                 f"📝 <b>Общее количество</b>: {total}\n"
                 f"Яндекс: {yandex}\n"
                 f"2ГИС: {twogis}\n\n"
@@ -121,10 +126,10 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
 
             # Добавляем количество отзывов на каждый рейтинг
             message += (
-                f"📊 <b>Отзывы по рейтингу:</b>\n{rating_text}"
+                f"📊 <b>Отзывы по рейтингу:</b>\n{rating_text}\n"
             )
             # Добавляем к отчёту первый инсайт
-            message += f"{insights_text[:100]}..."
+            message += f"Обновлённые инсайты:\n{insights_text[:300]}..."
 
             # Создаем кнопку с ссылкой
             keyboard = InlineKeyboardMarkup(
