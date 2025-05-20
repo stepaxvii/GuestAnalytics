@@ -7,7 +7,7 @@ from aiogram.types import CallbackQuery
 from dotenv import load_dotenv
 
 from data.read_data import read_all_restaurant_data
-from utils.monthly_report_tg import get_count_reviews
+from utils.monthly_report_tg import avg_rest_rating, get_count_reviews
 
 load_dotenv()
 
@@ -42,16 +42,21 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
             rest_tg_channal = -1002453477756
 
             total, twogis, yandex = get_count_reviews(restaurant_id=rest_id)
+            avg_total, avg_twogis, avg_yandex = avg_rest_rating(
+                restaurant_id=rest_id
+            )
 
             logger.info(f"Отчёт для ресторана {rest_title} готов!")
 
             # Формируем сообщение для отправки в телеграм
             message = (
-                f"{rest_title}, <b>{rest_address}</b>.\n"
-                f"Общее количество: {total}\n"
+                f"{rest_title}, <b>{rest_address}</b>.\n\n"
+                f"<b>Общее количество</b>: {total}\n"
                 f"Яндекс: {yandex}\n"
-                f"2ГИС: {twogis}\n"
-
+                f"2ГИС: {twogis}\n\n"
+                f"<b>Средний рейтинг</b>: {avg_total}\n"
+                f"Яндекс: {avg_yandex}\n"
+                f"2ГИС: {avg_twogis}\n"
             )
             await callback_query.bot.send_message(
                 chat_id=rest_tg_channal,
