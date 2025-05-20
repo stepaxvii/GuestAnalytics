@@ -99,7 +99,7 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
 
             # Заключаем в спойлер
             message += (
-                f"📊 <b>Количество отзывов по рейтингу:</b>\n{rating_text}"
+                f"📊 <b>Отзывоы по рейтингу:</b>\n{rating_text}"
             )
 
             await callback_query.bot.send_message(
