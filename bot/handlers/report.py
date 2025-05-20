@@ -7,7 +7,8 @@ from aiogram.types import CallbackQuery
 from dotenv import load_dotenv
 
 from data.read_data import read_all_restaurant_data
-from utils.monthly_report_tg import avg_rest_rating, get_count_reviews
+from utils.message_text import get_star_rating
+from utils.monthly_report_tg import avg_rest_rating, get_count_reviews, count_reviews_by_rating
 
 load_dotenv()
 
@@ -56,8 +57,20 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
                 f"2ГИС: {twogis}\n\n"
                 f"<b>Средний рейтинг</b>: {avg_total}\n"
                 f"Яндекс: {avg_yandex}\n"
-                f"2ГИС: {avg_twogis}\n"
+                f"2ГИС: {avg_twogis}\n\n"
+                f"<b>Количество отзывов по каждому рейтингу:</b>\n"
             )
+
+            # Подсчитываем количество отзывов с разным рейтингом
+            rating_count = count_reviews_by_rating(restaurant_id=rest_id)
+
+            # Сортируем по ключам (рейтингам) от 1 до 5
+            sorted_ratings = sorted(rating_count.items())
+
+            # Добавляем информацию о каждом рейтинге в сообщение
+            for rating, count in sorted_ratings:
+                message += f"{rating} {get_star_rating(rating)} - {count}\n"
+
             await callback_query.bot.send_message(
                 chat_id=rest_tg_channal,
                 text=message

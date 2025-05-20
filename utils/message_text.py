@@ -15,8 +15,10 @@ def get_star_rating(rating):
     star_rating = full_stars[:full_star_count] + empty_stars[:empty_star_count]
 
     # Добавляем дополнительные символы в зависимости от рейтинга
+    if full_star_count == 5:
+        star_rating = "🏆" + star_rating
     if full_star_count == 3:
-        star_rating = " 🚩" + star_rating
+        star_rating = "🚩" + star_rating
     elif full_star_count < 3:
         star_rating = "🚩" + star_rating + "🚩"
 

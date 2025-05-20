@@ -1,3 +1,4 @@
+from collections import Counter
 from datetime import datetime
 
 from data.read_data import (
@@ -86,3 +87,44 @@ def avg_rest_rating(restaurant_id):
         round((twogis_avg_rating if twogis_avg_rating is not None else 0), 1),
         round((yandex_avg_rating if yandex_avg_rating is not None else 0), 1)
     )
+
+
+def count_reviews_by_rating(restaurant_id: int):
+    """Подсчитываем количество отзывов с разным рейтингом."""
+    # Получаем предыдущий месяц
+    previous_month = get_previous_month()
+
+    # Получаем отзывы с Яндекса за предыдущий месяц
+    yandex_reviews = read_rest_ya_reviews_date(
+        restaurant_id=restaurant_id,
+        date_filter=previous_month
+    )
+
+    # Получаем отзывы с TwoGIS за предыдущий месяц
+    twogis_reviews = read_rest_twogis_reviews_date(
+        restaurant_id=restaurant_id,
+        date_filter=previous_month
+    )
+
+    # Подсчитываем количество отзывов с каждым рейтингом на Яндексе
+    if yandex_reviews:
+        yandex_ratings = [review.rating for review in yandex_reviews]
+        yandex_rating_count = dict(Counter(yandex_ratings))
+    else:
+        yandex_rating_count = {}
+
+    # Подсчитываем количество отзывов с каждым рейтингом на TwoGIS
+    if twogis_reviews:
+        twogis_ratings = [review.rating for review in twogis_reviews]
+        twogis_rating_count = dict(Counter(twogis_ratings))
+    else:
+        twogis_rating_count = {}
+
+    # Сливаем результаты с двух платформ
+    combined_rating_count = yandex_rating_count.copy()
+    for rating, count in twogis_rating_count.items():
+        combined_rating_count[
+            rating
+        ] = combined_rating_count.get(rating, 0) + count
+
+    return combined_rating_count
