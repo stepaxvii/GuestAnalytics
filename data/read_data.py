@@ -16,6 +16,7 @@ def read_all_restaurant_data():
     restaurants_list = [
         {
             "id": restaurant.id,
+            "wp_id": restaurant.wp_id,
             "title": restaurant.title,
             "yandex_link": restaurant.yandex_link,
             "twogis_link": restaurant.twogis_link,
