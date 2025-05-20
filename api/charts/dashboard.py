@@ -4,7 +4,9 @@ from dateutil.relativedelta import relativedelta
 
 from flask import Blueprint, jsonify, request
 from sqlalchemy import func
+
 from api.db import session
+from constants import DATE_FORMAT_FOR_MONTH
 from data.data_main import TwogisReview, YandexReview
 from data.read_data import (
     read_rest_ya_reviews,
@@ -102,7 +104,7 @@ def dashboard():
                 labels.insert(0, f"{month_dict_dash[month_str]}")
 
             # Формируем год-месяц для фильтрации
-            year_month = month_start.strftime('%Y-%m')
+            year_month = month_start.strftime(DATE_FORMAT_FOR_MONTH)
 
             # Получаем количество отзывов за месяц для обеих таблиц
             reviews_in_month_yandex = session.query(YandexReview).filter(

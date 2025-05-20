@@ -76,14 +76,18 @@ def ya_check_reviews(org_url):
                 newest_filter = WebDriverWait(driver, 20).until(
                     EC.element_to_be_clickable((By.XPATH, NEW_REVIEWS_SORTED))
                 )
-                driver.execute_script("arguments[0].scrollIntoView();", newest_filter)
+                driver.execute_script(
+                    "arguments[0].scrollIntoView();", newest_filter
+                )
                 newest_filter.click()
                 logging.info("Сортировка по новизне выбрана.")
                 break
             except Exception as e:
                 logging.info(f"Ошибка при выборе сортировки: {e}")
                 if attempt == max_attempts:
-                    logging.error("Не удалось выбрать сортировку после 3 попыток.")
+                    logging.error(
+                        "Не удалось выбрать сортировку после 3 попыток."
+                    )
                 else:
                     sleep(2)
 
@@ -122,7 +126,7 @@ def ya_check_reviews(org_url):
                         )
                     ).get_attribute('content')
                 except Exception as e:
-                    logging.info(f"Ошибка при получении значения рейтинга: {e}")
+                    logging.info(f"Ошибка при получении рейтинга: {e}")
                     rating_value = 0
 
                 text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text

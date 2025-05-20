@@ -1,7 +1,9 @@
 from datetime import datetime
 from sqlalchemy import func
+
 from api.db import session
-from data.data_main import YandexReview, TwogisReview
+from constants import DATE_FORMAT_FOR_MONTH
+from data.data_main import TwogisReview, YandexReview
 
 
 def count_rest_reviews(restaurant_id):
@@ -33,8 +35,8 @@ def count_reviews_last_year(restaurant_id):
         start_date = current_date.replace(year=current_date.year - 1, day=1)
 
         # Преобразуем обе даты в формат "YYYY-MM"
-        current_month_str = current_date.strftime("%Y-%m")
-        start_month_str = start_date.strftime("%Y-%m")
+        current_month_str = current_date.strftime(DATE_FORMAT_FOR_MONTH)
+        start_month_str = start_date.strftime(DATE_FORMAT_FOR_MONTH)
 
         # Подсчитываем количество отзывов с Яндекса
         yandex_reviews = session.query(YandexReview).filter(
@@ -67,8 +69,8 @@ def avg_rest_rating(restaurant_id):
         start_date = current_date.replace(year=current_date.year - 1, day=1)
 
         # Преобразуем обе даты в формат "YYYY-MM"
-        current_month_str = current_date.strftime("%Y-%m")
-        start_month_str = start_date.strftime("%Y-%m")
+        current_month_str = current_date.strftime(DATE_FORMAT_FOR_MONTH)
+        start_month_str = start_date.strftime(DATE_FORMAT_FOR_MONTH)
 
         # Получаем средний рейтинг с Яндекса за последние 12 месяцев
         yandex_avg_rating = session.query(
@@ -114,8 +116,8 @@ def calculate_nps(restaurant_id):
         start_date = current_date.replace(year=current_date.year - 1, day=1)
 
         # Преобразуем обе даты в формат "YYYY-MM"
-        current_month_str = current_date.strftime("%Y-%m")
-        start_month_str = start_date.strftime("%Y-%m")
+        current_month_str = current_date.strftime(DATE_FORMAT_FOR_MONTH)
+        start_month_str = start_date.strftime(DATE_FORMAT_FOR_MONTH)
 
         # Получаем количество отзывов с Яндекса за последние 12 месяцев
         total_yandex_reviews = session.query(YandexReview).filter(
@@ -158,7 +160,9 @@ def calculate_nps(restaurant_id):
 
         if total_yandex_reviews > 0:
             yandex_nps = round(
-                (yandex_promoters - yandex_detractors) / total_yandex_reviews * 100, 1)
+                (
+                    yandex_promoters - yandex_detractors
+                ) / total_yandex_reviews * 100, 1)
         else:
             yandex_nps = 0
 
@@ -179,7 +183,9 @@ def calculate_nps(restaurant_id):
 
         if total_twogis_reviews > 0:
             twogis_nps = round(
-                (twogis_promoters - twogis_detractors) / total_twogis_reviews * 100, 1)
+                (
+                    twogis_promoters - twogis_detractors
+                ) / total_twogis_reviews * 100, 1)
         else:
             twogis_nps = 0
 
@@ -261,8 +267,8 @@ def calculate_satisfaction_level(restaurant_id):
         start_date = current_date.replace(year=current_date.year - 1, day=1)
 
         # Преобразуем обе даты в формат "YYYY-MM"
-        current_month_str = current_date.strftime("%Y-%m")
-        start_month_str = start_date.strftime("%Y-%m")
+        current_month_str = current_date.strftime(DATE_FORMAT_FOR_MONTH)
+        start_month_str = start_date.strftime(DATE_FORMAT_FOR_MONTH)
 
         # Получаем количество отзывов с Яндекса за последние 12 месяцев
         total_yandex_reviews = session.query(YandexReview).filter(

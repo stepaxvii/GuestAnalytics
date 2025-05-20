@@ -21,3 +21,9 @@ def get_star_rating(rating):
         star_rating = "🚩" + star_rating + "🚩"
 
     return star_rating
+
+
+def make_monthly_report_message():
+    """Функция составления сообщения о ежемесячном отчёте."""
+
+    pass

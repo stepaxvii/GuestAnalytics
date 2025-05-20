@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from constants import DATE_FORMAT, DATE_FORMAT_FOR_MONTH_INSIGHT
+from constants import DATE_FORMAT, DATE_FORMAT_FOR_MONTH
 
 
 def handle_date(date_str, actual_date):
@@ -124,8 +124,8 @@ def make_last_months(current_date: datetime):
         last_month = current_date.replace(month=current_date.month - 1)
         month_bef_last = current_date.replace(month=current_date.month - 2)
 
-    last_month = last_month.strftime(DATE_FORMAT_FOR_MONTH_INSIGHT)
-    month_bef_last = month_bef_last.strftime(DATE_FORMAT_FOR_MONTH_INSIGHT)
+    last_month = last_month.strftime(DATE_FORMAT_FOR_MONTH)
+    month_bef_last = month_bef_last.strftime(DATE_FORMAT_FOR_MONTH)
 
     return last_month, month_bef_last
 
