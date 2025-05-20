@@ -10,6 +10,7 @@ from aiogram.types import (
 )
 from dotenv import load_dotenv
 
+from bot.handlers.report import send_monthly_report
 from data.create_data import create_insight
 from data.read_data import (
     read_all_restaurant_data,
@@ -352,6 +353,9 @@ async def check_new_insight_periodically(bot: Bot):
                                     chat_id=ADMIN_ID,
                                     text='Отзывов за период не найдено.'
                                 )
+
+                # Отправляем отчёты в телеграм-каналы клиентов
+                await send_monthly_report(bot=bot)
 
             else:
                 await bot.send_message(
