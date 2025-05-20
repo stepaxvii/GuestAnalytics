@@ -1,6 +1,9 @@
 from collections import Counter
 from datetime import datetime
+from sqlalchemy import func
 
+from api.db import session
+from data.data_main import TwogisReview, YandexReview
 from data.read_data import (
     read_rest_twogis_reviews_date,
     read_rest_ya_reviews_date
@@ -128,3 +131,87 @@ def count_reviews_by_rating(restaurant_id: int):
         ] = combined_rating_count.get(rating, 0) + count
 
     return combined_rating_count
+
+
+def calculate_nps(restaurant_id):
+    """Рассчитываем NPS за предыдущий месяц для Яндекса и TwoGIS."""
+    try:
+        # Получаем предыдущий месяц в формате YYYY-MM
+        previous_month = get_previous_month()
+
+        # Получаем количество отзывов с Яндекса за предыдущий месяц
+        total_yandex_reviews = session.query(YandexReview).filter(
+            YandexReview.restaurant_id == restaurant_id,
+            func.substr(YandexReview.created_at, 1, 7) == previous_month
+        ).count()
+
+        # Получаем количество отзывов с TwoGIS за предыдущий месяц
+        total_twogis_reviews = session.query(TwogisReview).filter(
+            TwogisReview.restaurant_id == restaurant_id,
+            func.substr(TwogisReview.created_at, 1, 7) == previous_month
+        ).count()
+
+        # Общее количество отзывов
+        total_reviews = total_yandex_reviews + total_twogis_reviews
+
+        if total_reviews == 0:
+            return {
+                'overall_nps': 0,
+                'yandex_nps': 0,
+                'twogis_nps': 0
+            }
+
+        # Яндекс: количество промотеров и детракторов за предыдущий месяц
+        yandex_promoters = session.query(YandexReview).filter(
+            YandexReview.restaurant_id == restaurant_id,
+            YandexReview.rating == 5,
+            func.substr(YandexReview.created_at, 1, 7) == previous_month
+        ).count()
+
+        yandex_detractors = session.query(YandexReview).filter(
+            YandexReview.restaurant_id == restaurant_id,
+            YandexReview.rating.in_([1, 2, 3]),
+            func.substr(YandexReview.created_at, 1, 7) == previous_month
+        ).count()
+
+        if total_yandex_reviews > 0:
+            yandex_nps = round(
+                (
+                    yandex_promoters - yandex_detractors
+                ) / total_yandex_reviews * 100, 1)
+        else:
+            yandex_nps = 0
+
+        # TwoGIS: количество промотеров и детракторов за предыдущий месяц
+        twogis_promoters = session.query(TwogisReview).filter(
+            TwogisReview.restaurant_id == restaurant_id,
+            TwogisReview.rating == 5,
+            func.substr(TwogisReview.created_at, 1, 7) == previous_month
+        ).count()
+
+        twogis_detractors = session.query(TwogisReview).filter(
+            TwogisReview.restaurant_id == restaurant_id,
+            TwogisReview.rating.in_([1, 2, 3]),
+            func.substr(TwogisReview.created_at, 1, 7) == previous_month
+        ).count()
+
+        if total_twogis_reviews > 0:
+            twogis_nps = round(
+                (
+                    twogis_promoters - twogis_detractors
+                ) / total_twogis_reviews * 100, 1)
+        else:
+            twogis_nps = 0
+
+        # Общий NPS за предыдущий месяц
+        total_promoters = yandex_promoters + twogis_promoters
+        total_detractors = yandex_detractors + twogis_detractors
+
+        overall_nps = round(
+            (total_promoters - total_detractors) / total_reviews * 100, 1)
+
+        return overall_nps, twogis_nps, yandex_nps
+
+    except Exception as e:
+        session.rollback()
+        raise e

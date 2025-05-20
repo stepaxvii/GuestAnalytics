@@ -10,6 +10,7 @@ from data.read_data import read_all_restaurant_data
 from utils.message_text import star_for_report
 from utils.monthly_report_tg import (
     avg_rest_rating,
+    calculate_nps,
     count_reviews_by_rating,
     get_count_reviews
 )
@@ -49,6 +50,9 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
             avg_total, avg_twogis, avg_yandex = avg_rest_rating(
                 restaurant_id=rest_id
             )
+            overall_nps, twogis_nps, yandex_nps = calculate_nps(
+                restaurant_id=rest_id
+            )
 
             logger.info(f"Отчёт для ресторана {rest_title} готов!")
 
@@ -61,6 +65,9 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
                 f"<b>Средний рейтинг</b>: {avg_total}\n"
                 f"Яндекс: {avg_yandex}\n"
                 f"2ГИС: {avg_twogis}\n\n"
+                f"<b>NPS</b>: {overall_nps}\n"
+                f"Яндекс: {yandex_nps}\n"
+                f"2ГИС: {twogis_nps}\n\n"
             )
 
             # Подсчитываем количество отзывов с разным рейтингом
@@ -72,12 +79,11 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
             # Добавляем информацию о каждом рейтинге в сообщение
             rating_text = ""
             for rating, count in sorted_ratings:
-                rating_text += f"{rating} {star_for_report(rating)} - {count}\n"
+                rating_text += f"{star_for_report(rating)} - {count}\n"
 
             # Заключаем в спойлер
             message += (
-                "📊 <b>Количество отзывов по каждому рейтингу:</b>\n"
-                f"||{rating_text}||"
+                f"📊 <b>Количество отзывов по рейтингу:</b>\n{rating_text}"
             )
 
             await callback_query.bot.send_message(
