@@ -76,7 +76,7 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
                 rating_text += f"{rating} {star_for_report(rating)} - {count}\n"
 
             # Заключаем в спойлер
-            message += f"<details><summary>📊 Рейтинг по звёздам</summary>\n{rating_text}</details>"
+            message += f"📊 <i>Рейтинг по звёздам:</i>\n{rating_text}"
 
             await callback_query.bot.send_message(
                 chat_id=rest_tg_channal,
