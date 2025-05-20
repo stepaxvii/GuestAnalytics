@@ -25,14 +25,14 @@ def get_count_reviews(restaurant_id: int):
 
     previous_month = get_previous_month()
     # Получаем количесво отзывов за искомый месяц
-    yandex_reviews = read_rest_ya_reviews_date(
+    yandex_reviews = len(read_rest_ya_reviews_date(
         restaurant_id=restaurant_id,
         date_filter=previous_month
-    ).count
-    twogis_reviews = read_rest_twogis_reviews_date(
+    ))
+    twogis_reviews = len(read_rest_twogis_reviews_date(
         restaurant_id=restaurant_id,
         date_filter=previous_month
-    ).count
+    ))
     total_count_reviews = yandex_reviews + twogis_reviews
 
     return total_count_reviews, twogis_reviews, yandex_reviews
