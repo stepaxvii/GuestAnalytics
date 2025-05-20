@@ -61,7 +61,6 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
                 f"<b>Средний рейтинг</b>: {avg_total}\n"
                 f"Яндекс: {avg_yandex}\n"
                 f"2ГИС: {avg_twogis}\n\n"
-                f"<b>Количество отзывов по каждому рейтингу:</b>\n"
             )
 
             # Подсчитываем количество отзывов с разным рейтингом
@@ -76,7 +75,10 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
                 rating_text += f"{rating} {star_for_report(rating)} - {count}\n"
 
             # Заключаем в спойлер
-            message += f"📊 <i>Рейтинг по звёздам:</i>\n{rating_text}"
+            message += (
+                "📊 <b>Количество отзывов по каждому рейтингу:</b>\n"
+                f"||{rating_text}||"
+            )
 
             await callback_query.bot.send_message(
                 chat_id=rest_tg_channal,
