@@ -11,6 +11,7 @@ from data.read_data import read_all_restaurant_data
 from utils.message_text import get_star_rating
 from yandex.yandex_primary_collection import ya_prim_coll
 from yandex.yandex_check_new_reviews_api import matching_reviews
+from bot.handlers.report import send_monthly_report
 
 load_dotenv()
 
@@ -120,6 +121,7 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
                 await callback_query.message.answer(
                     f"Новых отзывов для ресторана {rest_title} нет."
                 )
+        await send_monthly_report(bot)
 
 
 @router.message(
