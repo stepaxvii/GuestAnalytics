@@ -9,7 +9,7 @@ from aiogram.enums import ParseMode
 from dotenv import load_dotenv
 
 from bot import periodically_tasks
-from bot.handlers import insight, start, yandex, data_edit
+from bot.handlers import insight, start, yandex, data_edit, report
 
 load_dotenv()
 
@@ -45,7 +45,8 @@ async def main():
         start.router,
         yandex.router,
         data_edit.router,
-        insight.router
+        insight.router,
+        report.router
     )
 
     # Запуск фоновой задачи для проверки новых отзывов
