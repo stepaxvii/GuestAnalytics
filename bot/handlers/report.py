@@ -11,6 +11,7 @@ from utils.message_text import star_for_report
 from utils.monthly_report_tg import (
     avg_rest_rating,
     calculate_nps,
+    calculate_satisfaction_level,
     count_reviews_by_rating,
     get_count_reviews
 )
@@ -46,28 +47,43 @@ async def test_report(callback_query: CallbackQuery, bot: Bot):
             rest_address = restaurant['address']
             rest_tg_channal = -1002453477756
 
+            # Количество отзывов
             total, twogis, yandex = get_count_reviews(restaurant_id=rest_id)
+
+            # Средний рейтинг
             avg_total, avg_twogis, avg_yandex = avg_rest_rating(
                 restaurant_id=rest_id
             )
+
+            # Лояльность гостей
             overall_nps, twogis_nps, yandex_nps = calculate_nps(
                 restaurant_id=rest_id
             )
+
+            # Настроение гостей
+            (
+                overall_satisfaction,
+                twogis_satisfaction,
+                yandex_satisfaction
+            ) = calculate_satisfaction_level(restaurant_id=rest_id)
 
             logger.info(f"Отчёт для ресторана {rest_title} готов!")
 
             # Формируем сообщение для отправки в телеграм
             message = (
                 f"{rest_title}, <b>{rest_address}</b>.\n\n"
-                f"<b>Общее количество</b>: {total}\n"
+                f"📝 <b>Общее количество</b>: {total}\n"
                 f"Яндекс: {yandex}\n"
                 f"2ГИС: {twogis}\n\n"
-                f"<b>Средний рейтинг</b>: {avg_total}\n"
+                f"⭐ <b>Средний рейтинг</b>: {avg_total}\n"
                 f"Яндекс: {avg_yandex}\n"
                 f"2ГИС: {avg_twogis}\n\n"
-                f"<b>NPS</b>: {overall_nps}\n"
-                f"Яндекс: {yandex_nps}\n"
-                f"2ГИС: {twogis_nps}\n\n"
+                f"🏆 <b>Индекс лояльности (NPS)</b>: {overall_nps}%\n"
+                f"Яндекс: {yandex_nps}%\n"
+                f"2ГИС: {twogis_nps}%\n\n"
+                f"😊 <b>Положительная семантика</b>: {overall_satisfaction}%\n"
+                f"Яндекс: {yandex_satisfaction}%\n"
+                f"2ГИС: {twogis_satisfaction}%\n\n"
             )
 
             # Подсчитываем количество отзывов с разным рейтингом
