@@ -2,9 +2,8 @@ import asyncio
 import io
 import math
 import logging
-from aiogram import Router, Bot
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, FSInputFile, CallbackQuery
-from aiogram.enums import ParseMode
+from aiogram import Router
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from aiogram.types import BufferedInputFile
 from dotenv import load_dotenv
 import matplotlib.pyplot as plt
@@ -36,6 +35,8 @@ def generate_combined_donut_report_bytes(
         restaurant_address: str,
         report_date: str
 ) -> bytes:
+    import numpy as np
+
     titles = [
         "Количество отзывов",
         "Средний рейтинг",
@@ -43,25 +44,24 @@ def generate_combined_donut_report_bytes(
         "Положительная семантика"
     ]
     metrics = ['reviews', 'rating', 'nps', 'satisfaction']
-    colors = ['#4CAF50', '#F44336']
+    colors = ['#4CAF50', '#F44336']  # Цвета для сегментов диаграмм
 
     fig, axs = plt.subplots(2, 2, figsize=(16, 16))
     fig.suptitle(f"{restaurant_name} | {restaurant_address}", fontsize=32, fontweight='bold', y=0.95)
 
     for ax, metric, title in zip(axs.flat, metrics, titles):
-        values = data[metric]
-        platforms = list(values.keys())
-        numbers = list(values.values())
+        values = data.get(metric, {})
+        # Центровое значение — из ключа "Все", иначе fallback к сумме
+        center_val = values.get("Все", sum([v for k, v in values.items() if k != "Все"]))
+        platforms = [k for k in values.keys() if k != "Все"]
+        numbers = [values[k] for k in platforms]
 
-        if metric == 'rating':
-            center_val = sum(numbers) / len(numbers)
-            center_text = f"{center_val:.2f}"
-        elif metric in ['nps', 'satisfaction']:
-            center_val = sum(numbers) / len(numbers)
-            center_text = f"{center_val:.0f}%"
-        else:
-            center_val = sum(numbers)
-            center_text = f"{int(center_val)}"
+        # Обработка NaN и отсутствие данных
+        if not numbers or any(x is None or np.isnan(x) for x in numbers):
+            ax.text(0.5, 0.5, "Нет данных", ha='center', va='center', fontsize=20, color='red')
+            ax.set_title(title, fontsize=26, fontweight='bold', pad=15)
+            ax.axis('off')
+            continue
 
         wedges, _ = ax.pie(
             numbers,
@@ -83,6 +83,14 @@ def generate_combined_donut_report_bytes(
                 label = f"{platforms[i]}: {numbers[i]:.1f}"
             ax.text(x, y, label, ha='center', va='center', fontsize=18,
                     bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=0.8))
+
+        # Центровой текст
+        if metric == 'rating':
+            center_text = f"{center_val:.2f}"
+        elif metric in ['nps', 'satisfaction']:
+            center_text = f"{center_val:.0f}%"
+        else:
+            center_text = f"{int(center_val)}"
 
         ax.text(0, 0, center_text, ha='center', va='center', fontsize=32, fontweight='bold')
 
