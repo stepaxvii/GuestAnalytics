@@ -159,14 +159,15 @@ async def send_monthly_report(callback_query: CallbackQuery):
             ]
         )
 
-        photo = FSInputFile(image_io)
+        image_io.seek(0)
 
         await bot.send_photo(
             chat_id=rest_tg_channal,
-            photo=photo,
+            photo=image_io,
             caption=caption,
             reply_markup=keyboard,
-            parse_mode=ParseMode.HTML
+            parse_mode=ParseMode.HTML,
+            filename=f"{rest_title}_report.png"
         )
 
         logger.info(f"Отчёт для ресторана {rest_title} отправлен.")
