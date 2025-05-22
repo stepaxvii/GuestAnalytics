@@ -5,6 +5,7 @@ import logging
 from aiogram import Router, Bot
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, FSInputFile, CallbackQuery
 from aiogram.enums import ParseMode
+from aiogram.types import InputFile
 from dotenv import load_dotenv
 import matplotlib.pyplot as plt
 
@@ -159,15 +160,15 @@ async def send_monthly_report(callback_query: CallbackQuery):
             ]
         )
 
-        image_io.seek(0)
+        image_io.seek(0)  # обязательно сбросить указатель в начало
+        photo = InputFile(image_io, filename=f"{rest_title}_report.png")
 
         await bot.send_photo(
             chat_id=rest_tg_channal,
-            photo=image_io,
+            photo=photo,
             caption=caption,
             reply_markup=keyboard,
-            parse_mode=ParseMode.HTML,
-            filename=f"{rest_title}_report.png"
+            parse_mode="HTML"
         )
 
         logger.info(f"Отчёт для ресторана {rest_title} отправлен.")
