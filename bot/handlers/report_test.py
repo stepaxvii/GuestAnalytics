@@ -53,7 +53,13 @@ def generate_combined_donut_report_bytes(
 
     for ax, metric, title in zip(axs.flat, metrics, titles):
         values = data.get(metric, {})
-        center_val = values.get("Все", sum([v for k, v in values.items() if k != "Все"]))
+        center_val = values.get("Все")
+        if center_val is None:
+            ax.text(0.5, 0.5, "Нет данных", ha='center', va='center', fontsize=20, color='red')
+            ax.set_title(title, fontsize=26, fontweight='bold', pad=15)
+            ax.axis('off')
+            continue
+
         platforms = [k for k in values.keys() if k != "Все"]
         numbers = [values[k] for k in platforms]
 
@@ -143,11 +149,12 @@ async def send_monthly_report(callback_query: CallbackQuery):
         sorted_ratings = sorted(rating_count.items(), reverse=True)
 
         data = {
-            'reviews': {'2ГИС': twogis, 'Яндекс': yandex},
-            'rating': {'2ГИС': avg_twogis, 'Яндекс': avg_yandex},
-            'nps': {'2ГИС': twogis_nps, 'Яндекс': yandex_nps},
-            'satisfaction': {'2ГИС': twogis_satisfaction, 'Яндекс': yandex_satisfaction}
+            'reviews': {'2ГИС': twogis, 'Яндекс': yandex, 'Все': total},
+            'rating': {'2ГИС': avg_twogis, 'Яндекс': avg_yandex, 'Все': avg_total},
+            'nps': {'2ГИС': twogis_nps, 'Яндекс': yandex_nps, 'Все': overall_nps},
+            'satisfaction': {'2ГИС': twogis_satisfaction, 'Яндекс': yandex_satisfaction, 'Все': overall_satisfaction}
         }
+
 
         insights_text = "\n".join(f"{insight}." for insight in insights)
         rating_text = "\n".join(f"{star_for_report(rating)} - {count}" for rating, count in sorted_ratings)
