@@ -5,7 +5,7 @@ import logging
 from aiogram import Router, Bot
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, FSInputFile, CallbackQuery
 from aiogram.enums import ParseMode
-from aiogram.types import InputFile
+from aiogram.types import BufferedInputFile
 from dotenv import load_dotenv
 import matplotlib.pyplot as plt
 
@@ -92,7 +92,6 @@ def generate_combined_donut_report_bytes(
 
     plt.subplots_adjust(hspace=0.35, wspace=0.4, bottom=0.1, top=0.85)
 
-    # Вместо жесткого текста подставляем report_date
     fig.text(0.1, 0.04, report_date, fontsize=24, fontweight='medium', ha='left', va='center')
     fig.text(0.9, 0.04, "подготовлено GuestAnalytics", fontsize=24, fontweight='medium', ha='right', va='center')
 
@@ -161,7 +160,7 @@ async def send_monthly_report(callback_query: CallbackQuery):
         )
 
         image_io.seek(0)  # обязательно сбросить указатель в начало
-        photo = InputFile(image_io, filename=f"{rest_title}_report.png")
+        photo = BufferedInputFile(image_io.read(), filename=f"{rest_title}_report.png")
 
         await bot.send_photo(
             chat_id=rest_tg_channal,
