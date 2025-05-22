@@ -54,6 +54,12 @@ async def command_start_handler(message: Message):
                         text='Тестовый инсайт',
                         callback_data='test_insight'
                     )
+                ],
+                [
+                    InlineKeyboardButton(
+                        text='Тестовый отчёт',
+                        callback_data='test_report'
+                    )
                 ]
             ]
         )
