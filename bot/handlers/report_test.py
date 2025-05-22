@@ -155,15 +155,14 @@ async def send_monthly_report(callback_query: CallbackQuery):
             'satisfaction': {'2ГИС': twogis_satisfaction, 'Яндекс': yandex_satisfaction, 'Все': overall_satisfaction}
         }
 
-
         insights_text = "\n".join(f"{insight}." for insight in insights)
-        rating_text = "\n".join(f"{star_for_report(rating)} - {count}" for rating, count in sorted_ratings)
+        rating_text = "\n".join(f"{star_for_report(rating)} ({count})" for rating, count in sorted_ratings)
 
         caption = (
             f"📈Отчёт за {report_date}\n"
             f"<b>{rest_title}, {rest_address}</b>.\n\n"
             f"📊 <b>Отзывы по рейтингу:</b>\n{rating_text}\n\n"
-            f"<b>Обновлённые инсайты</b>:\n{insights_text[:300]}..."
+            f"<b>Обновлённые инсайты</b>:\n📌{insights_text[:300]}..."
             "[подробнее по кнопке внизу]"
         )
         message = (
@@ -220,5 +219,3 @@ async def send_monthly_report(callback_query: CallbackQuery):
 
         logger.info(f"Отчёт для ресторана {rest_title} отправлен.")
         await asyncio.sleep(3)
-
-    await callback_query.answer("Отчёты отправлены!")
