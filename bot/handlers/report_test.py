@@ -3,7 +3,7 @@ import io
 import math
 import logging
 from aiogram import Router, Bot
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, FSInputFile
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, FSInputFile, CallbackQuery
 from aiogram.enums import ParseMode
 from dotenv import load_dotenv
 import matplotlib.pyplot as plt
@@ -103,7 +103,8 @@ def generate_combined_donut_report_bytes(
 
 
 @router.callback_query(lambda c: c.data == 'test_report')
-async def send_monthly_report(bot: Bot):
+async def send_monthly_report(callback_query: CallbackQuery):
+    bot = callback_query.bot
     report_date = get_previous_month()
     year, month = report_date.split('-')
     month_name = month_dict.get(month, "предыдущий месяц")
@@ -170,3 +171,5 @@ async def send_monthly_report(bot: Bot):
 
         logger.info(f"Отчёт для ресторана {rest_title} отправлен.")
         await asyncio.sleep(3)
+
+    await callback_query.answer("Отчёты отправлены!")
