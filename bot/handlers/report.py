@@ -1,8 +1,10 @@
 import asyncio
+import io
 import logging
 
 from aiogram import Router, Bot
 from aiogram.types import (
+    BufferedInputFile,
     InlineKeyboardButton,
     InlineKeyboardMarkup
 )
@@ -19,6 +21,7 @@ from utils.monthly_report_tg import (
     calculate_nps,
     calculate_satisfaction_level,
     count_reviews_by_rating,
+    generate_combined_donut_report_bytes,
     get_count_reviews,
     get_previous_month
 )
@@ -44,7 +47,7 @@ async def send_monthly_report(bot: Bot):
         rest_wp_id = restaurant['wp_id']
         rest_title = restaurant['title']
         rest_address = restaurant['address']
-        rest_tg_channal = restaurant['tg_channal']
+        rest_tg_channal = '-1002453477756'  # restaurant['tg_channal']
 
         dashoard_link = (
             "https://guestanalytics.ru/"
@@ -68,7 +71,39 @@ async def send_monthly_report(bot: Bot):
 
         insights_text = "\n".join(f"{insight}." for insight in insights)
         rating_text = "\n".join(
-            f"{star_for_report(rating)} - {count}" for rating, count in sorted_ratings
+            f"{star_for_report(rating)} - {count}" for rating,
+            count in sorted_ratings
+        )
+
+        data = {
+            'reviews': {
+                '2ГИС': twogis,
+                'Яндекс': yandex,
+                'Все': total
+            },
+            'rating': {
+                '2ГИС': avg_twogis,
+                'Яндекс': avg_yandex,
+                'Все': avg_total
+            },
+            'nps': {
+                '2ГИС': twogis_nps,
+                'Яндекс': yandex_nps,
+                'Все': overall_nps
+            },
+            'satisfaction': {
+                '2ГИС': twogis_satisfaction,
+                'Яндекс': yandex_satisfaction,
+                'Все': overall_satisfaction
+            }
+        }
+
+        caption = (
+            f"📈Отчёт за {report_date}\n"
+            f"<b>{rest_title}, {rest_address}</b>.\n\n"
+            f"📊 <b>Отзывы по рейтингу:</b>\n{rating_text}\n\n"
+            f"<b>Обновлённые инсайты</b>:\n{insights_text[:300]}..."
+            "[подробнее по кнопке внизу]"
         )
 
         message = (
@@ -100,10 +135,41 @@ async def send_monthly_report(bot: Bot):
             ]
         )
 
-        await bot.send_message(
-            chat_id=rest_tg_channal,
-            text=message,
-            reply_markup=keyboard
-        )
+        try:
+            image_bytes = generate_combined_donut_report_bytes(
+                data,
+                rest_title,
+                rest_address,
+                report_date
+            )
+            if image_bytes:
+                image_io = io.BytesIO(image_bytes)
+                image_io.name = f"{rest_title}_report.png"
+                image_io.seek(0)
+                photo = BufferedInputFile(
+                    image_io.read(),
+                    filename=image_io.name
+                )
+
+                await bot.send_photo(
+                    chat_id=rest_tg_channal,
+                    photo=photo,
+                    caption=caption,
+                    reply_markup=keyboard,
+                    parse_mode="HTML"
+                )
+            else:
+                raise ValueError(
+                    "Не удалось сгенерировать изображение."
+                )
+        except Exception as e:
+            logger.warning(f"Ошибка генерации отчёта для {rest_title}: {e}")
+            await bot.send_message(
+                chat_id=rest_tg_channal,
+                text=message,
+                reply_markup=keyboard,
+                parse_mode="HTML"
+            )
+
         logger.info(f"Отчёт для ресторана {rest_title} отправлен.")
         await asyncio.sleep(3)

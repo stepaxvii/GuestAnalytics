@@ -230,7 +230,7 @@ async def check_new_insight_periodically(bot: Bot):
 
             # Получаем текущий месяц для анализа
             current_date = datetime.now()
-            if current_date.day == 3:
+            if current_date.day == 25:  # ТЕСТИРУЕМ ЕЖЕМЕСЯЧНЫЙ АВТО-ОТЧЁТ
 
                 # Получаем данные о ресторанах
                 restaurants = read_all_restaurant_data()
@@ -289,7 +289,7 @@ async def check_new_insight_periodically(bot: Bot):
                             insight.period
                         )
                         if last_month_insight:
-                            logging.info("-----WE HAVE A ACTUAL INSIGHT!-----")
+                            logging.info("В БД содержится актуальный инсайт.")
                             await bot.send_message(
                                 chat_id=ADMIN_ID,
                                 text="В БД содержится актуальный инсайт.\n"

@@ -47,15 +47,26 @@ def generate_combined_donut_report_bytes(
     colors = ['#4CAF50', '#F44336']
 
     fig, axs = plt.subplots(2, 2, figsize=(16, 16))
-    fig.suptitle(f"{restaurant_name} | {restaurant_address}", fontsize=32, fontweight='bold', y=0.95)
+    fig.suptitle(
+        f"{restaurant_name} | {restaurant_address}",
+        fontsize=32, fontweight='bold',
+        y=0.95
+    )
 
-    has_valid_data = False  # Будет True, если хотя бы один график построен
+    # Будет True, если хотя бы один график построен
+    has_valid_data = False
 
     for ax, metric, title in zip(axs.flat, metrics, titles):
         values = data.get(metric, {})
         center_val = values.get("Все")
         if center_val is None:
-            ax.text(0.5, 0.5, "Нет данных", ha='center', va='center', fontsize=20, color='red')
+            ax.text(
+                0.5, 0.5, "Нет данных",
+                ha='center',
+                va='center',
+                fontsize=20,
+                color='red'
+            )
             ax.set_title(title, fontsize=26, fontweight='bold', pad=15)
             ax.axis('off')
             continue
@@ -64,12 +75,21 @@ def generate_combined_donut_report_bytes(
         numbers = [values[k] for k in platforms]
 
         if not numbers or any(x is None or np.isnan(x) for x in numbers):
-            ax.text(0.5, 0.5, "Нет данных", ha='center', va='center', fontsize=20, color='red')
+            ax.text(
+                0.5,
+                0.5,
+                "Нет данных",
+                ha='center',
+                va='center',
+                fontsize=20,
+                color='red'
+            )
             ax.set_title(title, fontsize=26, fontweight='bold', pad=15)
             ax.axis('off')
             continue
 
-        has_valid_data = True  # Хотя бы один валидный
+        # Хотя бы один валидный
+        has_valid_data = True
 
         wedges, _ = ax.pie(
             numbers,
@@ -99,7 +119,15 @@ def generate_combined_donut_report_bytes(
         else:
             center_text = f"{int(center_val)}"
 
-        ax.text(0, 0, center_text, ha='center', va='center', fontsize=32, fontweight='bold')
+        ax.text(
+            0,
+            0,
+            center_text,
+            ha='center',
+            va='center',
+            fontsize=32,
+            fontweight='bold'
+        )
         ax.set_title(title, fontsize=26, fontweight='bold', pad=15)
         ax.set_aspect('equal')
         ax.axis('off')
@@ -109,8 +137,24 @@ def generate_combined_donut_report_bytes(
         return None  # Ничего не строилось
 
     plt.subplots_adjust(hspace=0.35, wspace=0.4, bottom=0.1, top=0.85)
-    fig.text(0.1, 0.04, report_date, fontsize=24, fontweight='medium', ha='left', va='center')
-    fig.text(0.9, 0.04, "подготовлено GuestAnalytics", fontsize=24, fontweight='medium', ha='right', va='center')
+    fig.text(
+        0.1,
+        0.04,
+        report_date,
+        fontsize=24,
+        fontweight='medium',
+        ha='left',
+        va='center'
+    )
+    fig.text(
+        0.9,
+        0.04,
+        "подготовлено GuestAnalytics",
+        fontsize=24,
+        fontweight='medium',
+        ha='right',
+        va='center'
+    )
 
     buf = io.BytesIO()
     plt.savefig(buf, format='png', dpi=300)
@@ -149,10 +193,26 @@ async def send_monthly_report(callback_query: CallbackQuery):
         sorted_ratings = sorted(rating_count.items(), reverse=True)
 
         data = {
-            'reviews': {'2ГИС': twogis, 'Яндекс': yandex, 'Все': total},
-            'rating': {'2ГИС': avg_twogis, 'Яндекс': avg_yandex, 'Все': avg_total},
-            'nps': {'2ГИС': twogis_nps, 'Яндекс': yandex_nps, 'Все': overall_nps},
-            'satisfaction': {'2ГИС': twogis_satisfaction, 'Яндекс': yandex_satisfaction, 'Все': overall_satisfaction}
+            'reviews': {
+                '2ГИС': twogis,
+                'Яндекс': yandex,
+                'Все': total
+            },
+            'rating': {
+                '2ГИС': avg_twogis,
+                'Яндекс': avg_yandex,
+                'Все': avg_total
+            },
+            'nps': {
+                '2ГИС': twogis_nps,
+                'Яндекс': yandex_nps,
+                'Все': overall_nps
+            },
+            'satisfaction': {
+                '2ГИС': twogis_satisfaction,
+                'Яндекс': yandex_satisfaction,
+                'Все': overall_satisfaction
+            }
         }
 
         insights_text = "\n".join(f"📌{insight}." for insight in insights)
@@ -187,17 +247,27 @@ async def send_monthly_report(callback_query: CallbackQuery):
 
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text="💻 Полная статистика", url=dashoard_link)]
+                [InlineKeyboardButton(
+                    text="💻 Полная статистика", url=dashoard_link
+                )]
             ]
         )
 
         try:
-            image_bytes = generate_combined_donut_report_bytes(data, rest_title, rest_address, report_date)
+            image_bytes = generate_combined_donut_report_bytes(
+                data,
+                rest_title,
+                rest_address,
+                report_date
+            )
             if image_bytes:
                 image_io = io.BytesIO(image_bytes)
                 image_io.name = f"{rest_title}_report.png"
                 image_io.seek(0)
-                photo = BufferedInputFile(image_io.read(), filename=image_io.name)
+                photo = BufferedInputFile(
+                    image_io.read(),
+                    filename=image_io.name
+                )
 
                 await bot.send_photo(
                     chat_id=rest_tg_channal,
@@ -207,7 +277,9 @@ async def send_monthly_report(callback_query: CallbackQuery):
                     parse_mode="HTML"
                 )
             else:
-                raise ValueError("Не удалось сгенерировать изображение (нет валидных данных)")
+                raise ValueError(
+                    "Не удалось сгенерировать изображение."
+                )
         except Exception as e:
             logger.warning(f"Ошибка генерации отчёта для {rest_title}: {e}")
             await bot.send_message(
