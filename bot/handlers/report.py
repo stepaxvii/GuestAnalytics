@@ -69,7 +69,7 @@ async def send_monthly_report(bot: Bot):
         rating_count = count_reviews_by_rating(restaurant_id=rest_id)
         sorted_ratings = sorted(rating_count.items(), reverse=True)
 
-        insights_text = "\n".join(f"{insight}." for insight in insights)
+        insights_text = "\n".join(f"📌{insight}." for insight in insights)
         rating_text = "\n".join(
             f"{star_for_report(rating)} - {count}" for rating,
             count in sorted_ratings
