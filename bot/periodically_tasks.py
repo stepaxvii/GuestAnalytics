@@ -230,7 +230,7 @@ async def check_new_insight_periodically(bot: Bot):
 
             # Получаем текущий месяц для анализа
             current_date = datetime.now()
-            if current_date.day == 25:  # ТЕСТИРУЕМ ЕЖЕМЕСЯЧНЫЙ АВТО-ОТЧЁТ
+            if current_date.day == 3:
 
                 # Получаем данные о ресторанах
                 restaurants = read_all_restaurant_data()
