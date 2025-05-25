@@ -70,12 +70,12 @@ async def check_ya_new_reviews_periodically(bot: Bot):
                         )
                         current_date = datetime.now()
 
-                        # Проверяем, если дата отзыва старше, чем на 6 дней
-                        if current_date - review_date >= timedelta(days=6):
+                        # Проверяем, если дата отзыва старше, чем на 8 дней
+                        if current_date - review_date >= timedelta(days=8):
                             logger.info(
                                 f"Отзыв на {review_date_str} слишком стар."
                             )
-                            continue  # Пропускаем отзыв, если он старше 6 дней
+                            continue  # Пропускаем отзыв, если он старше 8 дней
 
                         logger.info(
                             "Обрабатываем отзыв от "
@@ -176,12 +176,12 @@ async def check_twogis_new_reviews_periodically(bot: Bot):
                         )
                         current_date = datetime.now()
 
-                        # Проверяем, если дата отзыва старше, чем на 6 дней
-                        if current_date - review_date >= timedelta(days=6):
+                        # Проверяем, если дата отзыва старше, чем на 8 дней
+                        if current_date - review_date >= timedelta(days=8):
                             logger.info(
                                 f"Отзыв на {review_date_str} слишком стар."
                                 )
-                            continue  # Пропускаем отзыв, если он старше 6 дней
+                            continue  # Пропускаем отзыв, если он старше 8 дней
 
                         logger.info(
                             "Обрабатываем отзыв от "
