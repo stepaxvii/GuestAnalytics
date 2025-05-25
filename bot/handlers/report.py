@@ -47,7 +47,7 @@ async def send_monthly_report(bot: Bot):
         rest_wp_id = restaurant['wp_id']
         rest_title = restaurant['title']
         rest_address = restaurant['address']
-        rest_tg_channal = '-1002453477756'  # restaurant['tg_channal']
+        rest_tg_channal = restaurant['tg_channal']
 
         dashoard_link = (
             "https://guestanalytics.ru/"
