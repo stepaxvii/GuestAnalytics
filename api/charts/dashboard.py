@@ -59,18 +59,29 @@ def dashboard():
             }), 404
 
         # Общее количество отзывов за всё время
-        total_reviews, total_reviews_yandex, total_reviews_twogis = count_reviews_last_year(restaurant_id=restaurant_id)
+        (
+            total_reviews,
+            total_reviews_yandex,
+            total_reviews_twogis
+        ) = count_reviews_last_year(restaurant_id=restaurant_id)
         # Среднее значение рейтинга за всё время
-        average_rating, average_rating_yandex, average_rating_twogis = avg_rest_rating(restaurant_id=restaurant_id)
-        logger.info(
-            f"СРЕДНИЙ РЕЙТИНГ:\n{average_rating}\n{average_rating_yandex}\n{average_rating_twogis}"
-        )
+        (
+            average_rating,
+            average_rating_yandex,
+            average_rating_twogis
+        ) = avg_rest_rating(restaurant_id=restaurant_id)
         # Процент лояльных гостей (NPS)
-        nps, nps_yandex, nps_twogis = calculate_nps(restaurant_id=restaurant_id)
+        (
+            nps,
+            nps_yandex,
+            nps_twogis
+        ) = calculate_nps(restaurant_id=restaurant_id)
         # Процент положительных отзывов
-        sentiment_percent, sentiment_percent_yandex, sentiment_percent_twogis = calculate_satisfaction_level(
-            restaurant_id=restaurant_id
-        )
+        (
+            sentiment_percent,
+            sentiment_percent_yandex,
+            sentiment_percent_twogis
+        ) = calculate_satisfaction_level(restaurant_id=restaurant_id)
 
         # AI инсайты за последний полный месяц
         ai_insights = read_rest_month_insight_list(restaurant_id=restaurant_id)
@@ -163,14 +174,22 @@ def dashboard():
             )
 
             # NPS за месяц
-            nps_month, nps_month_yandex, nps_month_twogis = calculate_nps_for_month(
+            (
+                nps_month,
+                nps_month_yandex,
+                nps_month_twogis
+            ) = calculate_nps_for_month(
                 restaurant_id, month_start.year, month_start.month
             )
             trend_nps_data.insert(0, nps_month)
             trend_nps_data_yandex.insert(0, nps_month_yandex)
             trend_nps_data_twogis.insert(0, nps_month_twogis)
 
-            satisfaction_month, satisfaction_yandex, satisfaction_twogis = calculate_satisfaction_level_for_month(
+            (
+                satisfaction_month,
+                satisfaction_yandex,
+                satisfaction_twogis
+            ) = calculate_satisfaction_level_for_month(
                 restaurant_id, month_start.year, month_start.month
             )
             trend_sentiment_data.insert(0, satisfaction_month)

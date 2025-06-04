@@ -3,7 +3,10 @@ from os import getenv
 
 from aiogram import Router, Bot
 from aiogram.types import (
-    CallbackQuery, Message, InlineKeyboardMarkup, InlineKeyboardButton
+    CallbackQuery,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    Message
 )
 from dotenv import load_dotenv
 

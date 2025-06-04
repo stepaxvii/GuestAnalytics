@@ -3,7 +3,6 @@ from datetime import datetime
 from os import getenv
 from time import sleep
 
-from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from selenium.webdriver.common.by import By
 from selenium.webdriver import Firefox, FirefoxOptions
@@ -14,7 +13,6 @@ from constants import (
     TWOGIS_REVIEW_BLOCK,
     TWOGIS_AUTHOR_CLASS,
     TWOGIS_REVIEW_TEXT_CLASS,
-    TWOGIS_RATING_COLOR,
     TWOGIS_DATE_CLASS,
 )
 from data.create_data import create_twogis_review
@@ -86,7 +84,9 @@ def twogis_prim_coll(url: str, rest_id: int) -> int:
 
     while True:
         try:
-            last_review = driver.find_elements(By.CLASS_NAME, TWOGIS_REVIEW_BLOCK)[-1]
+            last_review = driver.find_elements(
+                By.CLASS_NAME, TWOGIS_REVIEW_BLOCK
+            )[-1]
             logger.debug("Получен последний элемент отзывов")
         except IndexError:
             logger.warning("Не найдено ни одного отзыва")
@@ -98,7 +98,9 @@ def twogis_prim_coll(url: str, rest_id: int) -> int:
         else:
             reviews = driver.find_elements(By.CLASS_NAME, TWOGIS_REVIEW_BLOCK)
             prev_reviews_count = len(reviews)
-            logger.info(f"Обновлённое количество отзывов: {prev_reviews_count}")
+            logger.info(
+                f"Обновлённое количество отзывов: {prev_reviews_count}"
+            )
 
     # Собираем все уникальные отзывы
     unique_reviews = set()
@@ -112,19 +114,32 @@ def twogis_prim_coll(url: str, rest_id: int) -> int:
             formatted_date = handle_date(review_date, actual_date)
 
             # --- ИЩЕМ АВТОРА ---
-            author_span = review.find_element(By.CLASS_NAME, TWOGIS_AUTHOR_CLASS)
-            author_name = author_span.text if author_span else "Автор не найден"
+            author_span = review.find_element(
+                By.CLASS_NAME, TWOGIS_AUTHOR_CLASS
+            )
+            author_name = author_span.text if author_span else "Anon"
 
             # --- ИЩЕМ РЕЙТИНГ ---
-            rating_svgs = review.find_elements(By.CSS_SELECTOR, 'svg[fill="#ffb81c"]')
+            rating_svgs = review.find_elements(
+                By.CSS_SELECTOR, 'svg[fill="#ffb81c"]'
+            )
             rating = len(rating_svgs)
 
             # --- ИЩЕМ ТЕКСТ ОТЗЫВА ---
-            review_text_a = review.find_element(By.CSS_SELECTOR, TWOGIS_REVIEW_TEXT_CLASS)
-            review_text_content = review_text_a.text if review_text_a else "Текст не найден"
+            review_text_a = review.find_element(
+                By.CSS_SELECTOR, TWOGIS_REVIEW_TEXT_CLASS
+            )
+            review_text_content = (
+                review_text_a.text if review_text_a else "Текст не найден"
+            )
 
             # --- ФИЛЬТРАЦИЯ ДУБЛИКАТОВ ---
-            review_entry = (formatted_date, author_name, rating, review_text_content)
+            review_entry = (
+                formatted_date,
+                author_name,
+                rating,
+                review_text_content
+            )
             unique_reviews.add(review_entry)
 
         except Exception as e:
@@ -150,7 +165,9 @@ def twogis_prim_coll(url: str, rest_id: int) -> int:
         try:
             # Проверяем наличие обязательных полей
             if not review[0] or not review[3]:
-                logger.warning(f"Пропущен отзыв с отсутствующими данными: {review}")
+                logger.warning(
+                    f"Пропущен отзыв с отсутствующими данными: {review}"
+                )
                 continue
 
             review_data = {

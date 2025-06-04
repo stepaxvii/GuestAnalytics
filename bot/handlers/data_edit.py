@@ -3,7 +3,10 @@ from os import getenv
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import (
-    Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
+    CallbackQuery,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    Message
 )
 from dotenv import load_dotenv
 

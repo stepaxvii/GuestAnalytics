@@ -3,7 +3,11 @@ import io
 import math
 import logging
 from aiogram import Router
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+from aiogram.types import (
+    CallbackQuery,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup
+)
 from aiogram.types import BufferedInputFile
 from dotenv import load_dotenv
 import matplotlib.pyplot as plt
@@ -185,9 +189,21 @@ async def send_monthly_report(callback_query: CallbackQuery):
         )
 
         total, twogis, yandex = get_count_reviews(restaurant_id=rest_id)
-        avg_total, avg_twogis, avg_yandex = avg_rest_rating(restaurant_id=rest_id)
-        overall_nps, twogis_nps, yandex_nps = calculate_nps(restaurant_id=rest_id)
-        overall_satisfaction, twogis_satisfaction, yandex_satisfaction = calculate_satisfaction_level(restaurant_id=rest_id)
+        (
+            avg_total,
+            avg_twogis,
+            avg_yandex
+        ) = avg_rest_rating(restaurant_id=rest_id)
+        (
+            overall_nps,
+            twogis_nps,
+            yandex_nps
+        ) = calculate_nps(restaurant_id=rest_id)
+        (
+            overall_satisfaction,
+            twogis_satisfaction,
+            yandex_satisfaction
+        ) = calculate_satisfaction_level(restaurant_id=rest_id)
         insights = read_rest_month_insight_list(restaurant_id=rest_id)
         rating_count = count_reviews_by_rating(restaurant_id=rest_id)
         sorted_ratings = sorted(rating_count.items(), reverse=True)
@@ -216,7 +232,10 @@ async def send_monthly_report(callback_query: CallbackQuery):
         }
 
         insights_text = "\n".join(f"📌{insight}." for insight in insights)
-        rating_text = "\n".join(f"{star_for_report(rating)} ({count})" for rating, count in sorted_ratings)
+        rating_text = "\n".join(
+            f"{star_for_report(rating)} "
+            f"({count})" for rating, count in sorted_ratings
+        )
 
         caption = (
             f"📈Отчёт за {report_date}\n"

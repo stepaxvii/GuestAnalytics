@@ -220,8 +220,8 @@ async def check_new_insight_periodically(bot: Bot):
     """Функция для переодической проверки новых инсайтов."""
     while True:
         try:
-            # Пауза между проверками 18 часов
-            await asyncio.sleep(64800)
+            # Пауза между проверками 24 часа
+            await asyncio.sleep(84640)
             logger.info("Функция для запуска анализов новых инсайтов.")
             await bot.send_message(
                 chat_id=ADMIN_ID,

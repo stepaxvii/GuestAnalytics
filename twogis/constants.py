@@ -10,7 +10,6 @@ COUNT_REVIEWS_BLOCK = 'card-section-header__title'
 CARD_REVIEWS_BLOCK = 'business-review-view'
 SORTED_BLOCK = 'rating-ranking-view'
 NEW_REVIEWS_SORTED = '//div[@aria-label="По новизне"]'
-# Сортировку положительные пока не юзаем. Достаточно остальных трёх.
 POZITIVE_REVIEWS_SORTED = '//div[@aria-label="Сначала положительные"]'
 NEGATIVE_REVIEWS_SORTED = '//div[@aria-label="Сначала отрицательные"]'
 DEFAULT_REVIEWS_SORTED = '//div[@aria-label="По умолчанию"]'

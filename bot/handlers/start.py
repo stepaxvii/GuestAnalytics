@@ -2,7 +2,11 @@ from os import getenv
 import logging
 
 from aiogram import Router
-from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    Message
+)
 from aiogram.filters import CommandStart
 from dotenv import load_dotenv
 
