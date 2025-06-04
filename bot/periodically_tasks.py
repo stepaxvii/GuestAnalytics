@@ -240,7 +240,14 @@ async def check_new_insight_periodically(bot: Bot):
                     rest_name = restaurant['title']
 
                     # Проверяем наличие инсайтов в БД
-                    insight = read_rest_month_insight(restaurant_id=rest_id)
+                    last_month = make_last_months(
+                        current_date=current_date
+                    )[0]
+                    insight = read_rest_month_insight(
+                        restaurant_id=rest_id,
+                        month=last_month
+                    )
+
                     if not insight:
                         # Если записи инсайта нет, то нужно выполнить анализ
                         await bot.send_message(
@@ -249,9 +256,9 @@ async def check_new_insight_periodically(bot: Bot):
                         )
                         asyncio.sleep(1)
 
-                        last_month = make_last_months(
-                            current_date=current_date
-                        )[0]
+                        # last_month = make_last_months(
+                        #     current_date=current_date
+                        # )[0]
 
                         # Извлекаем отзывы за текущий месяц
                         reviews_data = read_rest_ya_reviews_date(
