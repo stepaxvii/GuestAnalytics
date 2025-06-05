@@ -126,14 +126,6 @@ def read_rest_twogis_reviews_date(restaurant_id, date_filter):
     ).all()
 
 
-# def read_rest_month_insight(restaurant_id):
-#     """Получаем инсайт ресторана за прошедший месяц."""
-#     insight = session.query(RestaurantInsight).filter(
-#         RestaurantInsight.restaurant_id == restaurant_id
-#     ).first()
-
-#     return insight
-
 def read_rest_month_insight(restaurant_id: int, month: str):
     """Получаем инсайт ресторана за указанный месяц (формат 'YYYY-MM')."""
     insight = session.query(RestaurantInsight).filter(

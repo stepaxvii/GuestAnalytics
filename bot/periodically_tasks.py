@@ -52,9 +52,21 @@ async def check_ya_new_reviews_periodically(bot: Bot):
                 rest_link = restaurant['yandex_link']
                 rest_address = restaurant['address']
                 rest_tg_channal = restaurant['tg_channal']
+                rest_subscription = restaurant['subscription']
                 rest_reviews_link = rest_link + 'reviews'
 
-                # Получаем новые отзывы
+                # Проверяем активность подписки
+                if rest_subscription is False:
+                    # Если подписка неактивна, отправляем сообщение в канал
+                    await bot.send_message(
+                        chat_id=ADMIN_ID,
+                        text=(
+                            "Подписка для ресторана "
+                            f"{rest_title} ({rest_address}) неактивна. "
+                            "Необходимо продлить подписку."
+                        )
+                    )
+                    continue  # Пропускаем проверку отзывов для этого ресторана
                 new_reviews = ya_matching_reviews(rest_link)
 
                 # Логируем количество новых отзывов
@@ -255,10 +267,6 @@ async def check_new_insight_periodically(bot: Bot):
                             text=f"Инсайтов для '{rest_name}' в БД нет."
                         )
                         asyncio.sleep(1)
-
-                        # last_month = make_last_months(
-                        #     current_date=current_date
-                        # )[0]
 
                         # Извлекаем отзывы за текущий месяц
                         reviews_data = read_rest_ya_reviews_date(
