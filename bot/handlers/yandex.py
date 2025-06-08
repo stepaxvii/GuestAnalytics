@@ -53,8 +53,9 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
                 await bot.send_message(
                     chat_id=ADMIN_ID,
                     text=(
-                        f"Подписка для ресторана {rest_title} ({rest_address}) неактивна. "
-                        "Необходимо продлить подписку для проверки отзывов."
+                        f"Подписка для ресторана {rest_title} "
+                        f"({rest_address}) неактивна.\n"
+                        "‼️Необходимо продлить подписку."
                     )
                 )
                 continue  # Пропускаем проверку отзывов для этого ресторана
@@ -117,11 +118,13 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
                     await asyncio.sleep(3)
 
                 await callback_query.message.answer(
-                    f"Новые отзывы для {rest_title} отправлены в канал!"
+                    f"Новые отзывы для {rest_title} "
+                    f"{rest_address} отправлены в канал!"
                 )
             else:
                 await callback_query.message.answer(
-                    f"Новых отзывов для ресторана {rest_title} нет."
+                    f"Новых отзывов для ресторана {rest_title} "
+                    f"{rest_address} нет."
                 )
 
 

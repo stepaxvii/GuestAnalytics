@@ -58,13 +58,10 @@ async def check_ya_new_reviews_periodically(bot: Bot):
                 # Проверяем активность подписки
                 if rest_subscription is False:
                     # Если подписка неактивна, отправляем сообщение в канал
-                    await bot.send_message(
-                        chat_id=ADMIN_ID,
-                        text=(
-                            "Подписка для ресторана "
-                            f"{rest_title} ({rest_address}) неактивна. "
-                            "Необходимо продлить подписку."
-                        )
+                    logger.info(
+                        "Подписка для ресторана "
+                        f"{rest_title} ({rest_address}) неактивна.\n"
+                        "‼️Необходимо продлить подписку."
                     )
                     continue  # Пропускаем проверку отзывов для этого ресторана
                 new_reviews = ya_matching_reviews(rest_link)
