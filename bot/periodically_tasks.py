@@ -94,8 +94,8 @@ async def check_ya_new_reviews_periodically(bot: Bot):
                             f"{rest_title}, <b>{rest_address}</b>.\n"
                             f"{get_star_rating(int(review['rating_value']))}\n"
                             f"Яндекс, {review['review_date']}\n\n"
-                            f"{review['text']}\n\n"
-                            f"Автор: {review['author_name']}\n"
+                            f"{review['text']}\n"
+                            # f"Автор: {review['author_name']}\n"
                         )
 
                         if (
@@ -167,7 +167,19 @@ async def check_twogis_new_reviews_periodically(bot: Bot):
                 rest_title = restaurant['title']
                 rest_address = restaurant['address']
                 rest_tg_channal = restaurant['tg_channal']
+                rest_subscription = restaurant['subscription']
                 rest_reviews_link = rest_link + '/tab/reviews'
+
+                # Проверяем активность подписки
+                if rest_subscription is False:
+                    # Если подписка неактивна, отправляем сообщение в канал
+                    logger.info(
+                        "Подписка для ресторана "
+                        f"{rest_title} ({rest_address}) неактивна.\n"
+                        "‼️Необходимо продлить подписку."
+                    )
+                    continue  # Пропускаем проверку отзывов для этого ресторана
+                new_reviews = ya_matching_reviews(rest_link)
 
                 # Получаем новые отзывы
                 new_reviews = twogis_matching_reviews(rest_link)
@@ -200,8 +212,8 @@ async def check_twogis_new_reviews_periodically(bot: Bot):
                             f"{rest_title}, <b>{rest_address}</b>.\n"
                             f"{get_star_rating(int(review['rating_value']))}\n"
                             f"2ГИС, {review['review_date']}\n\n"
-                            f"{review['text']}\n\n"
-                            f"Автор: {review['author_name']}\n"
+                            f"{review['text']}\n"
+                            # f"Автор: {review['author_name']}\n"
                         )
 
                         button_text = "Перейти к отзывам"
