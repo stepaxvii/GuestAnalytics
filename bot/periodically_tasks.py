@@ -57,7 +57,7 @@ async def check_ya_new_reviews_periodically(bot: Bot):
 
                 # Проверяем активность подписки
                 if rest_subscription is False:
-                    # Если подписка неактивна, отправляем сообщение в канал
+                    # Если подписка неактивна - логгируем
                     logger.info(
                         "Подписка для ресторана "
                         f"{rest_title} ({rest_address}) неактивна.\n"
@@ -91,10 +91,10 @@ async def check_ya_new_reviews_periodically(bot: Bot):
                             f"{review.get('author_name', 'неизвестен' )}"
                         )
                         message = (
-                            f"{rest_title}, <b>{rest_address}</b>.\n"
+                            f"{rest_title}, <b>{rest_address}</b>.\n\n"
                             f"{get_star_rating(int(review['rating_value']))}\n"
-                            f"Яндекс, {review['review_date']}\n\n"
-                            f"{review['text']}\n"
+                            f"\n{review['text']}\n\n"
+                            f"Яндекс, {review['review_date']}\n"
                             # f"Автор: {review['author_name']}\n"
                         )
 
@@ -172,14 +172,13 @@ async def check_twogis_new_reviews_periodically(bot: Bot):
 
                 # Проверяем активность подписки
                 if rest_subscription is False:
-                    # Если подписка неактивна, отправляем сообщение в канал
+                    # Если подписка неактивна - логгируем
                     logger.info(
                         "Подписка для ресторана "
                         f"{rest_title} ({rest_address}) неактивна.\n"
                         "‼️Необходимо продлить подписку."
                     )
                     continue  # Пропускаем проверку отзывов для этого ресторана
-                new_reviews = ya_matching_reviews(rest_link)
 
                 # Получаем новые отзывы
                 new_reviews = twogis_matching_reviews(rest_link)
@@ -209,10 +208,10 @@ async def check_twogis_new_reviews_periodically(bot: Bot):
                             f"{review.get('author_name', 'неизвестен' )}"
                         )
                         message = (
-                            f"{rest_title}, <b>{rest_address}</b>.\n"
+                            f"{rest_title}, <b>{rest_address}</b>.\n\n"
                             f"{get_star_rating(int(review['rating_value']))}\n"
-                            f"2ГИС, {review['review_date']}\n\n"
-                            f"{review['text']}\n"
+                            f"\n{review['text']}\n\n"
+                            f"2ГИС, {review['review_date']}\n"
                             # f"Автор: {review['author_name']}\n"
                         )
 
@@ -259,6 +258,12 @@ async def check_new_insight_periodically(bot: Bot):
                 for restaurant in restaurants:
                     rest_id = restaurant['id']
                     rest_name = restaurant['title']
+                    rest_subscription = restaurant['subscription']
+
+                    # Проверяем активность подписки
+                    if rest_subscription is False:
+                        # Пропускаем проверку отзывов для этого ресторана
+                        continue
 
                     # Проверяем наличие инсайтов в БД
                     last_month = make_last_months(
