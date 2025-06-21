@@ -135,23 +135,38 @@ def ya_check_reviews(org_url):
                     logging.info(f"Ошибка при получении рейтинга: {e}")
                     rating_value = 0
 
-                # text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
                 # Попытка раскрыть полный текст отзыва
                 try:
-                    expand_button = review.find_element(By.CLASS_NAME, "business-review-view__expand")
+                    expand_button = review.find_element(
+                        By.CLASS_NAME, "business-review-view__expand"
+                    )
                     try:
-                        driver.execute_script("arguments[0].scrollIntoView(true);", expand_button)
+                        driver.execute_script(
+                            "arguments[0].scrollIntoView(true);",
+                            expand_button
+                        )
                         time.sleep(0.3)
-                        driver.execute_script("arguments[0].click();", expand_button)  # безопасный клик
+                        driver.execute_script(
+                            "arguments[0].click();",
+                            expand_button
+                        )
                         time.sleep(0.3)
-                    except (ElementClickInterceptedException, ElementNotInteractableException) as e:
-                        logging.warning(f"Не удалось кликнуть по кнопке 'ещё': {e}")
+                    except (
+                        ElementClickInterceptedException,
+                        ElementNotInteractableException
+                    ) as e:
+                        logging.warning(
+                            f"Не удалось кликнуть по кнопке 'ещё': {e}"
+                        )
                 except NoSuchElementException:
                     pass  # кнопки "ещё" нет
 
                 # Получаем текст отзыва
                 try:
-                    text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
+                    text = review.find_element(
+                        By.CLASS_NAME,
+                        TEXT_ELEMENT
+                    ).text
                 except NoSuchElementException:
                     text = "[Текст не найден]"
                     logging.warning("Не удалось найти текст отзыва")

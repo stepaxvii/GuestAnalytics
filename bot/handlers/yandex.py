@@ -1,5 +1,7 @@
 import asyncio
+from datetime import datetime, timedelta
 from os import getenv
+import logging
 
 from aiogram import Router, Bot
 from aiogram.types import (
@@ -18,6 +20,10 @@ from yandex.yandex_check_new_reviews_api import matching_reviews
 load_dotenv()
 
 router = Router()
+
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 ADMIN_ID = int(getenv('ADMIN_ID'))
 
@@ -66,6 +72,19 @@ async def check_new_ya_reviews(callback_query: CallbackQuery, bot: Bot):
             # Проверяем, есть ли новые отзывы
             if new_reviews:
                 for review in new_reviews:
+                    # Логируем информацию о каждом отзыве
+                    review_date_str = review['review_date']
+                    review_date = datetime.strptime(
+                        review_date_str, '%Y-%m-%d'
+                    )
+                    current_date = datetime.now()
+
+                    # Проверяем, если дата отзыва старше, чем на 8 дней
+                    if current_date - review_date >= timedelta(days=8):
+                        logger.info(
+                            f"Отзыв на {review_date_str} слишком стар."
+                        )
+                        continue  # Пропускаем отзыв, если он старше 8 дней
                     # Форматируем сообщение для отправки
                     message = (
                         f"{rest_title}, <b>{rest_address}</b>.\n"
