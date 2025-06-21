@@ -1,5 +1,10 @@
 import logging
-from selenium.common.exceptions import NoSuchElementException
+import time
+
+from selenium.common.exceptions import (
+    ElementNotInteractableException,
+    NoSuchElementException
+)
 from selenium.webdriver import Firefox, FirefoxOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service
@@ -129,7 +134,33 @@ def ya_check_reviews(org_url):
                     logging.info(f"Ошибка при получении рейтинга: {e}")
                     rating_value = 0
 
-                text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
+                # text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
+                try:
+                    # Попытка найти и нажать кнопку "Ещё"
+                    expand_button = review.find_element(
+                        By.CLASS_NAME, "business-review-view__expand"
+                    )
+                    try:
+                        expand_button.click()
+                    except ElementNotInteractableException:
+                        # Иногда помогает скролл в зону видимости
+                        driver.execute_script(
+                            "arguments[0].scrollIntoView(true);", expand_button
+                        )
+                        time.sleep(0.3)
+                        expand_button.click()
+                    time.sleep(0.3)
+                except NoSuchElementException:
+                    # Кнопки "Ещё" нет — пропускаем
+                    pass
+
+                # Получение текста (уже после возможного раскрытия)
+                try:
+                    text = review.find_element(
+                        By.CLASS_NAME, TEXT_ELEMENT
+                    ).text
+                except NoSuchElementException:
+                    text = "[Текст не найден]"
 
                 review_entry = {
                     "review_date": review_date,
