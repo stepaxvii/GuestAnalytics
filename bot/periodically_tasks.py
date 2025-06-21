@@ -40,7 +40,7 @@ async def check_ya_new_reviews_periodically(bot: Bot):
     while True:
         try:
             # Пауза между проверками 1 час
-            await asyncio.sleep(3600)
+            await asyncio.sleep(120) # !!!!!!!!!!!!!!!!
             logger.info("Функция для проверки новых отзывов Яндекс.")
 
             # Получаем данные о ресторанах
@@ -134,7 +134,10 @@ async def check_ya_new_reviews_periodically(bot: Bot):
 
                         # Отправляем сообщение в канал
                         await bot.send_message(
-                            rest_tg_channal, message, reply_markup=keyboard
+                            # rest_tg_channal,
+                            ADMIN_ID,
+                            message,
+                            reply_markup=keyboard
                         )
                         await asyncio.sleep(3)
 

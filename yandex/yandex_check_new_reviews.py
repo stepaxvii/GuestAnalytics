@@ -3,6 +3,7 @@ import time
 
 from selenium.common.exceptions import (
     ElementNotInteractableException,
+    ElementClickInterceptedException,
     NoSuchElementException
 )
 from selenium.webdriver import Firefox, FirefoxOptions
@@ -135,32 +136,25 @@ def ya_check_reviews(org_url):
                     rating_value = 0
 
                 # text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
+                # Попытка раскрыть полный текст отзыва
                 try:
-                    # Попытка найти и нажать кнопку "Ещё"
-                    expand_button = review.find_element(
-                        By.CLASS_NAME, "business-review-view__expand"
-                    )
+                    expand_button = review.find_element(By.CLASS_NAME, "business-review-view__expand")
                     try:
-                        expand_button.click()
-                    except ElementNotInteractableException:
-                        # Иногда помогает скролл в зону видимости
-                        driver.execute_script(
-                            "arguments[0].scrollIntoView(true);", expand_button
-                        )
+                        driver.execute_script("arguments[0].scrollIntoView(true);", expand_button)
                         time.sleep(0.3)
-                        expand_button.click()
-                    time.sleep(0.3)
+                        driver.execute_script("arguments[0].click();", expand_button)  # безопасный клик
+                        time.sleep(0.3)
+                    except (ElementClickInterceptedException, ElementNotInteractableException) as e:
+                        logging.warning(f"Не удалось кликнуть по кнопке 'ещё': {e}")
                 except NoSuchElementException:
-                    # Кнопки "Ещё" нет — пропускаем
-                    pass
+                    pass  # кнопки "ещё" нет
 
-                # Получение текста (уже после возможного раскрытия)
+                # Получаем текст отзыва
                 try:
-                    text = review.find_element(
-                        By.CLASS_NAME, TEXT_ELEMENT
-                    ).text
+                    text = review.find_element(By.CLASS_NAME, TEXT_ELEMENT).text
                 except NoSuchElementException:
                     text = "[Текст не найден]"
+                    logging.warning("Не удалось найти текст отзыва")
 
                 review_entry = {
                     "review_date": review_date,
