@@ -48,6 +48,17 @@ async def send_monthly_report(bot: Bot):
         rest_title = restaurant['title']
         rest_address = restaurant['address']
         rest_tg_channal = restaurant['tg_channal']
+        rest_subscription = restaurant['subscription']
+
+        # Проверяем активность подписки
+        if rest_subscription is False:
+            # Если подписка неактивна - логгируем
+            logger.info(
+                "Подписка для ресторана "
+                f"{rest_title} ({rest_address}) неактивна.\n"
+                "‼️Необходимо продлить подписку."
+            )
+            continue  # Пропускаем проверку отзывов для этого ресторана
 
         dashoard_link = (
             "https://guestanalytics.ru/"
