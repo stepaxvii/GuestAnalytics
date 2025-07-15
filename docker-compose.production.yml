@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   db:
-    container_name: postgres_db
+    container_name: ga_postgres_db
     image: postgres:13.10-alpine
     env_file: .env
     environment:
@@ -10,46 +10,50 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5434:5432"
+      - "5435:5432"
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - ga_pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
-      - backend
+      - ga_backend
 
   flask:
     image: stepaxvii/flask_app:latest
-    container_name: flask_app
+    container_name: ga_flask_app
     ports:
-      - "5000:5000"
+      - "5001:5000"
     env_file:
       - .env
+    environment:
+      DB_HOST: db
     depends_on:
       db:
         condition: service_healthy
-    restart: unless-stopped
     networks:
-      - backend
+      - ga_backend
+    restart: unless-stopped
 
   bot:
     image: stepaxvii/bot_app:latest
-    container_name: bot_app
+    container_name: ga_bot_app
     env_file:
       - .env
+    environment:
+      DB_HOST: db
     depends_on:
       db:
         condition: service_healthy
-    restart: unless-stopped
     networks:
-      - backend
+      - ga_backend
+    restart: unless-stopped
 
 volumes:
-  pg_data:
+  ga_pg_data:
 
 networks:
-  backend:
+  ga_backend:
     driver: bridge
