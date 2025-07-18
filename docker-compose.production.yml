@@ -1,20 +1,19 @@
 services:
-  postgres_db:  # Добавьте этот сервис
+  postgres:
     image: postgres:13.10-alpine
-    container_name: postgres_db
+    container_name: guestanalytics_postgres
     environment:
-      POSTGRES_USER: stepa
-      POSTGRES_PASSWORD: stepaxvii
-      POSTGRES_DB: ga
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5433:5432"
+      - "${DB_EXTERNAL_PORT:-5435}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - guestanalytics_pgdata:/var/lib/postgresql/data
     networks:
-      - guestanalytics_backend
-      - admin_panel_for_notifications_default
+      - guestanalytics_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U stepa -d ga"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -23,15 +22,13 @@ services:
     image: stepaxvii/flask_app:latest
     container_name: ga_flask_app
     ports:
-      - "5001:5000"
+      - "${FLASK_PORT:-5001}:5000"
     env_file:
       - .env
     networks:
-      - guestanalytics_backend
-      - admin_panel_for_notifications_default
-    restart: unless-stopped
+      - guestanalytics_network
     depends_on:
-      postgres_db:
+      postgres:
         condition: service_healthy
 
   bot:
@@ -40,18 +37,14 @@ services:
     env_file:
       - .env
     networks:
-      - guestanalytics_backend
-      - admin_panel_for_notifications_default
-    restart: unless-stopped
+      - guestanalytics_network
     depends_on:
-      postgres_db:
+      postgres:
         condition: service_healthy
 
 networks:
-  guestanalytics_backend:
+  guestanalytics_network:
     driver: bridge
-  admin_panel_for_notifications_default:
-    external: true
 
 volumes:
-  postgres_data:  # Добавьте том для данных PostgreSQL
+  guestanalytics_pgdata:
