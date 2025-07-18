@@ -1,40 +1,31 @@
-version: '3.8'
-
 services:
-  db:
-    image: postgres:latest
-    container_name: postgres_db
+  
+  flask:
+    image: stepaxvii/flask_app:latest
+    container_name: ga_flask_app
+    ports:
+      - "5001:5000"
     env_file:
       - .env
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"
-    restart: unless-stopped
-
-  flask:
-    image: stepaxvii/flask_app:latest
-    container_name: flask_app
-    ports:
-      - "5000:5000"
-    env_file:
-      - .env
-    depends_on:
-      - db
+      DB_HOST: admin_panel_for_notifications-postgres-1
+      DB_PORT: 5432
+    networks:
+      - admin_panel_for_notifications_default
     restart: unless-stopped
 
   bot:
     image: stepaxvii/bot_app:latest
-    container_name: bot_app
+    container_name: ga_bot_app
     env_file:
       - .env
-    depends_on:
-      - db
+    environment:
+      DB_HOST: admin_panel_for_notifications-postgres-1
+      DB_PORT: 5432
+    networks:
+      - admin_panel_for_notifications_default
     restart: unless-stopped
 
-volumes:
-  postgres_data:
+networks:
+  admin_panel_for_notifications_default:
+    external: true

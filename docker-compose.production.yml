@@ -1,26 +1,5 @@
-version: '3.8'
-
 services:
-  db:
-    container_name: ga_postgres_db
-    image: postgres:13.10-alpine
-    env_file: .env
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    ports:
-      - "5433:5432"
-    volumes:
-      - ga_pg_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - ga_backend
-
+  
   flask:
     image: stepaxvii/flask_app:latest
     container_name: ga_flask_app
@@ -29,12 +8,10 @@ services:
     env_file:
       - .env
     environment:
-      DB_HOST: db
-    depends_on:
-      db:
-        condition: service_healthy
+      DB_HOST: admin_panel_for_notifications-postgres-1
+      DB_PORT: 5432
     networks:
-      - ga_backend
+      - admin_panel_for_notifications_default
     restart: unless-stopped
 
   bot:
@@ -43,17 +20,12 @@ services:
     env_file:
       - .env
     environment:
-      DB_HOST: db
-    depends_on:
-      db:
-        condition: service_healthy
+      DB_HOST: admin_panel_for_notifications-postgres-1
+      DB_PORT: 5432
     networks:
-      - ga_backend
+      - admin_panel_for_notifications_default
     restart: unless-stopped
 
-volumes:
-  ga_pg_data:
-
 networks:
-  ga_backend:
-    driver: bridge
+  admin_panel_for_notifications_default:
+    external: true
